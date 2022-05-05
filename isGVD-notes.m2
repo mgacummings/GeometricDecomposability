@@ -1,9 +1,6 @@
 -* QUESTIONS/NOTES *-
 
--- If `R = QQ[x,y,z]`, what type is x? Need this for method declarations. Currently have these all marked with ``??''.
-
 -- Need error catching
-
 -- Feature idea: check for GVD up to substitution?
 
 --------------------------------------------------------------------------------
@@ -22,9 +19,10 @@ loadPackage "Depth"  -* for a CM check in isGVD *-
 -* create a list of weights for the indeterminates in the ring *-
 
 ringWeights = method()
-ringWeights(PolynomialRing, ??) := (R, y) -> (
+ringWeights(RingElement) := y -> (
   -* y will be weighted 10, the rest of the indeterminates will be weighted 0 *-
 
+  R := ring y;  -- I think this should work? Check.
   indets := gens R;
   weights := append( splice{ (#indets-1):0 } , 10);
   switch(index y, -1, weights)
@@ -35,8 +33,9 @@ ringWeights(PolynomialRing, ??) := (R, y) -> (
 -* define a new ring with a subset of the indeterminates *-
 
 contractRing = method()
-contractRing(PolynomialRing, ??) := (R, y) -> (
+contractRing(RingElement) := y -> (
   -* create a new ring which has all the indeterminates of R except y *-
+  R := ring y;  -- I think this should work? Check.
   indets := gens R;
   newIndets := delete(y, indets);
   QQ[newIndets]
@@ -47,13 +46,16 @@ contractRing(PolynomialRing, ??) := (R, y) -> (
 -* check if C_{y, I} \cap (N_{y,I} + \langle y \rangle) = in_y(I) *-
 
 -* NOTES *-
--* Not sure how to use the `sub` method here; R may not be the current ring, so how do we ensure that it is? *-
 -* Possible error: what if I is zero/unit? It shouldn't be. If it's called from the main isGVD code, then we will have already checked this case. But if this function is called directly. Maybe we just have sub(I,R) as well to catch this. *-
+-* check monomial orders here *-
+-* do we need this? Or is it not called? *-
 
 isValidGVD = method()
-isValidGVD(Ideal, Ideal, ??, Ideal) := (C, N, y, I) -> (
+isValidGVD(Ideal, Ideal, RingElement, Ideal) := (C, N, y, I) -> (
+  R := ring I;
   C := sub(C, R);
   N := sub(N, R);
+  I := sub(I, R);
   intersect(C, N + ideal(y)) == ideal leadTerm(1,I)
   )
 
@@ -64,24 +66,22 @@ isValidGVD(Ideal, Ideal, ??, Ideal) := (C, N, y, I) -> (
 -* assuming that this is ok, then here's an implementation *-
 
 isSquareFreeInY = method()
-isSquareFreeInY(Ideal, ??) := (I, y) -> (
-  -* assuming that our ring is, again, R *-
+isSquareFreeInY(Ideal, RingElement) := (I, y) -> (
 
+  R := ring I;
   weights := ringWeights(R, y);
-  R1 := QQ[gens R, MonomialOrder=>{Weights=>weights}, Global=>false];
+  R := QQ[gens R, MonomialOrder=>{Weights=>weights}, Global=>false];
 
-  I := sub(I, R1);
+  I := sub(I, R);
   isSquareFree monomialIdeal leadTerm I
   )
--* ISSUE: we've now changed the ring we're working in; the next computations will be done in R1, not R *-
--* actually, with local assignment now, is that how that works? This is something to check actually in M2 *-
--* would it also work to make the last line of the method `use R;`, or is that going to mean that method returns the wrong thing? *-
 
 -* would still be good to know whether the whole ideal is squarefree? *-
 -* this can be computationally intensive -- leadTerm computes a Gröbner basis when an ideal is passed *-
 
 isIdealSquareFree = method()
 isIdealSquareFree(Ideal) := I -> (
+  R := ring I;
   indets := gens R;
   all(apply(indets, y -> isSquareFreeInY(I, y)))
   )
@@ -95,6 +95,7 @@ isIdealSquareFree(Ideal) := I -> (
 
 isUnmixed = method()
 isUnmixed(Ideal) := I -> (
+  R := ring I;
   I := sub(I, R);
   D := primaryDecomposition I;
   d := apply(D, i -> dim(R/i));
@@ -108,6 +109,7 @@ isUnmixed(Ideal) := I -> (
 
 isGeneratedByIndeterminates = method()
 isGeneratedByIndeterminates(Ideal) := I -> (
+  R := ring I;
   indets := gens R;
   gensI := first entries gens I;
   isSubset(gensI, indets)
@@ -140,7 +142,7 @@ printIf(Boolean, String) := (bool, str) -> (
 -* --> need to decide where unmixedness checks happen *-
 -* --> if it's when we compute C, N, then we need to pass that info to the isGVD function to not check it twice *-
 
-oneGVDStep(Ideal) := I -> (
+oneStepGVD(Ideal) := I -> (
 
   )
 

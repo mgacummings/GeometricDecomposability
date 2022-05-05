@@ -1,2 +1,3 @@
 # GeometricDecomposability
-A Macaulay2 package (in progress) which checks whether ideals are geometrically vertex decomposable.
+A Macaulay2 package (in progress) which checks whether an ideal is 
+geometrically vertex decomposable.
