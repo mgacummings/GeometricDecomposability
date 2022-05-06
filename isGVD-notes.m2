@@ -141,6 +141,9 @@ printIf(Boolean, String) := (bool, str) -> (
 -* --> need to decide where unmixedness checks happen *-
 -* --> if it's when we compute C, N, then we need to pass that info to the isGVD function to not check it twice *-
 
+-- with regards to isGVD, it is better to check to unmixedness here
+-- but for the single step, we don't need C and N to be unmixed
+
 oneStepGVD(Ideal, RingElement) := (I, y) -> (
   R := ring I;
   indets := gens R;
@@ -149,26 +152,66 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   I := sub(I, R);
   inyForm := leadTerm(1,I);
-  gb := gens gb I;
+  G := gens gb I;
 
   squarefree := true;
   gensC := {};
   gensN := {};
 
-  -- for now, append the whole generator, we'll cut down to the actual generators later
-  for g in gb do (
+  for g in first entries G do (
     deg := degree(y, g);
-    if deg >= 2 then squarefree := false else (
+    if deg == 0 then (
       gensC := append(gensC, g);
-      if deg == 0 then gensN := append(gensN, g)
+      gensN := append(gensN, g);
+      ) else (
+      if deg == 1 then (
+        gensC := append(gensC, sub(g, {y=>1}));
+        ) else squarefree := false
       )
     )
 
+  C := ideal(gensC);
+  N := ideal(gensN);
 
-  -- redefine the ring
-  R = (coefficientRing R)[ delete(y, indets) , MonomialOrder=>Lex];
+  -- Klein, Rajchgot. Lemma 2.6.
+  if not squarefree then (
+    print("Warning: Groebner basis not squarefree in " | toString y)
+    return {false, C, N}
+    )
 
+  -- check that the intersection holds
+  validOneStep := ( intersect(C, N + ideal(y)) == ideal leadTerm(1,I) );
 
+  if not validOneStep then (
+    print("Warning: not a valid geometric vertex decomposition")
+    return {false, C, N}
+    )
+
+  -- check unmixedness of both C and N
+  isUnmixedC := isUnmixed C;
+  isUnmixedN := isUnmixed N;
+
+  -- issue with unmixedness check is here: technically we don't need it for the one step, but it is good to know for the whole isGVD
+  if not (isUnmixedC or isUnmixedN) then (
+    print("Warning: neither C nor N are unmixed")
+    return {false, C, N}
+    ) else (
+      if not isUnmixedC then (
+        print("Warning: C is not unmixed")
+        return {false, C, N}
+        )
+      if not isUnmixedN then (
+        print("Warning: N is not unmixed")
+        return {false, C, N}
+        )
+      )
+
+  -- redefine the ring and substitute C, N into the new ring
+  R = (coefficientRing R)[ delete(y, indets) , MonomialOrder=>Lex];  -- notice this ring is defined globally
+  C := sub(C, R);
+  N := sub(N, R);
+
+  return {true, C, N}
   )
 
 --------------------------------------------------------------------------------
