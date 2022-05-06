@@ -30,13 +30,12 @@ ringWeights(RingElement) := y -> (
 
 --------------------------------------------------------------------------------
 
--* define a new ring with a subset of the indeterminates *-
+-* define a new ring with a subset of the indeterminates, removing y *-
 
 contractRing = method()
 contractRing(RingElement) := y -> (
   -* create a new ring which has all the indeterminates of R except y *-
-  R := ring y;
-  indets := gens R;
+  indets := gens ring y;
   newIndets := delete(y, indets);
   QQ[newIndets]
   )
@@ -77,7 +76,7 @@ isSquareFreeInY(Ideal, RingElement) := (I, y) -> (
   )
 
 -* would still be good to know whether the whole ideal is squarefree? *-
--* this can be computationally intensive -- leadTerm computes a Gröbner basis *-
+-* this can be computationally intensive; leadTerm computes a Gröbner basis *-
 
 isIdealSquareFree = method()
 isIdealSquareFree(Ideal) := I -> (
@@ -186,7 +185,7 @@ isGVD(Ideal) := I -> (
 
   for y in (gens R) do (
 
-    
+
 
 
     )
