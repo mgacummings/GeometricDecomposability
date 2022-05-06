@@ -22,7 +22,7 @@ ringWeights = method()
 ringWeights(RingElement) := y -> (
   -* y will be weighted 10, the rest of the indeterminates will be weighted 0 *-
 
-  R := ring y;  -- I think this should work? Check.
+  R := ring y;
   indets := gens R;
   weights := append( splice{ (#indets-1):0 } , 10);
   switch(index y, -1, weights)
@@ -35,7 +35,7 @@ ringWeights(RingElement) := y -> (
 contractRing = method()
 contractRing(RingElement) := y -> (
   -* create a new ring which has all the indeterminates of R except y *-
-  R := ring y;  -- I think this should work? Check.
+  R := ring y;
   indets := gens R;
   newIndets := delete(y, indets);
   QQ[newIndets]
@@ -62,7 +62,7 @@ isValidGVD(Ideal, Ideal, RingElement, Ideal) := (C, N, y, I) -> (
 --------------------------------------------------------------------------------
 
 -* check if ideal is squarefree ~~with an option to check only~~ with respect to one indeterminate *-
--* there's already `isSquareFree` , but it only works for monomial ideals. I think it would suffice to: set the custom weighting with y weighted 10, everything else 0, then run isSquareFree on the initial ideal. Is that equivalent? *-
+-* there's already `isSquareFree`, but it only works for monomial ideals. I think it would suffice to: set the custom weighting with y weighted 10, everything else 0, then run isSquareFree on the initial ideal. Is that equivalent? *-
 -* assuming that this is ok, then here's an implementation *-
 
 isSquareFreeInY = method()
@@ -77,7 +77,7 @@ isSquareFreeInY(Ideal, RingElement) := (I, y) -> (
   )
 
 -* would still be good to know whether the whole ideal is squarefree? *-
--* this can be computationally intensive -- leadTerm computes a Gröbner basis when an ideal is passed *-
+-* this can be computationally intensive -- leadTerm computes a Gröbner basis *-
 
 isIdealSquareFree = method()
 isIdealSquareFree(Ideal) := I -> (
@@ -142,7 +142,33 @@ printIf(Boolean, String) := (bool, str) -> (
 -* --> need to decide where unmixedness checks happen *-
 -* --> if it's when we compute C, N, then we need to pass that info to the isGVD function to not check it twice *-
 
-oneStepGVD(Ideal) := I -> (
+oneStepGVD(Ideal, RingElement) := (I, y) -> (
+  R := ring I;
+  indets := gens R;
+  indets := switch(0, index y, indets);
+  R := QQ[indets, MonomialOrder=>Lex];
+
+  I := sub(I, R);
+  inyForm := leadTerm(1,I);
+  gb := gens gb I;
+
+  squarefree := true;
+  gensC := {};
+  gensN := {};
+
+  -- for now, append the whole generator, we'll cut down to the actual generators later
+  for g in gb do (
+    deg := degree(y, g);
+    if deg >= 2 then squarefree := false else (
+      gensC := append(gensC, g);
+      if deg == 0 then gensN := append(gensN, g)
+      )
+    )
+
+
+  -- redefine the ring
+  R = (coefficientRing R)[ delete(y, indets) , MonomialOrder=>Lex];
+
 
   )
 
@@ -160,7 +186,7 @@ isGVD(Ideal) := I -> (
 
   for y in (gens R) do (
 
-
+    
 
 
     )
