@@ -3,7 +3,7 @@
 newPackage(
   "GeometricVertexDecomposition",
   Version => "0.1",
-  Date => "April 6, 2022",
+  Date => "April 9, 2022",
   Headline => "A package to check whether ideals are geometrically vertex decomposable",
   Authors => {
     {
@@ -36,7 +36,7 @@ export {  -- list of functions which will be visible to the user
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-isUnmixed = method()
+isUnmixed = method(TypicalValue => Boolean)
 isUnmixed(Ideal) := I -> (
   R := ring I;
   D := primaryDecomposition I;
@@ -46,7 +46,7 @@ isUnmixed(Ideal) := I -> (
 
 --------------------------------------------------------------------------------
 
-isGeneratedByIndeterminates = method()
+isGeneratedByIndeterminates = method(TypicalValue => Boolean)
 isGeneratedByIndeterminates(Ideal) := I -> (
   R := ring I;
   indets := gens R;
@@ -56,6 +56,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 
 --------------------------------------------------------------------------------
 
+oneStepGVD = method(TypicalValue => List)
 oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   -- set up the ring
@@ -81,7 +82,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       ) else (
       if deg == 1 then (
         gensC := append(gensC, sub(g, {y=>1}));
-        ) else squarefree := false  -- GB not squarefree in y
+        ) else squarefree := false;  -- GB not squarefree in y
       )
     )
 
@@ -90,16 +91,16 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   -- Klein, Rajchgot. Lemma 2.6.
   if not squarefree then (
-    print("Warning: Groebner basis not squarefree in " | toString y)
-    return {false, C, N}
+    print("Warning: Groebner basis not squarefree in " | toString y);
+    return {false, C, N};
     )
 
   -- check that the intersection holds
   validOneStep := ( intersect(C, N + ideal(y)) == inyForm );
 
   if not validOneStep then (
-    print("Warning: not a valid geometric vertex decomposition")
-    return {false, C, N}
+    print("Warning: not a valid geometric vertex decomposition");
+    return {false, C, N};
     )
 
   -- check unmixedness of both C and N
@@ -107,16 +108,16 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   isUnmixedN := isUnmixed N;
 
   if not (isUnmixedC or isUnmixedN) then (
-    print("Warning: neither C nor N are unmixed")
-    return {false, C, N}
+    print("Warning: neither C nor N are unmixed");
+    return {false, C, N};
     ) else (
       if not isUnmixedC then (
-        print("Warning: C is not unmixed")
-        return {false, C, N}
+        print("Warning: C is not unmixed");
+        return {false, C, N};
         )
       if not isUnmixedN then (
-        print("Warning: N is not unmixed")
-        return {false, C, N}
+        print("Warning: N is not unmixed");
+        return {false, C, N};
         )
       )
 
@@ -125,20 +126,20 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   C := sub(C, R);
   N := sub(N, R);
 
-  return {true, C, N}
+  return {true, C, N};
   )
 
 --------------------------------------------------------------------------------
 
-isGVD = method()
+isGVD = method(TypicalValue => Boolean)
 isGVD(Ideal) := I -> (
 
-  if I == 0 or I == 1 or (isGeneratedByIndeterminates I) then return true
-  if not (isUnmixed I) then return false
+  if I == 0 or I == 1 or (isGeneratedByIndeterminates I) then return true;
+  if not (isUnmixed I) then return false;
 
   -- original code doesn't run this check every time; set up an option for that
   -- Corollary 4.5, Klein and Rajchgot
-  if (isHomogeneous I) and not isCM(R/I) then return false
+  if (isHomogeneous I) and not isCM(R/I) then return false;
 
   -- brute force check of all orders
   for y in (gens R) do (
@@ -150,11 +151,11 @@ isGVD(Ideal) := I -> (
     CisGVD := isGVD C;
     NisGVD := isGVD N;
 
-    return (CisGVD and NisGVD)
+    return (CisGVD and NisGVD);
     )
 
   -- if we are here, no indeterminate worked
-  return false
+  return false;
   )
 
 --------------------------------------------------------------------------------
@@ -189,4 +190,4 @@ beginDocumentation()
 
 
 
-end--
+end
