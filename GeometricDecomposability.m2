@@ -52,7 +52,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
   if I == 0 then return true;
   if I == 1 then return false;
 
-  -- for the nontrivial cases look at the generators
+  -- look at the generators for the nontrivial cases
   R := ring I;
   indets := gens R;
   gensI := first entries gens I;
@@ -71,7 +71,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   R := QQ[indets, MonomialOrder=>Lex];
   I := sub(I, R);
 
-  -- get initial y-form and Gröbner basis
+  -- get the ideal of initial y-form and a Gröbner basis
   inyForm := ideal leadTerm(1,I);
   G := gens gb I;
 
