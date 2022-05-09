@@ -18,7 +18,7 @@ newPackage(
   }
   Keywords => {"Algebraic Geometry"},  -- keywords from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
     PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? Hence PackageImports and not PackageExports
-  HomePage => ""  -- homepage for the package, if one exists, otherwise remove
+  HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank or remove
   )
 
 export {  -- list of functions which will be visible to the user
@@ -88,8 +88,8 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       if deg == 1 then (
         gensC := append(gensC, sub(g, {y=>1}));
         ) else squarefree := false;  -- GB not squarefree in y
-      );
-    );
+      )
+    )
 
   C := ideal(gensC);
   N := ideal(gensN);
@@ -98,7 +98,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   if not squarefree then (
     print("Warning: Groebner basis not squarefree in " | toString y);
     return {false, C, N};
-    );
+    )
 
   -- check that the intersection holds
   validOneStep := ( intersect(C, N + ideal(y)) == inyForm );
@@ -106,7 +106,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   if not validOneStep then (
     print("Warning: not a valid geometric vertex decomposition");
     return {false, C, N};
-    );
+    )
 
   -- check unmixedness of both C and N
   isUnmixedC := isUnmixed C;
@@ -123,16 +123,26 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       if not isUnmixedN then (
         print("Warning: N is not unmixed");
         return {false, C, N};
-        );
-      );
+        )
+      )
 
   -- redefine the ring and substitute C, N into the new ring
-  --R = (coefficientRing R)[ delete(y, indeterminates) ];  -- notice this ring is defined globally
+  R = (coefficientRing R)[ delete(y, indeterminates) ];  -- notice this ring is defined globally
   C := sub(C, R);
   N := sub(N, R);
 
   return {true, C, N};
   );
+
+--------------------------------------------------------------------------------
+
+CyI = method(TypicalValue => Ideal)
+CyI(Ideal) := I -> oneStepGVD(I)_1;
+
+----------------------------------------
+
+NyI = method(TypicalValue => Ideal)
+NyI(Ideal) := I -> oneStepGVD(I)_2;
 
 --------------------------------------------------------------------------------
 
