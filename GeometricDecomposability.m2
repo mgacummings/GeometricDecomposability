@@ -16,7 +16,7 @@ newPackage(
     HomePage => "https://ms.mcmaster.ca/~vantuyl/"
     }
   }
-  Keywords => {"Algebraic Geometry"},  --keywords from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
+  Keywords => {"Algebraic Geometry"},  -- keywords from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
   PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? Hence PackageImports and not PackageExports
   HomePage => ""  -- homepage for the package, if one exists, otherwise remove
   )
@@ -48,6 +48,11 @@ isUnmixed(Ideal) := I -> (
 
 isGeneratedByIndeterminates = method(TypicalValue => Boolean)
 isGeneratedByIndeterminates(Ideal) := I -> (
+  -- handle trivial cases
+  if I == 0 then return true;
+  if I == 1 then return false;
+
+  -- for the nontrivial cases look at the generators
   R := ring I;
   indets := gens R;
   gensI := first entries gens I;
@@ -188,6 +193,151 @@ beginDocumentation()
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+--------------------------------------------------------------------------------
+-- Test isUnmixed
+--------------------------------------------------------------------------------
+
+Test///
+///
+
+--------------------------------------------------------------------------------
+-- Test isGeneratedByIndeterminates
+--------------------------------------------------------------------------------
+
+Test///
+R = QQ[x,y,z]
+I = ideal(x,y)
+assert(isGeneratedByIndeterminates == true)
+///
+
+
+Test///
+R = QQ[x_1..x_5]
+I = ideal(x_1*x_2-x_3*x_4)
+assert(isGeneratedByIndeterminates == false)
+///
+
+
+Test///
+R = QQ[a..d]
+I = ideal 0
+assert(isGeneratedByIndeterminates == true)
+///
+
+
+Test///
+R = QQ[a..d]
+I = ideal 1
+assert(isGeneratedByIndeterminates == false)
+///
+
+--------------------------------------------------------------------------------
+-- Test oneStepGVD
+--------------------------------------------------------------------------------
+
+Test///
+///
+
+--------------------------------------------------------------------------------
+-- Test isGVD
+--------------------------------------------------------------------------------
+
+Test///  -- [KR, Example 2.16]
+R = QQ[x,y,z,w,r,s]
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
+assert(isGVD I == true)
+///
+
+
+TEST///  -- Toric ideal of the complete bipartite graph K_{5,3}; GVD by a result from [CDRV]
+loadPackage "Quasidegrees"
+R = QQ[e_1..e_15]
+A = matrix{
+  {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+  {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0},
+  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+  {0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0},
+  {0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+  {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}
+}
+I = toricIdeal(A, R)
+assert(isGVD I == true)
+///
+
+
+TEST///  -- Toric ideal of the graph constructed by connecting two triangles by a bridge of length 2
+loadPackage "Quasidegrees"
+R = QQ[e_1..e_8]
+A = matrix{
+  {1, 0, 1, 0, 0, 0, 0, 0},
+  {0, 1, 0, 0, 0, 1, 0, 0},
+  {0, 0, 0, 1, 0, 0, 1, 0},
+  {1, 0, 0, 0, 1, 0, 0, 0},
+  {0, 1, 0, 0, 0, 0, 0, 1},
+  {0, 0, 1, 1, 1, 0, 0, 0},
+  {0, 0, 0, 0, 0, 1, 1, 1}
+}
+I = toricIdeal(A, R)
+assert(isGVD I == false)
+///
+
+
+TEST///  -- Hessenberg patch ideal corresponding to the $w_0$ chart and Hessenberg function h=(2,3,4,5,6,6), GVD by a result from [DH]
+R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51]
+A = matrix{
+  {x_11, x_12, x_13, x_14, x_15, 1},
+  {x_21, x_22, x_23, x_24, 1, 0},
+  {x_31, x_32, x_33, 1, 0, 0},
+  {x_41, x_42, 1, 0, 0, 0},
+  {x_51, 1, 0, 0, 0, 0},
+  {1, 0, 0, 0, 0, 0}
+}
+N = matrix{
+  {0, 1, 0, 0, 0, 0},
+  {0, 0, 1, 0, 0, 0},
+  {0, 0, 0, 1, 0, 0},
+  {0, 0, 0, 0, 1, 0},
+  {0 ,0, 0, 0, 0, 1},
+  {0, 0, 0, 0, 0, 0}
+}
+X = inverse(A) * N * A
+I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) )
+assert(isGVD I == true)
+///
+
+
+TEST///  -- not GVD, w = (2,1,4,3), h = (2,3,4,4)
+R = QQ[x_11, x_31..x_33, x_41, x_42]
+A = matrix{
+  {x_11, 1, 0, 0},
+  {1, 0, 0, 0},
+  {x_31, x_32, x_33, 1},
+  {x_41, x_42, 1, 0}
+}
+N = matrix{
+  {0, 1, 0, 0},
+  {0, 0, 1, 0},
+  {0, 0, 0, 1},
+  {0, 0, 0, 0}
+}
+X = inverse(A) * N * A
+I = ideal(X_(2,0), X_(3,0), X_(3,1))
+assert(isGVD I == false)
+///
 
 
 end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--
+-- REFERENCES
+--
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- [CDRV] Michael Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl. Toric Ideals of Graphs and Geometric Vertex Decomposition. In Preparation.
+-- [DH] Sergio Da Silva and Megumi Harada. Regular Nilpotent Hessenberg Varieties, Gröbner Bases, and Toric Degenerations. In preparation.
+-- [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition and Liaison. 2021.
