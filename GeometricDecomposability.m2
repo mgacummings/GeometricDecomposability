@@ -1,7 +1,7 @@
 -- -*- coding: utf-8 -*-
 
 newPackage(
-  "GeometricVertexDecomposition",
+  "GeometricDecomposability",
   Version => "0.1",
   Date => "April 9, 2022",
   Headline => "A package to check whether ideals are geometrically vertex decomposable",
