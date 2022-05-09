@@ -219,14 +219,20 @@ isGVD(Ideal) := I -> (
   -- Corollary 4.5, Klein and Rajchgot
   if (isHomogeneous I) and not isCM(R/I) then return false
 
+  -- brute force check of all orders
   for y in (gens R) do (
 
+    oneStep := oneStepGVD(I, y);
+    isValid := oneStep_0;
+    if not isValid then continue;  -- go back to top of for loop
 
+    CisGVD := isGVD C;
+    NisGVD := isGVD N;
 
-
+    return (CisGVD and NisGVD)
     )
 
-  -* if we are here, no indeterminate worked; return false *-
+  -- if we are here, no indeterminate worked; return false
   return false
   )
 
