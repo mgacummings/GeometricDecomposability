@@ -17,7 +17,7 @@ newPackage(
     }
   }
   Keywords => {"Algebraic Geometry"},  -- keywords from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
-  PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? Hence PackageImports and not PackageExports
+    PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? Hence PackageImports and not PackageExports
   HomePage => ""  -- homepage for the package, if one exists, otherwise remove
   )
 
@@ -41,7 +41,7 @@ isUnmixed(Ideal) := I -> (
   R := ring I;
   D := primaryDecomposition I;
   d := apply(D, i -> dim(R/i));
-  all(apply(d, i -> (i == d_0)), true)  -- list only contains true values
+  all(apply(d, i -> (i == d_0)), i -> i)  -- list only contains true values
   )
 
 --------------------------------------------------------------------------------
@@ -54,9 +54,9 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 
   -- look at the generators for the nontrivial cases
   R := ring I;
-  indets := gens R;
+  indeterminates := gens R;
   gensI := first entries gens I;
-  isSubset(gensI, indets)
+  isSubset(gensI, indeterminates)
   )
 
 --------------------------------------------------------------------------------
@@ -66,9 +66,9 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   -- set up the ring
   R := ring I;
-  indets := gens R;
-  indets := switch(0, index y, indets);
-  R := QQ[indets, MonomialOrder=>Lex];
+  indeterminates := gens R;
+  indeterminates := switch(0, index y, indeterminates);
+  R := QQ[indeterminates, MonomialOrder=>Lex];
   I := sub(I, R);
 
   -- get the ideal of initial y-form and a Gröbner basis
@@ -88,8 +88,8 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       if deg == 1 then (
         gensC := append(gensC, sub(g, {y=>1}));
         ) else squarefree := false;  -- GB not squarefree in y
-      )
-    )
+      );
+    );
 
   C := ideal(gensC);
   N := ideal(gensN);
@@ -98,7 +98,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   if not squarefree then (
     print("Warning: Groebner basis not squarefree in " | toString y);
     return {false, C, N};
-    )
+    );
 
   -- check that the intersection holds
   validOneStep := ( intersect(C, N + ideal(y)) == inyForm );
@@ -106,7 +106,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   if not validOneStep then (
     print("Warning: not a valid geometric vertex decomposition");
     return {false, C, N};
-    )
+    );
 
   -- check unmixedness of both C and N
   isUnmixedC := isUnmixed C;
@@ -119,20 +119,20 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       if not isUnmixedC then (
         print("Warning: C is not unmixed");
         return {false, C, N};
-        )
+        );
       if not isUnmixedN then (
         print("Warning: N is not unmixed");
         return {false, C, N};
-        )
-      )
+        );
+      );
 
   -- redefine the ring and substitute C, N into the new ring
-  R = (coefficientRing R)[ delete(y, indets) ];  -- notice this ring is defined globally
+  --R = (coefficientRing R)[ delete(y, indeterminates) ];  -- notice this ring is defined globally
   C := sub(C, R);
   N := sub(N, R);
 
   return {true, C, N};
-  )
+  );
 
 --------------------------------------------------------------------------------
 
@@ -153,10 +153,13 @@ isGVD(Ideal) := I -> (
     isValid := oneStep_0;
     if not isValid then continue;  -- go back to top of for loop
 
+    C := oneStep_1;
+    N := oneStep_2;
+
     CisGVD := isGVD C;
     NisGVD := isGVD N;
 
-    return (CisGVD and NisGVD);
+    if (CisGVD and NisGVD) then return true;
     )
 
   -- if we are here, no indeterminate worked
