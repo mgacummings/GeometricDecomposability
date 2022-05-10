@@ -137,24 +137,29 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 --------------------------------------------------------------------------------
 
 CyI = method(TypicalValue => Ideal)
-CyI(Ideal) := I -> oneStepGVD(I)_1;
+CyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_1;
 
 ----------------------------------------
 
 NyI = method(TypicalValue => Ideal)
-NyI(Ideal) := I -> oneStepGVD(I)_2;
+NyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_2;
 
 --------------------------------------------------------------------------------
 
 isGVD = method(TypicalValue => Boolean)
-isGVD(Ideal) := I -> (
+isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
 
   if I == 0 or I == 1 or (isGeneratedByIndeterminates I) then return true;
   if not (isUnmixed I) then return false;
 
-  -- original code doesn't run this check every time; set up an option for that
-  -- Corollary 4.5, Klein and Rajchgot
-  if (isHomogeneous I) and not isCM(R/I) then return false;
+  -- Corollary 4.5, Klein and Rajchgot: homogeneous and not Cohen-Macaulay implies not GVD
+  if (checkCM == "once" or checkCM == "always") then (
+    if (not homogeneous) then homogeneous := isHomogeneous I;
+    if homogeneous then (
+      if (not isCM(R/I)) then return false;
+      )
+      if checkCM == "once" then checkCM = "never";
+    )
 
   -- brute force check of all orders
   for y in (gens R) do (
@@ -166,8 +171,8 @@ isGVD(Ideal) := I -> (
     C := oneStep_1;
     N := oneStep_2;
 
-    CisGVD := isGVD C;
-    NisGVD := isGVD N;
+    CisGVD := isGVD(C, checkCM=>checkCM, homogeneous=>homogeneous);
+    NisGVD := isGVD(N, checkCM=>checkCM, homogeneous=>homogeneous);
 
     if (CisGVD and NisGVD) then return true;
     )
@@ -190,13 +195,83 @@ beginDocumentation()
 -- Documentation for package
 --******************************************************************************
 
+doc///
+    Key
+        GeometricDecomposability
 
+    Headline
+        A package to check whether ideals are geometrically vertex decomposable
+
+    Description
+        Text
+
+            This package includes routines to check whether an ideal is
+            geometrically vertex decomposable. The notion of geometric vertex
+            decomposability can be considered as a generalization of the
+            properties of the Stanley-Reisner ideal of a vertex decomposable
+            simplicial complex.
+
+            References:
+
+            [CDRV] Michael Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van
+            Tuyl. Toric Ideals of Graphs and Geometric Vertex Decomposition. In
+            Preparation.
+
+            [DH] Sergio Da Silva and Megumi Harada. Regular Nilpotent Hessenberg
+            Varieties, Gröbner Bases, and Toric Degenerations. In preparation.
+
+            [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry
+            of vertex decompositions and of flagged tableaux. J. Reine Angew. Math.,
+            630:1--31, 2009.
+
+            [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition
+            and Liaison. Forum of Math, Sigma, 9(70), 2021.
+///
 
 --******************************************************************************
 -- Documentation for functions
 --******************************************************************************
 
+doc///
+    Key
+        isUnmixed
+        (isUnmixed, Ideal)
+///
 
+
+doc///
+    Key
+        isGeneratedByIndeterminates
+        (isGeneratedByIndeterminates, Ideal)
+///
+
+
+doc///
+    Key
+        oneStepGVD
+        (oneStepGVD, Ideal, RingElement)
+///
+
+
+doc///
+    Key
+        CyI
+        (CyI, Ideal, RingElement)
+///
+
+
+doc///
+    Key
+        NyI
+        (NyI, Ideal, RingElement)
+///
+
+
+doc///
+    Key
+        isGVD
+        (isGVD, Ideal)
+///
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
