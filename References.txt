@@ -6,4 +6,4 @@ Preparation.
 Varieties, Gröbner Bases, and Toric Degenerations. In preparation.
 
 [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition 
-and Liaison. 2021.
+and Liaison. Forum of Math, Sigma, 9(70), 2021.
