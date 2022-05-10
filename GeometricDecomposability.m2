@@ -127,7 +127,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       )
 
   -- redefine the ring and substitute C, N into the new ring
-  R = (coefficientRing R)[ delete(y, indeterminates) ]; 
+  R = (coefficientRing R)[ delete(y, indeterminates) ];
   C := sub(C, R);
   N := sub(N, R);
 
@@ -217,28 +217,28 @@ Test///
 -- Test isGeneratedByIndeterminates
 --------------------------------------------------------------------------------
 
-Test///
+TEST///
 R = QQ[x,y,z]
 I = ideal(x,y)
 assert(isGeneratedByIndeterminates == true)
 ///
 
 
-Test///
+TEST///
 R = QQ[x_1..x_5]
 I = ideal(x_1*x_2-x_3*x_4)
 assert(isGeneratedByIndeterminates == false)
 ///
 
 
-Test///
+TEST///
 R = QQ[a..d]
 I = ideal 0
 assert(isGeneratedByIndeterminates == true)
 ///
 
 
-Test///
+TEST///
 R = QQ[a..d]
 I = ideal 1
 assert(isGeneratedByIndeterminates == false)
@@ -248,14 +248,14 @@ assert(isGeneratedByIndeterminates == false)
 -- Test oneStepGVD
 --------------------------------------------------------------------------------
 
-Test///
+TEST///
 ///
 
 --------------------------------------------------------------------------------
 -- Test isGVD
 --------------------------------------------------------------------------------
 
-Test///  -- [KR, Example 2.16]
+TEST///  -- [KR, Example 2.16]
 R = QQ[x,y,z,w,r,s]
 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
 assert(isGVD I == true)
@@ -342,15 +342,3 @@ assert(isGVD I == false)
 
 
 end
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
---
--- REFERENCES
---
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
--- [CDRV] Michael Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl. Toric Ideals of Graphs and Geometric Vertex Decomposition. In Preparation.
--- [DH] Sergio Da Silva and Megumi Harada. Regular Nilpotent Hessenberg Varieties, Gröbner Bases, and Toric Degenerations. In preparation.
--- [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition and Liaison. 2021.
