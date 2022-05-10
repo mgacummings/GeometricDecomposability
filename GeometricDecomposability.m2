@@ -161,7 +161,7 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
       if checkCM == "once" then checkCM = "never";
     )
 
-  -- brute force check of all orders
+  -- check all options for y until one works
   for y in (gens R) do (
 
     oneStep := oneStepGVD(I, y);
@@ -177,7 +177,7 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
     if (CisGVD and NisGVD) then return true;
     )
 
-  -- if we are here, no indeterminate worked
+  -- if we are here, no choice of y worked
   return false;
   )
 
