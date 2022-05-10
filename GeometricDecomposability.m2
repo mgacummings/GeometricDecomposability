@@ -127,7 +127,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       )
 
   -- redefine the ring and substitute C, N into the new ring
-  R = (coefficientRing R)[ delete(y, indeterminates) ];  -- notice this ring is defined globally
+  R = (coefficientRing R)[ delete(y, indeterminates) ]; 
   C := sub(C, R);
   N := sub(N, R);
 
