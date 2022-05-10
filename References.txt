@@ -1,0 +1,9 @@
+[CDRV] Michael Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van 
+Tuyl. Toric Ideals of Graphs and Geometric Vertex Decomposition. In 
+Preparation.
+
+[DH] Sergio Da Silva and Megumi Harada. Regular Nilpotent Hessenberg 
+Varieties, Gröbner Bases, and Toric Degenerations. In preparation.
+
+[KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition 
+and Liaison. 2021.
