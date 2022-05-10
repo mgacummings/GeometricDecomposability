@@ -84,10 +84,11 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
     if deg == 0 then (
       gensC := append(gensC, g);
       gensN := append(gensN, g);
-      ) else (
-      if deg == 1 then (
-        gensC := append(gensC, sub(g, {y=>1}));
-        ) else squarefree := false;  -- GB not squarefree in y
+      )
+      else (
+        if deg == 1 then (
+          gensC := append(gensC, sub(g, {y=>1}));
+          ) else squarefree := false;  -- GB not squarefree in y
       )
     )
 
@@ -115,16 +116,17 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   if not (isUnmixedC or isUnmixedN) then (
     print("Warning: neither C nor N are unmixed");
     return {false, C, N};
-    ) else (
-      if not isUnmixedC then (
-        print("Warning: C is not unmixed");
-        return {false, C, N};
-        );
-      if not isUnmixedN then (
-        print("Warning: N is not unmixed");
-        return {false, C, N};
-        )
+    )
+  else (
+    if not isUnmixedC then (
+      print("Warning: C is not unmixed");
+      return {false, C, N};
+      );
+    if not isUnmixedN then (
+      print("Warning: N is not unmixed");
+      return {false, C, N};
       )
+    )
 
   -- redefine the ring and substitute C, N into the new ring
   R = (coefficientRing R)[ delete(y, indeterminates) ];
@@ -158,8 +160,8 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
     if homogeneous then (
       if (not isCM(R/I)) then return false;
       )
-      if checkCM == "once" then checkCM = "never";
     )
+  if checkCM == "once" then checkCM := "never";
 
   -- check all options for y until one works
   for y in (gens R) do (
