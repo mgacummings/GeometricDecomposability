@@ -62,75 +62,62 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 --------------------------------------------------------------------------------
 
 oneStepGVD = method(TypicalValue => List)
-oneStepGVD(Ideal, RingElement) := (I, y) -> (
+oneStepGVD(Ideal, RingElement) := (J, z) -> (
 
   -- set up the ring
-  R := ring I;
-  indeterminates := switch(0, index y, gens R);
+  indeterminates := switch(0, index z, gens ring J);
   R := QQ[indeterminates, MonomialOrder=>Lex];
-  J := sub(I, R);
+  I := sub(J, R);
+  y := sub(z, R);
 
   -- get the ideal of initial y-form and a Gröbner basis
-  inyForm := ideal leadTerm(1,J);
-  G := gens gb J;
+  inyForm := ideal leadTerm(1,I);
+  G := first entries gens gb I;
 
-  squarefree := true;  -- we only care about the GB being squarefree in y
-  gensC := {};
-  gensN := {};
+  gensN := delete(0, apply(G, g -> isInN(g, y)));
+  gensC := apply(G, g -> isInC(g, y));
+  squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
 
-  for g in (first entries G) do (
-    deg := degree(y, g);
-    if deg == 0 then (
-      gensC := append(gensC, g);
-      gensN := append(gensN, g);
-      )
-      else (
-        if deg == 1 then (
-          gensC := append(gensC, sub(g, {y=>1}));
-          ) else squarefree := false;  -- GB not squarefree in y
-      )
-    );
-
-  C := ideal(gensC);
-  N := ideal(gensN);
+  CyI := ideal(gensC);
+  NyI := ideal(gensN);
 
   -- [KR, Lemma 2.6]
   if not squarefree then (
-    print("Warning: Groebner basis not squarefree in " | toString y);
-    return {false, C, N};
+    print("Warning: Gröbner basis not squarefree in " | toString y);
+    return {false, CyI, NyI};
     );
 
   -- check that the intersection holds
-  validOneStep := ( intersect(C, N + ideal(y)) == inyForm );
+  validOneStep := ( intersect(CyI, NyI + ideal(y)) == inyForm );
 
   if not validOneStep then (
     print("Warning: not a valid geometric vertex decomposition");
-    return {false, C, N};
+    return {false, CyI, NyI};
     );
 
-  -- check unmixedness of both C and N
-  isUnmixedC := isUnmixed C;
-  isUnmixedN := isUnmixed N;
+  -- check unmixedness of both CyI and NyI
+  isUnmixedC := isUnmixed CyI;
+  isUnmixedN := isUnmixed NyI;
 
   if not (isUnmixedC or isUnmixedN) then (
-    print("Warning: neither C nor N are unmixed");
-    return {false, C, N};
+    print("Warning: neither CyI nor NyI are unmixed");
+    return {false, CyI, NyI};
     )
   else (
     if not isUnmixedC then (
-      print("Warning: C is not unmixed");
-      return {false, C, N};
+      print("Warning: CyI is not unmixed");
+      return {false, CyI, NyI};
       );
     if not isUnmixedN then (
-      print("Warning: N is not unmixed");
-      return {false, C, N};
+      print("Warning: NyI is not unmixed");
+      return {false, CyI, NyI};
       )
     );
 
-  -- redefine the ring and substitute C, N into the new ring
+  -- redefine the ring and substitute CyI, NyI into the new ring
   R = (coefficientRing R)[ delete(y, indeterminates) ];
-  C := sub(C, R);
-  N := sub(N, R);
+  C := sub(CyI, R);
+  N := sub(NyI, R);
 
   return {true, C, N};
   );
@@ -182,6 +169,32 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
 
   -- if we are here, no choice of y worked
   return false;
+  )
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+--** FUNCTIONS (HIDDEN FROM USER)
+
+isInN = method()
+isinN(RingElement, RingElement) := (f, y) -> (
+  -- f is a polynomial, y an indeterminate
+  if degree(y, f) == 0 then return f else return 0;  -- 0 is a temp value which we remove immediately, used as opposed to null
+  )
+
+isInC = method()
+isInC(RingElement, RingElement) := (f, y) -> (
+  -- f is a polynomial, y an indeterminate
+  if degree(y, f) == 0 then return f;
+  if degree(y, f) == 1 then return getQ(f, y) else return false;  -- returns false if not squarefree
+  )
+
+getQ = method()
+getQ(RingElement, RingElement) := (f, y) -> (
+  -- f is of the form yq+r, return q
+  r := sub(f, y=>0);
+  yq := f - r;
+  return sub(yq, y=>1);
   )
 
 --------------------------------------------------------------------------------
@@ -419,4 +432,21 @@ assert(isGVD I == false)
 ///
 
 
-end
+end--
+
+OUTDATED CODE
+
+from oneStepGVD
+
+for g in (first entries G) do (
+  deg := degree(y, g);
+  if deg == 0 then (
+    gensC := append(gensC, g);
+    gensN := append(gensN, g);
+    )
+    else (
+      if deg == 1 then (
+        gensC := append(gensC, sub(g, {y=>1}));
+        ) else squarefree := false;  -- GB not squarefree in y
+    )
+  );
