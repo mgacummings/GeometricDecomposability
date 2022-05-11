@@ -66,14 +66,13 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   -- set up the ring
   R := ring I;
-  indeterminates := gens R;
-  indeterminates := switch(0, index y, indeterminates);
+  indeterminates := switch(0, index y, gens R);
   R := QQ[indeterminates, MonomialOrder=>Lex];
-  I := sub(I, R);
+  J := sub(I, R);
 
   -- get the ideal of initial y-form and a Gröbner basis
-  inyForm := ideal leadTerm(1,I);
-  G := gens gb I;
+  inyForm := ideal leadTerm(1,J);
+  G := gens gb J;
 
   squarefree := true;  -- we only care about the GB being squarefree in y
   gensC := {};
@@ -90,16 +89,16 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
           gensC := append(gensC, sub(g, {y=>1}));
           ) else squarefree := false;  -- GB not squarefree in y
       )
-    )
+    );
 
   C := ideal(gensC);
   N := ideal(gensN);
 
-  -- Klein, Rajchgot. Lemma 2.6.
+  -- [KR, Lemma 2.6]
   if not squarefree then (
     print("Warning: Groebner basis not squarefree in " | toString y);
     return {false, C, N};
-    )
+    );
 
   -- check that the intersection holds
   validOneStep := ( intersect(C, N + ideal(y)) == inyForm );
@@ -107,7 +106,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
   if not validOneStep then (
     print("Warning: not a valid geometric vertex decomposition");
     return {false, C, N};
-    )
+    );
 
   -- check unmixedness of both C and N
   isUnmixedC := isUnmixed C;
@@ -126,7 +125,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
       print("Warning: N is not unmixed");
       return {false, C, N};
       )
-    )
+    );
 
   -- redefine the ring and substitute C, N into the new ring
   R = (coefficientRing R)[ delete(y, indeterminates) ];
@@ -151,6 +150,8 @@ NyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_2;
 isGVD = method(TypicalValue => Boolean)
 isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
 
+  print I;  --remove this later?
+
   if I == 0 or I == 1 or (isGeneratedByIndeterminates I) then return true;
   if not (isUnmixed I) then return false;
 
@@ -160,7 +161,7 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
     if homogeneous then (
       if (not isCM(R/I)) then return false;
       )
-    )
+    );
   if checkCM == "once" then checkCM := "never";
 
   -- check all options for y until one works
@@ -177,7 +178,7 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
     NisGVD := isGVD(N, checkCM=>checkCM, homogeneous=>homogeneous);
 
     if (CisGVD and NisGVD) then return true;
-    )
+    );
 
   -- if we are here, no choice of y worked
   return false;
