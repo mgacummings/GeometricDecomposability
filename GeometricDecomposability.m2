@@ -90,7 +90,7 @@ oneStepGVD(Ideal, RingElement) := (J, z) -> (
     );
 
   -- check that the intersection holds
-  validOneStep := ( intersect(CyI, NyI + ideal(y)) == inyForm );
+  validOneStep := ( intersect( sub(CyI, R), sub(NyI, R) + ideal(y) ) == inyForm );
 
   if not validOneStep then (
     print("Warning: not a valid geometric vertex decomposition");
