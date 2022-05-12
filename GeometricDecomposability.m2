@@ -77,11 +77,11 @@ oneStepGVD(Ideal, RingElement) := (J, z) -> (
   G := first entries gens gb I;
 
   gensN := delete(0, apply(G, g -> isInN(g, y)));
-  gensC := apply(G, g -> isInC(g, y));
-  squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
-
-  CyI := ideal(gensC);
   NyI := ideal(gensN);
+
+  gensC := delete(true, flatten(apply(G, g -> isInC(g, y))));
+  squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
+  CyI := ideal(delete(false, gensC));
 
   -- [KR, Lemma 2.6]
   if not squarefree then (
@@ -129,7 +129,7 @@ oneStepGVD(Ideal, RingElement) := (J, z) -> (
 CyI = method(TypicalValue => Ideal)
 CyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_1;
 
-----------------------------------------
+--------------------------------------------------------------------------------
 
 NyI = method(TypicalValue => Ideal)
 NyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_2;
@@ -179,24 +179,25 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
 --** FUNCTIONS (HIDDEN FROM USER)
 
 isInN = method()
-isinN(RingElement, RingElement) := (f, y) -> (
+isInN(RingElement, RingElement) := (f, y) -> (
   -- f is a polynomial, y an indeterminate
   if degree(y, f) == 0 then return f else return 0;  -- 0 is a temp value which we remove immediately, used as opposed to null
   )
 
-isInC = method()
+isInC = method(TypicalValue => List)
 isInC(RingElement, RingElement) := (f, y) -> (
   -- f is a polynomial, y an indeterminate
-  if degree(y, f) == 0 then return f;
-  if degree(y, f) == 1 then return getQ(f, y) else return false;  -- returns false if not squarefree
+  if degree(y, f) == 0 then return {true, f};
+  if degree(y, f) == 1 then return {true, getQ(f, y)};
+  return {false, getQ(f, y)};
   )
 
-getQ = method()
+getQ = method(TypicalValue => RingElement)
 getQ(RingElement, RingElement) := (f, y) -> (
-  -- f is of the form yq+r, return q
+  -- f is of the form q*y^d+r, return q
   r := sub(f, y=>0);
-  yq := f - r;
-  return sub(yq, y=>1);
+  qy := f - r;
+  return sub(qy, y=>1);
   )
 
 --------------------------------------------------------------------------------
