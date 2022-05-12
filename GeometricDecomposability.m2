@@ -25,7 +25,9 @@ export {  -- list of functions which will be visible to the user
   isUnmixed,
   isGeneratedByIndeterminates,
   oneStepGVD,
-  isGVD
+  isGVD,
+  CyI,
+  NyI
   };
 
 --------------------------------------------------------------------------------
