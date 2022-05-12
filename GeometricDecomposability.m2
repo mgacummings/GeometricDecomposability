@@ -138,7 +138,7 @@ NyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_2;
 
 isGVD = method(TypicalValue => Boolean)
 isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
-
+  R := ring I;
   print I;  --remove this later?
 
   if I == 0 or I == 1 or (isGeneratedByIndeterminates I) then return true;
