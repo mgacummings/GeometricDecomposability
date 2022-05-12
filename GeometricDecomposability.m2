@@ -127,12 +127,12 @@ oneStepGVD(Ideal, RingElement) := (J, z) -> (
 --------------------------------------------------------------------------------
 
 CyI = method(TypicalValue => Ideal)
-CyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_1;
+CyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_1;
 
 --------------------------------------------------------------------------------
 
 NyI = method(TypicalValue => Ideal)
-NyI(Ideal, RingElement) := (I, y) -> oneStepGVD(I, y)_2;
+NyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_2;
 
 --------------------------------------------------------------------------------
 
