@@ -144,7 +144,7 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
   if I == 0 or I == 1 or (isGeneratedByIndeterminates I) then return true;
   if not (isUnmixed I) then return false;
 
-  -- Corollary 4.5, Klein and Rajchgot: homogeneous and not Cohen-Macaulay implies not GVD
+  -- [KR, Corollary 4.5]: homogeneous and not Cohen-Macaulay implies not GVD
   if (checkCM == "once" or checkCM == "always") then (
     if (not homogeneous) then homogeneous := isHomogeneous I;
     if homogeneous then (
