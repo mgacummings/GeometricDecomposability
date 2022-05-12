@@ -43,7 +43,7 @@ isUnmixed(Ideal) := I -> (
   R := ring I;
   D := primaryDecomposition I;
   d := apply(D, i -> dim(R/i));
-  all(apply(d, i -> (i == d_0)), i -> i)  -- list only contains true values
+  return all(apply(d, i -> (i == d_0)), i -> i);  -- list only contains true values
   )
 
 --------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
   R := ring I;
   indeterminates := gens R;
   gensI := first entries gens I;
-  isSubset(gensI, indeterminates)
+  return isSubset(gensI, indeterminates);
   )
 
 --------------------------------------------------------------------------------
