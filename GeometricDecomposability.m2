@@ -15,19 +15,19 @@ newPackage(
     Email => "vantuyl@math.mcmaster.ca",
     HomePage => "https://ms.mcmaster.ca/~vantuyl/"
     }
-  }
+  },
   Keywords => {"Algebraic Geometry"},  -- keywords from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
     PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? Hence PackageImports and not PackageExports
   HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank or remove
   )
 
 export {  -- list of functions which will be visible to the user
-  isUnmixed,
-  isGeneratedByIndeterminates,
-  oneStepGVD,
-  isGVD,
-  CyI,
-  NyI
+  "isUnmixed",
+  "isGeneratedByIndeterminates",
+  "oneStepGVD",
+  "isGVD",
+  "CyI",
+  "NyI"
   };
 
 --------------------------------------------------------------------------------
@@ -146,12 +146,12 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
 
   -- [KR, Corollary 4.5]: homogeneous and not Cohen-Macaulay implies not GVD
   if (checkCM == "once" or checkCM == "always") then (
-    if (not homogeneous) then homogeneous := isHomogeneous I;
+    if (not homogeneous) then homogeneous := isHomogeneous I;  -- issue with self-reference
     if homogeneous then (
       if (not isCM(R/I)) then return false;
       )
     );
-  if checkCM == "once" then checkCM := "never";
+  if checkCM == "once" then checkCM := "never";  -- issue with self-reference?
 
   -- check all options for y until one works
   for y in (gens R) do (
