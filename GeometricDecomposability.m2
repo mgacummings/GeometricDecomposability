@@ -21,13 +21,18 @@ newPackage(
   HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank or remove
   )
 
-export {  -- list of functions which will be visible to the user
+export {
+  -- functions
   "isUnmixed",
   "isGeneratedByIndeterminates",
   "oneStepGVD",
   "isGVD",
   "CyI",
-  "NyI"
+  "NyI",
+
+  -- options
+  "CheckCM",
+  "Homogeneous"
   };
 
 --------------------------------------------------------------------------------
@@ -68,7 +73,7 @@ oneStepGVD(Ideal, RingElement) := (J, z) -> (
 
   -- set up the ring
   indeterminates := switch(0, index z, gens ring J);
-  R := QQ[indeterminates, MonomialOrder=>Lex];
+  R := QQ[indeterminates, MonomialOrder=>{Weights=>switch(0, index z, ringWeights z)}];
   I := sub(J, R);
   y := sub(z, R);
 
@@ -98,8 +103,8 @@ oneStepGVD(Ideal, RingElement) := (J, z) -> (
     );
 
   -- check unmixedness of both CyI and NyI
-  isUnmixedC := isUnmixed CyI;
-  isUnmixedN := isUnmixed NyI;
+  isUnmixedC := isUnmixed sub(CyI, R);
+  isUnmixedN := isUnmixed sub(NyI, R);
 
   if not (isUnmixedC or isUnmixedN) then (
     print("Warning: neither CyI nor NyI are unmixed");
@@ -136,8 +141,8 @@ NyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_2;
 
 --------------------------------------------------------------------------------
 
-isGVD = method(TypicalValue => Boolean)
-isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
+isGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", Homogeneous => false})
+isGVD(Ideal) := opts -> I -> (
   R := ring I;
   print I;  --remove this later?
 
@@ -145,13 +150,13 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
   if not (isUnmixed I) then return false;
 
   -- [KR, Corollary 4.5]: homogeneous and not Cohen-Macaulay implies not GVD
-  if (checkCM == "once" or checkCM == "always") then (
-    if (not homogeneous) then homogeneous := isHomogeneous I;  -- issue with self-reference
+  if (opts.CheckCM == "once" or opts.CheckCM == "always") then (
+    if opts.Homogeneous then (homogeneous := true) else (homogeneous := isHomogeneous I);  -- issue with self-reference
     if homogeneous then (
       if (not isCM(R/I)) then return false;
       )
     );
-  if checkCM == "once" then checkCM := "never";  -- issue with self-reference?
+  if opts.CheckCM == "once" then checkCM := "never" else checkCM := opts.CheckCM;  -- issue with self-reference?
 
   -- check all options for y until one works
   for y in (gens R) do (
@@ -163,8 +168,8 @@ isGVD(Ideal, String, Boolean) := (I, checkCM, homogeneous) -> (
     C := oneStep_1;
     N := oneStep_2;
 
-    CisGVD := isGVD(C, checkCM=>checkCM, homogeneous=>homogeneous);
-    NisGVD := isGVD(N, checkCM=>checkCM, homogeneous=>homogeneous);
+    CisGVD := isGVD(C, CheckCM=>checkCM, Homogeneous=>homogeneous);
+    NisGVD := isGVD(N, CheckCM=>checkCM, Homogeneous=>homogeneous);
 
     if (CisGVD and NisGVD) then return true;
     );
@@ -198,6 +203,16 @@ getQ(RingElement, RingElement) := (f, y) -> (
   r := sub(f, y=>0);
   qy := f - r;
   return sub(qy, y=>1);
+  )
+
+ringWeights = method(TypicalValue => List)
+ringWeights(RingElement) := y -> (
+  -* y will be weighted 10, the rest of the indeterminates will be weighted 0 *-
+
+  R := ring y;
+  indets := gens R;
+  weights := append( splice{ (#indets-1):0 } , 10);
+  switch(index y, -1, weights)
   )
 
 --------------------------------------------------------------------------------
@@ -285,18 +300,30 @@ doc///
         (NyI, Ideal, RingElement)
 ///
 
-
 doc///
     Key
         isGVD
         (isGVD, Ideal)
+        [isGVD, CheckCM]
+        [isGVD, Homogeneous]
+    Usage
+        isGVD I
+    Inputs
+        I:Ideal
+        CheckCM:String
+            whether to check that the ideal is GVD using the result of [KR, Corollary 4.5] "once" (default, only for the ideal given in the input and none of the following C, N ideals), "always", or "never"
+        Homogeneous:Boolean
+            if the given ideal is homogeneous, if known. If not, it is checked if the Cohen-Macaulay check runs
 ///
+
+undocumented { "CheckCM", "Homogeneous" }
+
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --
 -- TESTS
---
+-- ** note we are missing some functions
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -304,8 +331,8 @@ doc///
 -- Test isUnmixed
 --------------------------------------------------------------------------------
 
-Test///
-///
+--TEST///
+--///
 
 --------------------------------------------------------------------------------
 -- Test isGeneratedByIndeterminates
@@ -342,8 +369,8 @@ assert(isGeneratedByIndeterminates == false)
 -- Test oneStepGVD
 --------------------------------------------------------------------------------
 
-TEST///
-///
+--TEST///
+--///
 
 --------------------------------------------------------------------------------
 -- Test isGVD
