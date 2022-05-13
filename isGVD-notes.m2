@@ -12,7 +12,6 @@ loadPackage "Depth"  -* for a CM check in isGVD *-
 --------------------------------------------------------------------------------
 
 -* create a list of weights for the indeterminates in the ring *-
--- I don't think we need this
 
 ringWeights = method()
 ringWeights(RingElement) := y -> (
