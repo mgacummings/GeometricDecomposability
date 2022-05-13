@@ -151,12 +151,12 @@ isGVD(Ideal) := opts -> I -> (
 
   -- [KR, Corollary 4.5]: homogeneous and not Cohen-Macaulay implies not GVD
   if (opts.CheckCM == "once" or opts.CheckCM == "always") then (
-    if opts.Homogeneous then (homogeneous := true) else (homogeneous := isHomogeneous I);  -- issue with self-reference
+    if opts.Homogeneous then (homogeneous = true) else (homogeneous = isHomogeneous I);
     if homogeneous then (
       if (not isCM(R/I)) then return false;
       )
     );
-  if opts.CheckCM == "once" then checkCM := "never" else checkCM := opts.CheckCM;  -- issue with self-reference?
+  if opts.CheckCM == "once" then checkCM = "never" else checkCM = opts.CheckCM;
 
   -- check all options for y until one works
   for y in (gens R) do (
