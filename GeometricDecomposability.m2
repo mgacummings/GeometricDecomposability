@@ -165,7 +165,7 @@ isGVD(Ideal) := opts -> I -> (
   -- check all options for y until one works
   for y in (gens R) do (
 
-    printIf(opts.ShowOutput, "-- decomposing wrt " | toString y);
+    printIf(opts.ShowOutput, "-- decomposing with respect to " | toString y);
 
     oneStep := oneStepGVD(I, y);
     isValid := oneStep_0;
