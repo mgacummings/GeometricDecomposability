@@ -561,24 +561,7 @@ N = matrix{
 X = inverse(A) * N * A
 I = ideal(X_(2,0), X_(3,0), X_(3,1))
 assert(isGVD I == false)
-///
+///  -- NOTE: this may be weakly GVD. (At least, according to the code; will need to check by hand to confirm)
 
 
 end--
-
-OUTDATED CODE
-
-from oneStepGVD
-
-for g in (first entries G) do (
-  deg := degree(y, g);
-  if deg == 0 then (
-    gensC := append(gensC, g);
-    gensN := append(gensN, g);
-    )
-    else (
-      if deg == 1 then (
-        gensC := append(gensC, sub(g, {y=>1}));
-        ) else squarefree := false;  -- GB not squarefree in y
-    )
-  );
