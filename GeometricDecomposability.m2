@@ -33,7 +33,7 @@ export {
   -- options
   "ShowOutput",
   "CheckCM",
-  "Homogeneous"
+  "isIdealHomogeneous"
   };
 
 --------------------------------------------------------------------------------
@@ -74,13 +74,14 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   -- set up the ring
   indeterminates := switch(0, index y, gens ring I);
-  R := QQ[indeterminates, MonomialOrder=>{Weights=>switch(0, index y, ringWeights y)}];
+  --R := QQ[indeterminates, MonomialOrder=>{Weights=>switch(0, index y, ringWeights y)}];
+  R := QQ[indeterminates, MonomialOrder=>ProductOrder{1, #(gens R) - 1}];
   I = sub(I, R);
   y = sub(y, R);
 
   -- get the ideal of initial y-form and a Gröbner basis
-  inyForm := ideal leadTerm(1,I);
-  G := first entries gens gb I;
+  inyForm := ideal leadTerm(1,I);  -- use product order for this, then pull into lex
+  G := first entries gens gb I;  -- use lex for this
 
   gensN := delete(0, apply(G, g -> isInN(g, y)));
   NyI := ideal(gensN);
@@ -142,7 +143,7 @@ NyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_2;
 
 --------------------------------------------------------------------------------
 
-isGVD = method(TypicalValue => Boolean, Options => {ShowOutput => true, CheckCM => "once", Homogeneous => false})
+isGVD = method(TypicalValue => Boolean, Options => {ShowOutput => true, CheckCM => "once", isIdealHomogeneous => false})
 isGVD(Ideal) := opts -> I -> (
   R := ring I;
   printIf(opts.ShowOutput, toString I);  --remove this later?
@@ -153,17 +154,19 @@ isGVD(Ideal) := opts -> I -> (
 
   if not (isUnmixed I) then (printIf(opts.ShowOutput, "-- ideal is not unmixed"); return false);
 
-  -- [KR, Corollary 4.5]: homogeneous and not Cohen-Macaulay implies not GVD
-  if (opts.CheckCM == "once" or opts.CheckCM == "always") then (
-    if opts.Homogeneous then (homogeneous = true) else (homogeneous = isHomogeneous I);
-    if homogeneous then (
-      if (not isCM(R/I)) then return false;
-      )
+  x := opts.isIdealHomogeneous or isHomogeneous(I);
+  if opts.CheckCM == "once" or opts.CheckCM == "always" then (
+    if x then (if (not isCM(R/I)) then return false;);
     );
-  if opts.CheckCM == "once" then checkCM = "never" else checkCM = opts.CheckCM;
+
+  CMTable := new HashTable from {
+    "always" => "always",
+    "once" => "never",
+    "never" => "never"
+    };
 
   -- check all options for y until one works
-  for y in (gens R) do (
+  for y in (support I) do (
 
     printIf(opts.ShowOutput, "-- decomposing with respect to " | toString y);
 
@@ -177,8 +180,8 @@ isGVD(Ideal) := opts -> I -> (
     printIf(opts.ShowOutput, "-- C = " | toString C);
     printIf(opts.ShowOutput, "-- N = " | toString N);
 
-    CisGVD := isGVD(C, ShowOutput=>opts.ShowOutput, CheckCM=>checkCM, Homogeneous=>homogeneous);
-    NisGVD := isGVD(N, ShowOutput=>opts.ShowOutput, CheckCM=>checkCM, Homogeneous=>homogeneous);
+    CisGVD := isGVD(C, ShowOutput=>opts.ShowOutput, CheckCM=>CMTable#(opts.CheckCM), isIdealHomogeneous=>x);
+    NisGVD := isGVD(N, ShowOutput=>opts.ShowOutput, CheckCM=>CMTable#(opts.CheckCM), isIdealHomogeneous=>x);
 
     if (CisGVD and NisGVD) then return true;
     );
@@ -324,7 +327,7 @@ doc///
         (isGVD, Ideal)
         [isGVD, ShowOutput]
         [isGVD, CheckCM]
-        [isGVD, Homogeneous]
+        [isGVD, isIdealHomogeneous]
     Usage
         isGVD I
     Inputs
@@ -333,11 +336,11 @@ doc///
             if output should be printed or suppressed, default value: true
         CheckCM:String
             whether to check that the ideal is GVD using the result of [KR, Corollary 4.5] "once" (default, only for the ideal given in the input and none of the following C, N ideals), "always", or "never"
-        Homogeneous:Boolean
+        isIdealHomogeneous:Boolean
             if the given ideal is homogeneous, if known. If not, it is checked if the Cohen-Macaulay check runs
 ///
 
-undocumented { "ShowOutput", "CheckCM", "Homogeneous" }
+undocumented { "ShowOutput", "CheckCM", "isIdealHomogeneous" }
 
 
 --------------------------------------------------------------------------------
