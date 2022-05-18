@@ -74,14 +74,22 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
 
   -- set up the ring
   indeterminates := switch(0, index y, gens ring I);
-  --R := QQ[indeterminates, MonomialOrder=>{Weights=>switch(0, index y, ringWeights y)}];
-  R := QQ[indeterminates, MonomialOrder=>ProductOrder{1, #(gens R) - 1}];
+  cr := coefficientRing ring I;
+
+  -- first get the ideal of initial y-forms, using the product order
+  -- not sure which of the following two lines we wanted
+  --S := cr[indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}];
+  S := cr[ drop(indeterminates, {index y, index y}) ][y];
+  I = sub(I, S);
+  y = sub(y, S);
+  inyFormS := ideal leadTerm(1,I);  -- use product order for this, then pull into lex
+
+  -- pull everything into a ring using lex, which we use for the rest of the computations
+  R := cr[indeterminates, MonomialOrder=>Lex];
   I = sub(I, R);
   y = sub(y, R);
-
-  -- get the ideal of initial y-form and a Gröbner basis
-  inyForm := ideal leadTerm(1,I);  -- use product order for this, then pull into lex
-  G := first entries gens gb I;  -- use lex for this
+  inyForm := sub(inyFormS, R);
+  G := first entries gens gb I;
 
   gensN := delete(0, apply(G, g -> isInN(g, y)));
   NyI := ideal(gensN);
@@ -124,7 +132,7 @@ oneStepGVD(Ideal, RingElement) := (I, y) -> (
     );
 
   -- redefine the ring and substitute CyI, NyI into the new ring
-  R = (coefficientRing R)[ drop(indeterminates, {index y, index y}) ];
+  R = cr[ drop(indeterminates, {index y, index y}) ];
   C := sub(CyI, R);
   N := sub(NyI, R);
 
