@@ -186,6 +186,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
   -- not sure which of the following two lines we wanted
   S := cr[indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}];
   --S := cr[ drop(indeterminates, {index y, index y}) ][y];
+  --S := cr[indeterminates, MonomialOrder=>{Weights=>{10, (#indeterminates - 1):0}}, Global=>false];
   I = sub(I, S);
   y = sub(y, S);
   inyFormS := ideal leadTerm(1,I);  -- use product order for this, then pull into lex
@@ -443,7 +444,7 @@ undocumented { "CheckDegenerate", "ShowOutput", "CheckCM", "isIdealHomogeneous" 
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
--- Test CyI
+-- Test CyI  --** note to self: just re-use the test cases from oneStepGVD
 --------------------------------------------------------------------------------
 
 --TEST///
@@ -488,6 +489,13 @@ TEST///  -- [KR, Example 2.16]
 R = QQ[x,y,z,w,r,s]
 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
 assert(isGVD I == true)
+///
+
+
+TEST///  -- [KR, Example 4.10]
+R = QQ[x,y,z,w,r,s]
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + s^2 + z^2 + w*r))
+assert(isGVD I == false)
 ///
 
 
@@ -607,11 +615,14 @@ assert(isUnmixed I == true)
 -- Test isWeaklyGVD
 --------------------------------------------------------------------------------
 
---TEST///
---///
+TEST///  -- [KR, Example 4.10]
+R = QQ[x,y,z,w,r,s]
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r))
+assert(isWeaklyGVD I == true)
+///
 
 --------------------------------------------------------------------------------
--- Test NyI
+-- Test NyI  --** note to self: just re-use the test cases from oneStepGVD
 --------------------------------------------------------------------------------
 
 --TEST///
@@ -626,5 +637,14 @@ R = QQ[x..z,w,r,s]
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) )
 assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate"} )
 ///
+
+
+TEST///  -- [KR, Example 4.10]
+R = QQ[x..z,w,r,s]
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) )
+assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(2*z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x^2*w*r,w*r*s^2,z^2*w*r,w^2*r^2), "nondegenerate"} )
+///
+
+-- maybe an issue with the N ideal being found here
 
 end--
