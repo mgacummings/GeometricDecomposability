@@ -11,3 +11,7 @@ of vertex decompositions and of flagged tableaux. J. Reine Angew. Math.,
 
 [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition
 and Liaison. Forum of Math, Sigma, 9(70), 2021.
+
+[SM] Saremi, H., Mafi, A. Unmixedness and arithmetic properties of matroidal
+ideals. Arch. Math. 114, 299–304 (2020).
+https://doi.org/10.1007/s00013-019-01402-w
