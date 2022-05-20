@@ -171,8 +171,8 @@ isLexGVD(Ideal, List) := opts -> (I, indetOrder) -> (
   printIf(opts.ShowOutput, "-- C = " | toString C);
   printIf(opts.ShowOutput, "-- N = " | toString N);
 
-  CisGVD := isGVD(C, ShowOutput=>opts.ShowOutput, CheckCM=>CMTable#(opts.CheckCM), isIdealHomogeneous=>x);
-  NisGVD := isGVD(N, ShowOutput=>opts.ShowOutput, CheckCM=>CMTable#(opts.CheckCM), isIdealHomogeneous=>x);
+  CisGVD := isLexGVD(C, remainingOrder, ShowOutput=>opts.ShowOutput, CheckCM=>CMTable#(opts.CheckCM), isIdealHomogeneous=>x);
+  NisGVD := isLexGVD(N, remainingOrder, ShowOutput=>opts.ShowOutput, CheckCM=>CMTable#(opts.CheckCM), isIdealHomogeneous=>x);
 
   return (CisGVD and NisGVD);
   )
