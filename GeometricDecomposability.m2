@@ -555,30 +555,30 @@ undocumented { "CheckDegenerate", "ShowOutput", "CheckCM", "isIdealHomogeneous" 
 --------------------------------------------------------------------------------
 
 TEST///
-R = QQ[x,y,z]
-I = ideal(x,y)
-assert(isGeneratedByIndeterminates I == true)
+R = QQ[x,y,z];
+I = ideal(x,y);
+assert(isGeneratedByIndeterminates I)
 ///
 
 
 TEST///
-R = QQ[x_1..x_5]
-I = ideal(x_1*x_2-x_3*x_4)
-assert(isGeneratedByIndeterminates I == false)
+R = QQ[x_1..x_5];
+I = ideal(x_1*x_2-x_3*x_4);
+assert(not isGeneratedByIndeterminates I)
 ///
 
 
 TEST///
-R = QQ[a..d]
-I = ideal 0
-assert(isGeneratedByIndeterminates I == true)
+R = QQ[a..d];
+I = ideal 0;
+assert(isGeneratedByIndeterminates I)
 ///
 
 
 TEST///
-R = QQ[a..d]
-I = ideal 1
-assert(isGeneratedByIndeterminates I == false)
+R = QQ[a..d];
+I = ideal 1;
+assert(not isGeneratedByIndeterminates I)
 ///
 
 --------------------------------------------------------------------------------
@@ -586,22 +586,22 @@ assert(isGeneratedByIndeterminates I == false)
 --------------------------------------------------------------------------------
 
 TEST///  -- [KR, Example 2.16]
-R = QQ[x,y,z,w,r,s]
-I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
-assert(isGVD(I, ShowOutput=>false) == true)
+R = QQ[x,y,z,w,r,s];
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2));
+assert(isGVD(I, ShowOutput=>false))
 ///
 
 
 TEST///  -- [KR, Example 4.10]
-R = QQ[x,y,z,w,r,s]
-I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + s^2 + z^2 + w*r))
-assert(isGVD(I, ShowOutput=>false) == false)
+R = QQ[x,y,z,w,r,s];
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + s^2 + z^2 + w*r));
+assert(not isGVD(I, ShowOutput=>false))
 ///
 
 
 TEST///  -- Toric ideal of the complete bipartite graph K_{5,3}; GVD by a result from [CDRV]
-loadPackage "Quasidegrees"
-R = QQ[e_1..e_15]
+loadPackage "Quasidegrees";
+R = QQ[e_1..e_15];
 A = matrix{
   {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0},
   {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0},
@@ -611,15 +611,15 @@ A = matrix{
   {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}
-}
-I = toricIdeal(A, R)
-assert(isGVD(I, ShowOutput=>false) == true)
+};
+I = toricIdeal(A, R);
+assert(isGVD(I, ShowOutput=>false))
 ///
 
 
 TEST///  -- Toric ideal of the graph constructed by connecting two triangles by a bridge of length 2
-loadPackage "Quasidegrees"
-R = QQ[e_1..e_8]
+loadPackage "Quasidegrees";
+R = QQ[e_1..e_8];
 A = matrix{
   {1, 0, 1, 0, 0, 0, 0, 0},
   {0, 1, 0, 0, 0, 1, 0, 0},
@@ -628,14 +628,14 @@ A = matrix{
   {0, 1, 0, 0, 0, 0, 0, 1},
   {0, 0, 1, 1, 1, 0, 0, 0},
   {0, 0, 0, 0, 0, 1, 1, 1}
-}
-I = toricIdeal(A, R)
-assert(isGVD(I, ShowOutput=>false) == false)
+};
+I = toricIdeal(A, R);
+assert(not isGVD(I, ShowOutput=>false))
 ///
 
 
 TEST///  -- Hessenberg patch ideal corresponding to the $w_0$ chart and Hessenberg function h=(2,3,4,5,6,6), GVD by a result from [DH]
-R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51]
+R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51];
 A = matrix{
   {x_11, x_12, x_13, x_14, x_15, 1},
   {x_21, x_22, x_23, x_24, 1, 0},
@@ -643,7 +643,7 @@ A = matrix{
   {x_41, x_42, 1, 0, 0, 0},
   {x_51, 1, 0, 0, 0, 0},
   {1, 0, 0, 0, 0, 0}
-}
+};
 N = matrix{
   {0, 1, 0, 0, 0, 0},
   {0, 0, 1, 0, 0, 0},
@@ -651,30 +651,30 @@ N = matrix{
   {0, 0, 0, 0, 1, 0},
   {0 ,0, 0, 0, 0, 1},
   {0, 0, 0, 0, 0, 0}
-}
-X = inverse(A) * N * A
-I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) )
-assert(isGVD(I, ShowOutput=>false) == true)
+};
+X = inverse(A) * N * A;
+I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) );
+assert(isGVD(I, ShowOutput=>false))
 ///
 
 
 TEST///  -- not GVD, w = (2,1,4,3), h = (2,3,4,4)
-R = QQ[x_11, x_31..x_33, x_41, x_42]
+R = QQ[x_11, x_31..x_33, x_41, x_42];
 A = matrix{
   {x_11, 1, 0, 0},
   {1, 0, 0, 0},
   {x_31, x_32, x_33, 1},
   {x_41, x_42, 1, 0}
-}
+};
 N = matrix{
   {0, 1, 0, 0},
   {0, 0, 1, 0},
   {0, 0, 0, 1},
   {0, 0, 0, 0}
-}
-X = inverse(A) * N * A
-I = ideal(X_(2,0), X_(3,0), X_(3,1))
-assert(isGVD(I, ShowOutput=>false) == false)
+};
+X = inverse(A) * N * A;
+I = ideal(X_(2,0), X_(3,0), X_(3,1));
+assert(not isGVD(I, ShowOutput=>false))
 ///  -- NOTE: this may be weakly GVD. (At least, according to the code; will need to check by hand to confirm)
 
 --------------------------------------------------------------------------------
@@ -689,13 +689,13 @@ assert(isGVD(I, ShowOutput=>false) == false)
 --------------------------------------------------------------------------------
 
 TEST///  -- Not unmixed by [SM, Example 1.6]
-R = QQ[x_1..x_5]
-I = ideal(x_1*x_3, x_1*x_4, x_1*x_5, x_2*x_3, x_2*x_4, x_2*x_5)
-assert(isUnmixed I == false)
+R = QQ[x_1..x_5];
+I = ideal(x_1*x_3, x_1*x_4, x_1*x_5, x_2*x_3, x_2*x_4, x_2*x_5);
+assert(not isUnmixed I)
 ///
 
 TEST///  -- Unmixed by [DH]
-R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51]
+R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51];
 A = matrix{
   {x_11, x_12, x_13, x_14, x_15, 1},
   {x_21, x_22, x_23, x_24, 1, 0},
@@ -703,7 +703,7 @@ A = matrix{
   {x_41, x_42, 1, 0, 0, 0},
   {x_51, 1, 0, 0, 0, 0},
   {1, 0, 0, 0, 0, 0}
-}
+};
 N = matrix{
   {0, 1, 0, 0, 0, 0},
   {0, 0, 1, 0, 0, 0},
@@ -711,10 +711,10 @@ N = matrix{
   {0, 0, 0, 0, 1, 0},
   {0 ,0, 0, 0, 0, 1},
   {0, 0, 0, 0, 0, 0}
-}
-X = inverse(A) * N * A
-I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) )
-assert(isUnmixed I == true)
+};
+X = inverse(A) * N * A;
+I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) );
+assert(isUnmixed I)
 ///
 
 --------------------------------------------------------------------------------
@@ -722,9 +722,9 @@ assert(isUnmixed I == true)
 --------------------------------------------------------------------------------
 
 TEST///  -- [KR, Example 4.10]
-R = QQ[x,y,z,w,r,s]
-I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r))
-assert(isWeaklyGVD I == true)
+R = QQ[x,y,z,w,r,s];
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r));
+assert(isWeaklyGVD(I, ShowOutput=>false))
 ///
 
 --------------------------------------------------------------------------------
@@ -739,27 +739,16 @@ assert(isWeaklyGVD I == true)
 --------------------------------------------------------------------------------
 
 TEST///  -- [KR, Example 2.16]
-R = QQ[x..z,w,r,s]
-I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) )
+R = QQ[x..z,w,r,s];
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
 assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate"} )
 ///
 
 
 TEST///  -- [KR, Example 4.10]
-R = QQ[x..z,w,r,s]
-I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) )
+R = QQ[x..z,w,r,s];
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
 assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate"} )
 ///
 
 end--
-
---------------------------------------------------------------------------------
--- IN PROGRESS FUNCTIONS
---------------------------------------------------------------------------------
-
-
-
-
-
-
---------------------------------------------------------------------------------
