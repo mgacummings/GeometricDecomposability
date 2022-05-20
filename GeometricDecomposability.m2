@@ -16,7 +16,7 @@ newPackage(
     HomePage => "https://ms.mcmaster.ca/~vantuyl/"
     }
   },
-  Keywords => {"Algebraic Geometry"},  -- keywords from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
+  Keywords => {"Algebraic Geometry", "Commutative Algebra"},  -- keyword(s) from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
     PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? Hence PackageImports and not PackageExports
   HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank or remove
   )
@@ -175,11 +175,61 @@ NyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_2;
 --------------------------------------------------------------------------------
 
 -- [KMY, Theorem 2.1]
+
+--oneStepGVD = method(TypicalValue => List, Options => {CheckDegenerate => false})
+--oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
+--
+--  -- set up the ring
+--  indeterminates := switch(0, index y, gens ring y);
+--  cr := coefficientRing ring I;
+--
+--  -- first get the ideal of initial y-forms, using the product order
+--  S := cr[indeterminates, MonomialOrder=>{1, #indeterminates - 1}];
+--  I = sub(I, S);
+--  y = sub(y, S);
+--  inyFormS := ideal leadTerm(1,I);
+--
+--  -- pull everthing into a ring using lex, which we use for the rest of the computations
+--  R := cr[indeterminates, MonomialOrder=>Lex];
+--  I = sub(I, R);
+--  y = sub(y, R);
+--  inyForm := sub(inyFormS, R);
+--  G := first entries gens gb I;
+--
+--
+--  gensN := delete(0, apply(G, g -> isInN(g, y)));
+--  NyI := ideal(gensN);
+--
+--  gensC := delete(true, flatten(apply(G, g -> isInC(g, y))));
+--  squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
+--  CyI := ideal(delete(false, gensC));
+--
+--  -- stuff skipped
+--
+--  --print("-- C = " | toString CyI);
+--  --print("-- N = " | toString NyI);
+--  --print("-- inyI = " | toString inyForm);
+--
+--  validOneStep := ( intersect( sub(CyI, R), sub(NyI, R) + ideal(y) ) == inyForm );
+--  if not validOneStep then (
+--    print("Warning: not a valid geometric vertex decomposition");
+--    return {false, CyI, NyI};
+--    );
+--
+--  -- stuff skipped
+--
+--  return {true, CyI, NyI, "maybe degenerate check here"};
+--
+--  -- missing stuff here
+--  )
+
+
+-- [KMY, Theorem 2.1]
 oneStepGVD = method(TypicalValue => List, Options => {CheckDegenerate => false})
 oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
   -- set up the ring
-  indeterminates := switch(0, index y, gens ring I);
+  indeterminates := switch(0, index y, gens ring y);
   cr := coefficientRing ring I;
 
   -- first get the ideal of initial y-forms, using the product order
@@ -642,9 +692,7 @@ assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(x*z*w*r+z^2*w*r+
 TEST///  -- [KR, Example 4.10]
 R = QQ[x..z,w,r,s]
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) )
-assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(2*z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x^2*w*r,w*r*s^2,z^2*w*r,w^2*r^2), "nondegenerate"} )
+assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate"} )
 ///
-
--- maybe an issue with the N ideal being found here
 
 end--
