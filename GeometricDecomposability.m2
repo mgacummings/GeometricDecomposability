@@ -63,7 +63,7 @@ findLexGVDOrder(Ideal) := I -> (
   possibleOrders := permutations support I;
 
   for indetOrder in possibleOrders do (
-    if isLexGVD(I, indetOrder, ShowOutput=>true) then return {true, indetOrder};
+    if isLexGVD(I, indetOrder, ShowOutput=>false) then return {true, indetOrder};
     );
   return {false};   -- no order worked
   )
@@ -76,7 +76,7 @@ getGVDIdeal(Ideal, List) := (I, L) -> (
     "C" => CyI,
     "N" => NyI
     };
-  return accumulate( (i, j) -> CNs#(j_0)(i, j_1) , append(I, L) );  -- last entry is the desired ideal
+  return accumulate( (i, j) -> CNs#(j_0)(i, j_1) , prepend(I, L) );  -- last entry is the desired ideal
   )
 
 --------------------------------------------------------------------------------
@@ -307,15 +307,17 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
   validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y) ) == inyForm );
 
   use givenRing;
+  C := sub(CyI, givenRing);
+  N := sub(NyI, givenRing);
 
   if not validOneStep then (
     printIf(opts.ShowOutput, "Warning: not a valid geometric vertex decomposition");
-    return {false, CyI, NyI};
+    return {false, C, N};
     );
 
   -- check unmixedness of both CyI and NyI
-  isUnmixedC := isUnmixed sub(CyI, lexRing);
-  isUnmixedN := isUnmixed sub(NyI, lexRing);
+  isUnmixedC := isUnmixed C;
+  isUnmixedN := isUnmixed N;
 
   if not isUnmixedC then (
     printIf(opts.ShowOutput, "Warning: CyI is not unmixed");
@@ -326,10 +328,6 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
   if not (isUnmixedC and isUnmixedN) then (
     return {false, CyI, NyI};
     );
-
-  -- redefine the ring and substitute CyI, NyI into the new ring
-  C := sub(CyI, contractedRing);
-  N := sub(NyI, contractedRing);
 
   if opts.CheckDegenerate then (
     -- degenerate if C == 1 or radical C == radical N
@@ -595,6 +593,13 @@ assert(findLexGVDOrder I == {false})
 ///
 
 --------------------------------------------------------------------------------
+-- Test getGVDIdeal
+--------------------------------------------------------------------------------
+
+--TEST///
+--///
+
+--------------------------------------------------------------------------------
 -- Test isGeneratedByIndeterminates
 --------------------------------------------------------------------------------
 
@@ -796,93 +801,3 @@ assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(z*s-x^2, w*r), i
 ///
 
 end--
-
---******************************************************************************
-
--- OUTDATED VERSION
-
--- [KMY, Theorem 2.1]
-oneStepGVD = method(TypicalValue => List, Options => {ShowOutput => true, CheckDegenerate => false})
-oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
-
-  -- set up the ring
-  indeterminates := switch(0, index y, gens ring y);
-  remainingIndets := drop(gens ring y, {index y, index y});
-  cr := coefficientRing ring I;
-
-  -- first get the ideal of initial y-forms, using the product order
-  -- not sure which of the following two lines we wanted
-  S := cr[indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}];
-  --S := cr[ drop(indeterminates, {index y, index y}) ][y];
-  --S := cr[indeterminates, MonomialOrder=>{Weights=>{10, (#indeterminates - 1):0}}, Global=>false];
-  I = sub(I, S);
-  y = sub(y, S);
-  inyFormS := ideal leadTerm(1,I);  -- use product order for this, then pull into lex
-
-  -- pull everything into a ring using lex, which we use for the rest of the computations
-  R := cr[indeterminates, MonomialOrder=>Lex];
-  I = sub(I, R);
-  y = sub(y, R);
-  inyForm := sub(inyFormS, R);
-  G := first entries gens gb I;
-
-  gensN := delete(0, apply(G, g -> isInN(g, y)));
-  NyI := ideal(gensN);
-
-  gensC := delete(true, flatten(apply(G, g -> isInC(g, y))));
-  squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
-  CyI := ideal(delete(false, gensC));
-
-  -- [KR, Lemma 2.6]
-  if not squarefree then (
-    printIf(opts.ShowOutput, "Warning: Gröbner basis not squarefree in " | toString y);
-    return {false, CyI, NyI};
-    );
-
-  -- check that the intersection holds
-  validOneStep := ( intersect( sub(CyI, R), sub(NyI, R) + ideal(y) ) == inyForm );
-
-  if not validOneStep then (
-    printIf(opts.ShowOutput, "Warning: not a valid geometric vertex decomposition");
-    return {false, CyI, NyI};
-    );
-
-  -- check unmixedness of both CyI and NyI
-  isUnmixedC := isUnmixed sub(CyI, R);
-  isUnmixedN := isUnmixed sub(NyI, R);
-
-  if not (isUnmixedC or isUnmixedN) then (
-    printIf(opts.ShowOutput, "Warning: neither CyI nor NyI are unmixed");
-    return {false, CyI, NyI};
-    )
-  else (
-    if not isUnmixedC then (
-      printIf(opts.ShowOutput, "Warning: CyI is not unmixed");
-      return {false, CyI, NyI};
-      );
-    if not isUnmixedN then (
-      printIf(opts.ShowOutput, "Warning: NyI is not unmixed");
-      return {false, CyI, NyI};
-      )
-    );
-
-  -- redefine the ring and substitute CyI, NyI into the new ring
-  contractedRing := (coefficientRing ring y)[ remainingIndets ];
-  C := sub(CyI, contractedRing);
-  N := sub(NyI, contractedRing);
-
-  use ring y;
-
-  if opts.CheckDegenerate then (
-    -- degenerate if C == 1 or radical C == radical N
-    if C == 1 then return {true, C, N, "degenerate"};
-
-    radC := radical(C, Unmixed=>true);
-    radN := radical(N, Unmixed=>true);
-    if (radC == radN) then return {true, C, N, "degenerate"};
-
-    -- if we are here, we are nondegenerate
-    return {true, C, N, "nondegenerate"};
-    );
-  return {true, C, N};
-  );
