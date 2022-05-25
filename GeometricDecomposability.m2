@@ -39,6 +39,7 @@ export {
   "CheckDegenerate",
   "IsIdealHomogeneous",
   "IsIdealUnmixed",
+  "RandomSeed",
   "ShowOutput"
   };
 
@@ -57,10 +58,11 @@ CyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_1;
 
 --------------------------------------------------------------------------------
 
-findLexGVDOrder = method(TypicalValue => List)
-findLexGVDOrder(Ideal) := I -> (
+findLexGVDOrder = method(TypicalValue => List, Options => {RandomSeed => 1})
+findLexGVDOrder(Ideal) := opts -> I -> (
   -- restrict to the ring of indeterminates appearing in I by [CDRV, tensor product result]
-  possibleOrders := permutations support I;
+  setRandomSeed opts.RandomSeed;
+  possibleOrders := random permutations support I;
 
   for indetOrder in possibleOrders do (
     if isLexGVD(I, indetOrder, ShowOutput=>false) then return {true, indetOrder};
@@ -459,6 +461,7 @@ doc///
         Key
             findLexGVDOrder
             (findLexGVDOrder, Ideal)
+            [findLexGVDOrder, RandomSeed]
 ///
 
 
@@ -564,7 +567,7 @@ doc///
 ///
 
 
-undocumented { "CheckDegenerate", "CheckCM", "IsIdealHomogeneous", "IsIdealUnmixed", "ShowOutput" }
+undocumented { "CheckDegenerate", "CheckCM", "IsIdealHomogeneous", "IsIdealUnmixed", "RandomSeed", "ShowOutput" }
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -578,30 +581,43 @@ undocumented { "CheckDegenerate", "CheckCM", "IsIdealHomogeneous", "IsIdealUnmix
 -- Test CyI  --** note to self: just re-use the test cases from oneStepGVD
 --------------------------------------------------------------------------------
 
+
 --TEST///
 --///
+
 
 --------------------------------------------------------------------------------
 -- Test findLexGVDOrder
 --------------------------------------------------------------------------------
 
--- this takes too long to execute - do we know of a smaller example which is not lex gvd?
-TEST///  -- [KR, Example 2.16]
-R = QQ[x,y,z,w,r,s];
-I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2));
+
+TEST///
+R = QQ[x,y];
+I = ideal(x^2 - y^2);
 assert(findLexGVDOrder I == {false})
 ///
+
+
+TEST///
+R = QQ[x..z];
+I = ideal(x-y, x-z);
+assert( findLexGVDOrder(I, RandomSeed=>11) == {true, {z, y, x}} )
+///
+
 
 --------------------------------------------------------------------------------
 -- Test getGVDIdeal
 --------------------------------------------------------------------------------
 
+
 --TEST///
 --///
+
 
 --------------------------------------------------------------------------------
 -- Test isGeneratedByIndeterminates
 --------------------------------------------------------------------------------
+
 
 TEST///
 R = QQ[x,y,z];
@@ -630,9 +646,11 @@ I = ideal 1;
 assert(not isGeneratedByIndeterminates I)
 ///
 
+
 --------------------------------------------------------------------------------
 -- Test isGVD
 --------------------------------------------------------------------------------
+
 
 TEST///  -- [KR, Example 2.16]
 R = QQ[x,y,z,w,r,s];
@@ -643,24 +661,21 @@ assert(isGVD(I, ShowOutput=>false))
 
 TEST///  -- [KR, Example 4.10]
 R = QQ[x,y,z,w,r,s];
-I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + s^2 + z^2 + w*r));
+I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2+ z^2 + s^2 + w*r));
 assert(not isGVD(I, ShowOutput=>false))
 ///
 
 
-TEST///  -- Toric ideal of the complete bipartite graph K_{5,3}; GVD by a result from [CDRV]
+TEST///  -- Toric ideal of the complete bipartite graph K_{3,2}; GVD by a result from [CDRV]
 loadPackage "Quasidegrees";
-R = QQ[e_1..e_15];
+R = QQ[e_1..e_6];
 A = matrix{
-  {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-  {0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0},
-  {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
-  {0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0},
-  {0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-  {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}
-};
+  {1,0,0,1,0,0},
+  {0,1,0,0,1,0},
+  {0,0,1,0,0,1},
+  {1,1,1,0,0,0},
+  {0,0,0,1,1,1}
+  };
 I = toricIdeal(A, R);
 assert(isGVD(I, ShowOutput=>false))
 ///
@@ -677,7 +692,7 @@ A = matrix{
   {0, 1, 0, 0, 0, 0, 0, 1},
   {0, 0, 1, 1, 1, 0, 0, 0},
   {0, 0, 0, 0, 0, 1, 1, 1}
-};
+  };
 I = toricIdeal(A, R);
 assert(not isGVD(I, ShowOutput=>false))
 ///
@@ -692,7 +707,7 @@ A = matrix{
   {x_41, x_42, 1, 0, 0, 0},
   {x_51, 1, 0, 0, 0, 0},
   {1, 0, 0, 0, 0, 0}
-};
+  };
 N = matrix{
   {0, 1, 0, 0, 0, 0},
   {0, 0, 1, 0, 0, 0},
@@ -700,48 +715,54 @@ N = matrix{
   {0, 0, 0, 0, 1, 0},
   {0 ,0, 0, 0, 0, 1},
   {0, 0, 0, 0, 0, 0}
-};
+  };
 X = inverse(A) * N * A;
 I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) );
 assert(isGVD(I, ShowOutput=>false))
 ///
 
 
-TEST///  -- not GVD, w = (2,1,4,3), h = (2,3,4,4)
-R = QQ[x_11, x_31..x_33, x_41, x_42];
+TEST///  -- not GVD, w = (1,3,2,4), h = (3,3,4,4)
+R = QQ[x_21, x_22, x_31, x_41..x_43];
 A = matrix{
-  {x_11, 1, 0, 0},
   {1, 0, 0, 0},
-  {x_31, x_32, x_33, 1},
-  {x_41, x_42, 1, 0}
-};
+  {x_21, x_22, 1, 0},
+  {x_31, 1, 0, 0},
+  {x_41, x_42, x_43, 1}
+  };
 N = matrix{
   {0, 1, 0, 0},
   {0, 0, 1, 0},
   {0, 0, 0, 1},
   {0, 0, 0, 0}
-};
+  };
 X = inverse(A) * N * A;
-I = ideal(X_(2,0), X_(3,0), X_(3,1));
+I = ideal(X_(3,0), X_(3,1));
 assert(not isGVD(I, ShowOutput=>false))
-///  -- NOTE: this may be weakly GVD. (At least, according to the code; will need to check by hand to confirm)
+///
+-- ~0.75 seconds, might be as good as we will get for a not GVD Hessenberg patch ideal
+
 
 --------------------------------------------------------------------------------
 -- Test isLexGVD
 --------------------------------------------------------------------------------
 
+
 --TEST///
 --///
+
 
 --------------------------------------------------------------------------------
 -- Test isUnmixed
 --------------------------------------------------------------------------------
+
 
 TEST///  -- Not unmixed by [SM, Example 1.6]
 R = QQ[x_1..x_5];
 I = ideal(x_1*x_3, x_1*x_4, x_1*x_5, x_2*x_3, x_2*x_4, x_2*x_5);
 assert(not isUnmixed I)
 ///
+
 
 TEST///  -- Unmixed by [DH]
 R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51];
@@ -752,7 +773,7 @@ A = matrix{
   {x_41, x_42, 1, 0, 0, 0},
   {x_51, 1, 0, 0, 0, 0},
   {1, 0, 0, 0, 0, 0}
-};
+  };
 N = matrix{
   {0, 1, 0, 0, 0, 0},
   {0, 0, 1, 0, 0, 0},
@@ -760,15 +781,17 @@ N = matrix{
   {0, 0, 0, 0, 1, 0},
   {0 ,0, 0, 0, 0, 1},
   {0, 0, 0, 0, 0, 0}
-};
+  };
 X = inverse(A) * N * A;
 I = ideal( X_(2,0), X_(3,0), X_(3,1), X_(4,0), X_(4,1), X_(4,2), X_(5,0), X_(5,1), X_(5,2), X_(5,3) );
 assert(isUnmixed I)
 ///
 
+
 --------------------------------------------------------------------------------
 -- Test isWeaklyGVD
 --------------------------------------------------------------------------------
+
 
 TEST///  -- [KR, Example 4.10]
 R = QQ[x,y,z,w,r,s];
@@ -776,16 +799,40 @@ I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r));
 assert(isWeaklyGVD(I, ShowOutput=>false))
 ///
 
+
+TEST///  -- not GVD, w = (1,3,2,4), h = (3,3,4,4)
+R = QQ[x_21, x_22, x_31, x_41..x_43];
+A = matrix{
+  {1, 0, 0, 0},
+  {x_21, x_22, 1, 0},
+  {x_31, 1, 0, 0},
+  {x_41, x_42, x_43, 1}
+  };
+N = matrix{
+  {0, 1, 0, 0},
+  {0, 0, 1, 0},
+  {0, 0, 0, 1},
+  {0, 0, 0, 0}
+  };
+X = inverse(A) * N * A;
+I = ideal(X_(3,0), X_(3,1));
+assert(isWeaklyGVD(I, ShowOutput=>false))
+///
+
+
 --------------------------------------------------------------------------------
 -- Test NyI  --** note to self: just re-use the test cases from oneStepGVD
 --------------------------------------------------------------------------------
 
+
 --TEST///
 --///
+
 
 --------------------------------------------------------------------------------
 -- Test oneStepGVD
 --------------------------------------------------------------------------------
+
 
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
@@ -799,5 +846,6 @@ R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
 assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate"} )
 ///
+
 
 end--
