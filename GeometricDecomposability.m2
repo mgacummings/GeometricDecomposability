@@ -24,11 +24,11 @@ newPackage(
 export {
   -- functions
   "CyI",
-  "findLexGVDOrder",
+  "findLexCompatiblyGVDOrder",
   "getGVDIdeal",
   "isGeneratedByIndeterminates",
   "isGVD",
-  "isLexGVD",
+  "isLexCompatiblyGVD",
   "isUnmixed",
   "isWeaklyGVD",
   "NyI",
@@ -58,14 +58,14 @@ CyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_1;
 
 --------------------------------------------------------------------------------
 
-findLexGVDOrder = method(TypicalValue => List, Options => {RandomSeed => 1})
-findLexGVDOrder(Ideal) := opts -> I -> (
+findLexCompatiblyGVDOrder = method(TypicalValue => List, Options => {RandomSeed => 1})
+findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
   -- restrict to the ring of indeterminates appearing in I by [CDRV, tensor product result]
   setRandomSeed opts.RandomSeed;
   possibleOrders := random permutations support I;
 
   for indetOrder in possibleOrders do (
-    if isLexGVD(I, indetOrder, ShowOutput=>false) then return {true, indetOrder};
+    if isLexCompatiblyGVD(I, indetOrder, ShowOutput=>false) then return {true, indetOrder};
     );
   return {false};   -- no order worked
   )
@@ -151,8 +151,8 @@ isGVD(Ideal) := opts -> I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 2.11]
-isLexGVD = method(TypicalValue => Boolean, Options => {ShowOutput => true, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
-isLexGVD(Ideal, List) := opts -> (I, indetOrder) -> (
+isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {ShowOutput => true, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
+isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
   R := ring I;
   printIf(opts.ShowOutput, toString I);  --remove this later?
 
@@ -193,8 +193,8 @@ isLexGVD(Ideal, List) := opts -> (I, indetOrder) -> (
   printIf(opts.ShowOutput, "-- C = " | toString C);
   printIf(opts.ShowOutput, "-- N = " | toString N);
 
-  CisGVD := isLexGVD(C, remainingOrder, ShowOutput=>opts.ShowOutput, IsIdealUnmixed=>true, CheckCM=>CMTable#(opts.CheckCM), IsIdealHomogeneous=>x);
-  NisGVD := isLexGVD(N, remainingOrder, ShowOutput=>opts.ShowOutput, IsIdealUnmixed=>true, CheckCM=>CMTable#(opts.CheckCM), IsIdealHomogeneous=>x);
+  CisGVD := isLexCompatiblyGVD(C, remainingOrder, ShowOutput=>opts.ShowOutput, IsIdealUnmixed=>true, CheckCM=>CMTable#(opts.CheckCM), IsIdealHomogeneous=>x);
+  NisGVD := isLexCompatiblyGVD(N, remainingOrder, ShowOutput=>opts.ShowOutput, IsIdealUnmixed=>true, CheckCM=>CMTable#(opts.CheckCM), IsIdealHomogeneous=>x);
 
   return (CisGVD and NisGVD);
   )
@@ -452,13 +452,13 @@ doc///
             CheckCM
             CheckDegenerate
             CyI
-            findLexGVDOrder
+            findLexCompatiblyGVDOrder
             getGVDIdeal
             isGeneratedByIndeterminates
             isGVD
             IsIdealHomogeneous
             IsIdealUnmixed
-            isLexGVD
+            isLexCompatiblyGVD
             isUnmixed
             isWeaklyGVD
             NyI
@@ -505,13 +505,13 @@ doc///
 doc///
     Node
         Key
-            findLexGVDOrder
-            (findLexGVDOrder, Ideal)
+            findLexCompatiblyGVDOrder
+            (findLexCompatiblyGVDOrder, Ideal)
         Headline
             finds a lexicographic monomial order $<$ such that the ideal is $<$-compatibly geometrically vertex decomposable
         Usage
-            findLexGVDOrder I
-            findLexGVDOrder(I, RandomSeed=>seed)
+            findLexCompatiblyGVDOrder I
+            findLexCompatiblyGVDOrder(I, RandomSeed=>seed)
         Inputs
             I:Ideal
             seed:ZZ
@@ -548,7 +548,7 @@ doc///
             trying another choice of most expensive indeterminate.
 
         SeeAlso
-            isLexGVD
+            isLexCompatiblyGVD
 ///
 
 
@@ -617,7 +617,7 @@ doc///
 
         SeeAlso
             isGVD
-            isLexGVD
+            isLexCompatiblyGVD
             isWeaklyGVD
 ///
 
@@ -649,7 +649,7 @@ doc///
             isGeneratedByIndeterminates
             IsIdealHomogeneous
             IsIdealUnmixed
-            isLexGVD
+            isLexCompatiblyGVD
             isUnmixed
             isWeaklyGVD
             oneStepGVD
@@ -660,16 +660,16 @@ doc///
 doc///
     Node
         Key
-            isLexGVD
-            (isLexGVD, Ideal, List)
+            isLexCompatiblyGVD
+            (isLexCompatiblyGVD, Ideal, List)
         Headline
             checks whether an ideal is <-compatibly geometrically vertex decomposable for a given order
         Usage
-            isLexGVD(I, L)
-            isLexGVD(I, L, CheckCM=>cm)
-            isLexGVD(I, L, IsIdealHomogeneous=>homogeneous)
-            isLexGVD(I, L, IsIdealUnmixed=>unmixed)
-            isLexGVD(I, L, ShowOutput=>output)
+            isLexCompatiblyGVD(I, L)
+            isLexCompatiblyGVD(I, L, CheckCM=>cm)
+            isLexCompatiblyGVD(I, L, IsIdealHomogeneous=>homogeneous)
+            isLexCompatiblyGVD(I, L, IsIdealUnmixed=>unmixed)
+            isLexCompatiblyGVD(I, L, ShowOutput=>output)
         Inputs
             I:Ideal
             L:List
@@ -709,7 +709,7 @@ doc///
 
         SeeAlso
             isGVD
-            isLexGVD
+            isLexCompatiblyGVD
             isWeaklyGVD
 ///
 
@@ -736,7 +736,7 @@ doc///
             isGeneratedByIndeterminates
             isGVD
             IsIdealUnmixed
-            isLexGVD
+            isLexCompatiblyGVD
             isUnmixed
             oneStepGVD
             ShowOutput
@@ -802,7 +802,7 @@ doc///
             CyI
             getGVDIdeal
             isGVD
-            isLexGVD
+            isLexCompatiblyGVD
             isWeaklyGVD
             NyI
             ShowOutput
@@ -818,7 +818,7 @@ doc///
         Key
             CheckCM
             [isGVD, CheckCM]
-            [isLexGVD, CheckCM]
+            [isLexCompatiblyGVD, CheckCM]
         Headline
             optional argument for GVD methods
         Description
@@ -863,7 +863,7 @@ doc///
         Key
             IsIdealHomogeneous
             [isGVD, IsIdealHomogeneous]
-            [isLexGVD, IsIdealHomogeneous]
+            [isLexCompatiblyGVD, IsIdealHomogeneous]
         Headline
             optional argument for GVD methods
         Description
@@ -878,7 +878,7 @@ doc///
         Key
             IsIdealUnmixed
             [isGVD, IsIdealUnmixed]
-            [isLexGVD, IsIdealUnmixed]
+            [isLexCompatiblyGVD, IsIdealUnmixed]
             [isWeaklyGVD, IsIdealUnmixed]
         Headline
             optional argument for GVD methods
@@ -893,9 +893,9 @@ doc///
     Node
         Key
             RandomSeed
-            [findLexGVDOrder, RandomSeed]
+            [findLexCompatiblyGVDOrder, RandomSeed]
         Headline
-            optional argument for findLexGVDOrder
+            optional argument for findLexCompatiblyGVDOrder
         Description
             Text
                 When brute forcing all possible orders, we shuffle their order upon each
@@ -908,7 +908,7 @@ doc///
         Key
             ShowOutput
             [isGVD, ShowOutput]
-            [isLexGVD, ShowOutput]
+            [isLexCompatiblyGVD, ShowOutput]
             [isWeaklyGVD, ShowOutput]
             [oneStepGVD, ShowOutput]
         Headline
@@ -946,21 +946,21 @@ assert( CyI(I, y) == ideal(z*s-x^2, w*r) )
 
 
 --------------------------------------------------------------------------------
--- Test findLexGVDOrder
+-- Test findLexCompatiblyGVDOrder
 --------------------------------------------------------------------------------
 
 
 TEST///
 R = QQ[x,y];
 I = ideal(x^2 - y^2);
-assert(findLexGVDOrder I == {false})
+assert(findLexCompatiblyGVDOrder I == {false})
 ///
 
 
 TEST///
 R = QQ[x..z];
 I = ideal(x-y, x-z);
-assert( findLexGVDOrder(I, RandomSeed => 11) == {true, {z, y, x}} )
+assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == {true, {z, y, x}} )
 ///
 
 
@@ -1103,7 +1103,7 @@ assert(not isGVD(I, ShowOutput=>false))
 
 
 --------------------------------------------------------------------------------
--- Test isLexGVD
+-- Test isLexCompatiblyGVD
 --------------------------------------------------------------------------------
 
 
