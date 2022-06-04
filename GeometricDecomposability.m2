@@ -420,7 +420,7 @@ doc///
                 geometrically vertex decomposable. The notion of geometric vertex
                 decomposability can be considered as a generalization of the properties
                 of the Stanley-Reisner ideal of a vertex decomposable simplicial complex.
-                Geometric vertex decomposable ideals were first defined by Klein and
+                Geometrically vertex decomposable ideals were first defined by Klein and
                 Rajchgot [KR].
 
                 An unmixed ideal $I$ in a polynomial ring $R$ is geometrically vertex
@@ -436,9 +436,9 @@ doc///
                 increases.
 
         Acknowledgement
-            We thank S. Da Silva, J. Rajchgot, and M. Harada for feedback. Van
-            Tuyl's research was partially supported by NSERC Discovery
-            Grant 2019-05412.
+            We thank S. Da Silva, J. Rajchgot, and M. Harada for feedback. Cummings
+            was partially supported by an NSERC USRA. Van Tuyl's research is partially
+            supported by NSERC Discovery Grant 2019-05412.
 
         References
 
