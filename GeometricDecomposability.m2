@@ -683,9 +683,40 @@ doc///
      		    $k[x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n]$ are geometrically
      		    vertex decomposable.
 		
+	    	{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Groebner basis or 
+	    	a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot). 
+	    	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
+	    	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+	    
 	    Example 
-	        R = QQ[a,b,c]
+	        R = QQ[a,b,c,d]
+		f = 3*a*b + 4*b*c+ 16*a*c+18*d
+		i = ideal(f)
+		isGVD(i)
+		
+	    Text
+	        Square-free monomial ideals that are geometrically vertex decomposable are precisely those square-free monomial ideals
+		whose associated simplicial complex are vertex decomposable.  The edge ideal of a chordal graph corresponds to a simplicial
+		complex that is vertex decomposable.  The option {\tt ShowOutput} shows the intermediate steps.
+		
+	    Example
+	        R = QQ[a,b,c,d]
+		i = ideal(a*b,a*c,a*d,b*c,b*d,c*d) -- edge ideal of complete graph K_4, a chordal graph
+		isGVD(i,ShowOutput=>true)
+            
+	    Text
+                The following example gives an example of toric ideal of graph that is geometrically vertex decomposable, and another example
+		of a toric ideal that is not geometric vertex decomposable.  The second toric ideal is not Cohen-Macaulay, so it
+		cannot be geometrically vertex decomposable.
 
+            Example
+	        R = QQ[e_1..e_7]
+		i = ideal(e_2*e_7-e_5*e_6,e_1*e_4-e_2*e_3) -- the toric ideal of a graph
+		isGVD(i)
+	        R = QQ[e_1..e_10]
+		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
+		isGVD(i)
+		  
         SeeAlso
             CheckCM
             isGeneratedByIndeterminates
