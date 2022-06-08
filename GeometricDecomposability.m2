@@ -431,7 +431,7 @@ doc///
                 @TO isGVD@.
 
                 Observe that a geometrically vertex decomposable ideal is recursively
-                defined. Tshe complexity of verifying that an ideal is geometrically
+                defined. The complexity of verifying that an ideal is geometrically
                 vertex decomposable will increase as the number of indeterminates
                 appearing in the ideal increases.
 
