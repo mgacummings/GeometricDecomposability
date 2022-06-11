@@ -36,11 +36,11 @@ newPackage(
 
         -- options
         "CheckCM",
-        "CheckDegenerate",
         "IsIdealHomogeneous",
         "IsIdealUnmixed",
         "RandomSeed",
-        "Verbose"
+        "Verbose",
+        "VerifyDegenerate"
         };
 
 --------------------------------------------------------------------------------
@@ -218,7 +218,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N, degenerateOutput) := oneStepGVD(I, y, CheckDegenerate=>true, Verbose=>opts.Verbose);
+                (isValid, C, N, degenerateOutput) := oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
 
                 if not isValid then continue;  -- go back to top of for loop
                 isDegenerate := (degenerateOutput == "degenerate");
@@ -250,7 +250,7 @@ NyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_2;
 --------------------------------------------------------------------------------
 
 -- [KMY, Theorem 2.1]
-oneStepGVD = method(TypicalValue => List, Options => {Verbose => true, CheckDegenerate => false})
+oneStepGVD = method(TypicalValue => List, Options => {Verbose => true, VerifyDegenerate => false})
 oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
         -- set up the rings
@@ -318,7 +318,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
                 return {false, CyI, NyI};
                 );
 
-        if opts.CheckDegenerate then (
+        if opts.VerifyDegenerate then (
                 -- degenerate if C == 1 or radical C == radical N
                 if C == 1 then return {true, C, N, "degenerate"};
 
@@ -448,7 +448,6 @@ doc///
 
                 Subnodes
                         CheckCM
-                        CheckDegenerate
                         CyI
                         findLexCompatiblyGVDOrder
                         getGVDIdeal
@@ -463,6 +462,7 @@ doc///
                         oneStepGVD
                         RandomSeed
                         Verbose
+                        VerifyDegenerate
 ///
 
 --******************************************************************************
@@ -846,8 +846,8 @@ doc///
                         computes a geometric vertex decomposition
                 Usage
                         oneStepGVD(I, y)
-                        oneStepGVD(I, y, CheckDegenerate=>degenerate)
                         oneStepGVD(I, y, Verbose=>output)
+                        oneStepGVD(I, y, VerifyDegenerate=>degenerate)
                 Inputs
                         I:Ideal
                         y:RingElement
@@ -858,11 +858,10 @@ doc///
                         L:List
                                 a list containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
                                 a valid geometric vertex decomposition, these ideals, and if
-                                {\tt CheckDegenerate=>true}, whether the one-step decomposition
+                                {\tt VerifyDegenerate=>true}, whether the one-step decomposition
                                 is degenerate or nondegenerate
 
                 SeeAlso
-                        CheckDegenerate
                         CyI
                         getGVDIdeal
                         isGVD
@@ -870,6 +869,7 @@ doc///
                         isWeaklyGVD
                         NyI
                         Verbose
+                        VerifyDegenerate
 ///
 
 
@@ -897,8 +897,8 @@ doc///
 doc///
         Node
                 Key
-                        CheckDegenerate
-                        [oneStepGVD, CheckDegenerate]
+                        VerifyDegenerate
+                        [oneStepGVD, VerifyDegenerate]
                 Headline
                         optional argument for @TO oneStepGVD@
                 Description
@@ -907,7 +907,7 @@ doc///
                                 $\sqrt{C_{y,I}} = \sqrt{N_{y,I}}$ or if $C_{y,I} = \langle 1 \rangle$,
                                 and nondegenerate otherwise [KR, Section 2.2].
 
-                                If {\tt CheckDegenerate => true}, then {\tt oneStepGVD} returns
+                                If {\tt VerifyDegenerate => true}, then {\tt oneStepGVD} returns
                                 a list of length four, where the fourth entry is either
                                 {\tt "degenerate"} or {\tt "nondegenerate"}.
                                 Otherwise, {\tt oneStepGVD} does not check whether the geometric
@@ -1270,14 +1270,14 @@ assert( NyI(I, y) == ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2) )
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate"} )
+assert( oneStepGVD(I, y, VerifyDegenerate=>true) == {true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate"} )
 ///
 
 
 TEST///  -- [KR, Example 4.10]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
-assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate"} )
+assert( oneStepGVD(I, y, VerifyDegenerate=>true) == {true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate"} )
 ///
 
 
