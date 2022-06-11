@@ -128,12 +128,8 @@ isGVD(Ideal) := opts -> I -> (
 
     printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-    oneStep := oneStepGVD(I, y, Verbose=>opts.Verbose);
-    isValid := oneStep_0;
+    (isValid, C, N) := toSequence oneStepGVD(I, y, Verbose=>opts.Verbose);
     if not isValid then continue;  -- go back to top of for loop
-
-    C := oneStep_1;
-    N := oneStep_2;
 
     printIf(opts.Verbose, "-- C = " | toString C);
     printIf(opts.Verbose, "-- N = " | toString N);
@@ -183,12 +179,9 @@ isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
   remainingOrder := take(trimmedOrder, {1, #trimmedOrder});
 
   printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
-  oneStep := oneStepGVD(I, y, Verbose=>opts.Verbose);
-  isValid := oneStep_0;
-  if not isValid then return false;  -- order didn't work
 
-  C := oneStep_1;
-  N := oneStep_2;
+  (isValid, C, N) := oneStepGVD(I, y, Verbose=>opts.Verbose);
+  if not isValid then return false;  -- order didn't work
 
   printIf(opts.Verbose, "-- C = " | toString C);
   printIf(opts.Verbose, "-- N = " | toString N);
@@ -230,18 +223,16 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
     printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-    oneStep := oneStepGVD(I, y, CheckDegenerate=>true, Verbose=>opts.Verbose);
-    isValid := oneStep_0;
+    (isValid, C, N, degenerateOutput) := oneStepGVD(I, y, CheckDegenerate=>true, Verbose=>opts.Verbose);
+
     if not isValid then continue;  -- go back to top of for loop
-    C := oneStep_1;
-    N := oneStep_2;
-    degenerateOneStep := (oneStep_3 == "degenerate");
+    isDegenerate := (degenerateOutput == "degenerate");
 
     printIf(opts.Verbose, "-- C = " | toString C);
     printIf(opts.Verbose, "-- N = " | toString N);
     printIf(opts.Verbose, "-- form a " | oneStep_3 | " geometric vertex decomposition");
 
-    if degenerateOneStep then (
+    if isDegenerate then (
       -- degenerate case
       if isWeaklyGVD(N, IsIdealUnmixed=>true, Verbose=>opts.Verbose) then return true else continue;
 
@@ -281,7 +272,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
   y = sub(y, initYFormRing);
   inyFormIdeal := ideal leadTerm(1,I);
 
-  -- pull evertying into a ring using lex
+  -- pull evertying into a lex ring
   use lexRing;
   I = sub(I, lexRing);
   y = sub(y, lexRing);
