@@ -94,7 +94,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 2.7]
-isGVD = method(TypicalValue => Boolean, Options => {Verbose => true, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
+isGVD = method(TypicalValue => Boolean, Options => {Verbose => false, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
 isGVD(Ideal) := opts -> I -> (
         R := ring I;
         printIf(opts.Verbose, toString I);  --remove this later?
@@ -142,7 +142,7 @@ isGVD(Ideal) := opts -> I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 2.11]
-isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {Verbose => true, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
+isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {Verbose => false, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
 isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
         R := ring I;
         printIf(opts.Verbose, toString I);  --remove this later?
@@ -200,7 +200,7 @@ isUnmixed(Ideal) := I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 4.6]
-isWeaklyGVD = method(TypicalValue => Boolean, Options => {IsIdealUnmixed => false, Verbose => true})
+isWeaklyGVD = method(TypicalValue => Boolean, Options => {IsIdealUnmixed => false, Verbose => false})
 isWeaklyGVD(Ideal) := opts -> I -> (
         R := ring I;
         printIf(opts.Verbose, toString I);  --remove this later?
@@ -253,7 +253,7 @@ NyI(Ideal, RingElement) := (I, y) -> (oneStepGVD(I, y))_2;
 --------------------------------------------------------------------------------
 
 -- [KMY, Theorem 2.1]
-oneStepGVD = method(TypicalValue => List, Options => {Verbose => true, VerifyDegenerate => false})
+oneStepGVD = method(TypicalValue => List, Options => {Verbose => false, VerifyDegenerate => false})
 oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
         -- set up the rings
@@ -677,7 +677,7 @@ doc///
                                 Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                                 We include the definition here.  Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here, 
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
 				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
 
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
@@ -714,7 +714,7 @@ doc///
                         Text
                 	        Square-free monomial ideals that are geometrically vertex decomposable are precisely those square-free monomial ideals
                 		whose associated simplicial complex are vertex decomposable.  The edge ideal of a chordal graph corresponds to a simplicial
-                		complex that is vertex decomposable.  The option {\tt Verbose} shows the intermediate steps; in particular, {\tt Verbose} 
+                		complex that is vertex decomposable.  The option {\tt Verbose} shows the intermediate steps; in particular, {\tt Verbose}
 				displays what variable is being used to test a decomposition, as well as the ideals
 				$C_{y,I}$ and $N_{y,I}$.
                         Example
@@ -917,13 +917,13 @@ doc///
                                 is degenerate or nondegenerate
 		Description
 			 Text
-                                This function computes a geometric vertex decomposition of an ideal based upon Theorem 2.1  of A. Knutson, E. Miller, A. Yong, "Gröbner geometry of vertex decompositions 
+                                This function computes a geometric vertex decomposition of an ideal based upon Theorem 2.1  of A. Knutson, E. Miller, A. Yong, "Gröbner geometry of vertex decompositions
 				and of flagged tableaux" J. Reine Angew. Math. 630 (2009), 1–31.  Geometic vertex decomposition is the key step in the recursive
 			        defintion of geometically vertex decomposable ideals.  The function {\tt oneStepGVD} is repeatedly used by @TO isGVD@ to determine
-				if an ideal is a geometically vertex decomposable ideal. 
-				 
+				if an ideal is a geometically vertex decomposable ideal.
+
 				Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here, 
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
 				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
 
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
@@ -932,14 +932,14 @@ doc///
                                 $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
                                 and
                                 $$N_{y,I} = \langle q_i ~|~ d_i = 0 \rangle.$$
-                               
+
                                 If ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle),$
                                 then we call this decomposition a {\it geometric vertex decomposition of $I$}.
-				      
+
 				For a given variable $y$, the function {\tt oneStepGVD} returns a list, where the first element in the list is true or false
 				depending if the given variable gives a geometric vertex decomposition of $I$, while the second element is the
 				ideal $C_{y,I}$ and the third element in the list is the ideal $N_{y,I}$.
-				
+
 				{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
                         	a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
@@ -950,14 +950,14 @@ doc///
                 		i = ideal(f)
                 		oneStepGVD(i,a)
 
-                        Text 
+                        Text
                                 In the example below, the ideal $I$ is the edge ideal of the complete graph $K_4$.  We also check
 				if the decomposition is degenerate (see @TO VerifyDegenerate@).
                         Example
                                 R = QQ[a,b,c,d];
                                 i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
                                 oneStepGVD(i,c,VerifyDegenerate=>true)
-			Text   
+			Text
 			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  A warning that
 				the Gröbner basis is not square-free in the variable $y=e_1$ is given.  By Lemma 2.6 of Klein and Rajchgot, for an ideal $I$
 				to have a geometric vertex decomposition with respect to the variable $y$, no term of
