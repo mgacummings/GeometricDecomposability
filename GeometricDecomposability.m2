@@ -651,8 +651,8 @@ doc///
                                 Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                                 We include the definition here.  Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies $in_<(f) = in_<(in_y(f))$ for all $f \in R$.  Here, $in_y(f)$ is the {\it initial $y$-form}
-                                of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here, 
+				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
 
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
                                 ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
@@ -683,16 +683,19 @@ doc///
                 		f = 3*a*b + 4*b*c+ 16*a*c+18*d
                 		i = ideal(f)
                 		isGVD(i)
+				assert(isGVD(i))
 
                         Text
                 	        Square-free monomial ideals that are geometrically vertex decomposable are precisely those square-free monomial ideals
                 		whose associated simplicial complex are vertex decomposable.  The edge ideal of a chordal graph corresponds to a simplicial
-                		complex that is vertex decomposable.  The option {\tt Verbose} shows the intermediate steps.
-
+                		complex that is vertex decomposable.  The option {\tt Verbose} shows the intermediate steps; in particular, {\tt Verbose} 
+				displays what variable is being used to test a decomposition, as well as the ideals
+				$C_{y,I}$ and $N_{y,I}$.
                         Example
                                 R = QQ[a,b,c,d]
                                 i = ideal(a*b,a*c,a*d,b*c,b*d,c*d) -- edge ideal of complete graph K_4, a chordal graph
                                 isGVD(i,Verbose=>true)
+				assert(isGVD(i))
 
                         Text
                                 The following example gives an example of toric ideal of graph that is geometrically vertex decomposable, and another example
@@ -703,9 +706,11 @@ doc///
                 	        R = QQ[e_1..e_7]
                 		i = ideal(e_2*e_7-e_5*e_6,e_1*e_4-e_2*e_3) -- the toric ideal of a graph
                 		isGVD i
+				assert(isGVD(i))
                 	        R = QQ[e_1..e_10]
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
                 		isGVD i
+				assert(isGVD(i)==false)
 
                 SeeAlso
                         CheckCM
@@ -838,7 +843,7 @@ doc///
 
 
 doc///
-        Node
+       Node
                 Key
                         oneStepGVD
                         (oneStepGVD, Ideal, RingElement)
@@ -860,8 +865,59 @@ doc///
                                 a valid geometric vertex decomposition, these ideals, and if
                                 {\tt VerifyDegenerate=>true}, whether the one-step decomposition
                                 is degenerate or nondegenerate
+		Description
+			 Text
+                                This function computes a geometric vertex decomposition of an ideal based upon Theorem 2.1  of A. Knutson, E. Miller, A. Yong, "Gröbner geometry of vertex decompositions 
+				and of flagged tableaux" J. Reine Angew. Math. 630 (2009), 1–31.  Geometic vertex decomposition is the key step in the recursive
+			        defintion of geometically vertex decomposable ideals.  The function {\tt oneStepGVD} is repeatedly used by @TO isGVD@ to determine
+				if an ideal is a geometically vertex decomposable ideal. 
+				 
+				Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here, 
+				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
 
-                SeeAlso
+                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
+                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
+                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, we define two ideals:
+                                $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
+                                and
+                                $$N_{y,I} = \langle q_i ~|~ d_i = 0 \rangle.$$
+                               
+                                If ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle),$
+                                then we call this decomposition a {\it geometric vertex decomposition of $I$}.
+				      
+				For a given variable $y$, the function {\tt oneStepGVD} returns a list, where the first element in the list is true or false
+				depending if the given variable gives a geometric vertex decomposition of $I$, while the second element is the
+				ideal $C_{y,I}$ and the third element in the list is the ideal $N_{y,I}$.
+				
+				{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
+                        	a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
+                        	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
+                        	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+			Example
+			        R = QQ[a,b,c,d]
+                		f = 3*a*b + 4*b*c+ 16*a*c+18*d
+                		i = ideal(f)
+                		oneStepGVD(i,a)
+
+                        Text 
+                                In the example below, the ideal $I$ is the edge ideal of the complete graph $K_4$.  We also check
+				if the decomposition is @TO degenerate@.
+                        Example
+                                R = QQ[a,b,c,d];
+                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
+                                oneStepGVD(i,c,VerifyDegenerate=>true)
+			Text   
+			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  A warning that
+				the Gröbner basis is not square-free in the variable $y=e_1$ is given.  By Lemma 2.6 of Klein and Rajchgot, for an ideal $I$
+				to have a geometric vertex decomposition with respect to the variable $y$, no term of
+				the Gröbner bases can be divided by $y^2$.  So, the warning tells us that we cannot have a geometric
+				vertex decomposition.
+			Example
+                	        R = QQ[e_1..e_10];
+                		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
+                		oneStepGVD(i,e_1)
+		SeeAlso
                         CyI
                         getGVDIdeal
                         isGVD
