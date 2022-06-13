@@ -218,14 +218,17 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N, degenerateOutput) := toSequence oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
-
+                oneStep := oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
+                isValid := oneStep_0;
                 if not isValid then continue;  -- go back to top of for loop
+
+                (C, N, degenerateOutput) := (oneStep_1, oneStep_2, oneStep_3);
                 isDegenerate := (degenerateOutput == "degenerate");
+                degenerateTable := new HashTable from {true => "degenerate", false => "nondegenerate"};
 
                 printIf(opts.Verbose, "-- C = " | toString C);
                 printIf(opts.Verbose, "-- N = " | toString N);
-                printIf(opts.Verbose, "-- form a " | isDegenerate | " geometric vertex decomposition");
+                printIf(opts.Verbose, "-- form a " | degenerateTable#isDegenerate | " geometric vertex decomposition");
 
                 if isDegenerate then (
                         -- degenerate case
