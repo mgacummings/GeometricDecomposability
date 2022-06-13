@@ -88,7 +88,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
         R := ring I;
         indeterminates := gens R;
         gensI := first entries gens I;
-        return isSubset(gensI, indeterminates);
+        return isSubset(delete(0, gensI), indeterminates);
         )
 
 --------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
 
         printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-        (isValid, C, N) := oneStepGVD(I, y, Verbose=>opts.Verbose);
+        (isValid, C, N) := toSequence oneStepGVD(I, y, Verbose=>opts.Verbose);
         if not isValid then return false;  -- order didn't work
 
         printIf(opts.Verbose, "-- C = " | toString C);
@@ -218,7 +218,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N, degenerateOutput) := oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
+                (isValid, C, N, degenerateOutput) := toSequence oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
 
                 if not isValid then continue;  -- go back to top of for loop
                 isDegenerate := (degenerateOutput == "degenerate");
@@ -654,7 +654,7 @@ doc///
                                 {\it $y$-compatible} if the initial term of $f$ satisfies $in_<(f) = in_<(in_y(f))$ for all $f \in R$.  Here, $in_y(f)$ is the {\it initial $y$-form}
                                 of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
 
-                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Groebner basis of $I$ with respect to this
+                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
                                 ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
                                 that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, we define two ideals:
                                 $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
@@ -673,7 +673,7 @@ doc///
                                         $k[x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n]$ are geometrically
                                         vertex decomposable.
 
-                        	{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Groebner basis or
+                        	{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
                         	a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
