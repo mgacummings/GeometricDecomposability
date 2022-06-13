@@ -16,7 +16,7 @@ newPackage(
                 HomePage => "https://ms.mcmaster.ca/~vantuyl/"
                 }
                 },
-        Keywords => {"Commutative Algebra"},  -- keyword(s) from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
+        Keywords => {"Commutative Algebra"},
         PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? As a result we use PackageImports and not PackageExports
         HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank/remove
         )
@@ -720,6 +720,7 @@ doc///
 ///
 
 
+-- [KR, Definition 2.11]
 doc///
         Node
                 Key
