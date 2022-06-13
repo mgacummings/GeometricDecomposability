@@ -225,7 +225,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- C = " | toString C);
                 printIf(opts.Verbose, "-- N = " | toString N);
-                printIf(opts.Verbose, "-- form a " | oneStep_3 | " geometric vertex decomposition");
+                printIf(opts.Verbose, "-- form a " | isDegenerate | " geometric vertex decomposition");
 
                 if isDegenerate then (
                         -- degenerate case
