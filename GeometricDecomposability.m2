@@ -495,7 +495,30 @@ doc///
                         As a result, work is also done in the background to compute $N_{y,I}$ at
                         the same time, and as such, the user is encouraged to call {\tt oneStepGVD}
                         directly if they want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
-                        performing the same computation twice.
+                        performing the same computation twice.  The ideals $C_{y,I}$ and $N_{y,I}$ doe not depend upon the choice of the Gröbner basis or
+                        a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
+			When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
+                        on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+				
+	        Description 
+	                Text    
+			        Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here, 
+				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
+
+                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
+                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
+                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $C_{y,I}$ is given by
+                                $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
+			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$
+				
+                                The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$. 
+                        Example
+                                R = QQ[a,b,c,d];
+                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
+                                CyI(i,b)
+				l = oneStepGVD(i,b); 
+			        l_1 == CyI(i,b) -- CyI is the second element in the list given oneStepGVD
 
                 SeeAlso
                         getGVDIdeal
@@ -837,7 +860,30 @@ doc///
                         As a result, work is also done in the background to compute $C_{y,I}$ at
                         the same time, and as such, the user is encouraged to call {\tt oneStepGVD}
                         directly if they want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
-                        performing the same computation twice.
+                        performing the same computation twice.  The ideals $C_{y,I}$ and $N_{y,I}$ doe not depend upon the choice of the Gröbner basis or
+                        a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
+			When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
+                        on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+		 Description 
+	                Text    
+			        Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here, 
+				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
+
+                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
+                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
+                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $N_{y,I}$ is given by
+                                $$N_{y,I} = \langle q_i ~|~ d_i = 0\rangle$$
+			        This functions  takes an ideal $I$ and variable $y$, and returns $N_{y,I}$
+			       
+			        The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$. 
+                         
+			 Example
+                                R = QQ[a,b,c,d];
+                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
+                                NyI(i,b)
+				l = oneStepGVD(i,b); 
+			        l_2 == CyI(i,b) -- CyI is the second element in the list given by oneStepGVD
 
                 SeeAlso
                         CyI
@@ -906,7 +952,7 @@ doc///
 
                         Text 
                                 In the example below, the ideal $I$ is the edge ideal of the complete graph $K_4$.  We also check
-				if the decomposition is @TO degenerate@.
+				if the decomposition is degenerate (see @TO VerifyDegenerate@).
                         Example
                                 R = QQ[a,b,c,d];
                                 i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
