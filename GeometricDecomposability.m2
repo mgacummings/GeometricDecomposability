@@ -16,7 +16,7 @@ newPackage(
                 HomePage => "https://ms.mcmaster.ca/~vantuyl/"
                 }
                 },
-        Keywords => {"Commutative Algebra"},  -- keyword(s) from the headings here: http://www2.macaulay2.com/Macaulay2/doc/Macaulay2-1.17/share/doc/Macaulay2/Macaulay2Doc/html/_packages_spprovided_spwith_sp__Macaulay2.html
+        Keywords => {"Commutative Algebra"},
         PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? As a result we use PackageImports and not PackageExports
         HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank/remove
         )
@@ -218,14 +218,17 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N, degenerateOutput) := toSequence oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
-
+                oneStep := oneStepGVD(I, y, VerifyDegenerate=>true, Verbose=>opts.Verbose);
+                isValid := oneStep_0;
                 if not isValid then continue;  -- go back to top of for loop
+
+                (C, N, degenerateOutput) := (oneStep_1, oneStep_2, oneStep_3);
                 isDegenerate := (degenerateOutput == "degenerate");
+                degenerateTable := new HashTable from {true => "degenerate", false => "nondegenerate"};
 
                 printIf(opts.Verbose, "-- C = " | toString C);
                 printIf(opts.Verbose, "-- N = " | toString N);
-                printIf(opts.Verbose, "-- form a " | isDegenerate | " geometric vertex decomposition");
+                printIf(opts.Verbose, "-- form a " | degenerateTable#isDegenerate | " geometric vertex decomposition");
 
                 if isDegenerate then (
                         -- degenerate case
@@ -725,6 +728,7 @@ doc///
 ///
 
 
+-- [KR, Definition 2.11]
 doc///
         Node
                 Key
