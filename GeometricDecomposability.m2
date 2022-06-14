@@ -702,12 +702,12 @@ doc///
                         B:Boolean
                 Description
                         Text
-                                This function tests if a given ideal is geometric vertex decomposable.  The definition, which generalizes the properties of a square-free monomial
-                                ideal whose associated simplicial complex is vertex decomposable,  is due to Klein and Rajchgot; see [Definition 2.7] in "Geometric Vertex Decomposition and Liaison."
-                                Forum of Math, Sigma, 9 (2021) e70:1-23.
+                                This function tests if a given ideal is geometric vertex decomposable.  The definition, which is due
+				to Klein and Rajchgot [KR, Definition 2.7],  generalizes the properties 
+				of a square-free monomial ideal whose associated simplicial complex is vertex decomposable.
 
-                                We include the definition here.  Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
+                                We include the definition here.  Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. 
+				A monomial ordering $<$ on $R$ is said to be {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
 				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
 
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
@@ -716,7 +716,7 @@ doc///
                                 $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
                                 and
                                 $$N_{y,I} = \langle q_i ~|~ d_i = 0 \rangle.$$
-                                Recall that an ideal $I$ is {\it unmixed} if the ideal $I$  satisfies $\dim(R/I) = \dim(R/P)$ for all associated primes $P \in Ass_R(R/I)$.
+                                Recall that an ideal $I$ is {\it unmixed} if the ideal $I$  satisfies $\dim(R/I) = \dim(R/P)$ for all associated primes $P \in {\rm Ass}_R(R/I)$.
 
                                 An ideal $I$ of $R =k[x_1,\ldots,x_n]$ is {\it geometrically vertex decomposable} if $I$ is unmixed and
 
@@ -730,7 +730,7 @@ doc///
                                         vertex decomposable.
 
                         	{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
+                        	a particular $y$-compatible order (see comment after Defintion 2.3 of [KR]).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
@@ -743,13 +743,14 @@ doc///
 
                         Text
                 	        Square-free monomial ideals that are geometrically vertex decomposable are precisely those square-free monomial ideals
-                		whose associated simplicial complex are vertex decomposable.  The edge ideal of a chordal graph corresponds to a simplicial
+                		whose associated simplicial complex are vertex decomposable [KR, Proposition 2.9].
+				 The edge ideal of a chordal graph corresponds to a simplicial
                 		complex that is vertex decomposable.  The option {\tt Verbose} shows the intermediate steps; in particular, {\tt Verbose}
 				displays what variable is being used to test a decomposition, as well as the ideals
 				$C_{y,I}$ and $N_{y,I}$.
                         Example
                                 R = QQ[a,b,c,d]
-                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d) -- edge ideal of complete graph K_4, a chordal graph
+                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d) -- edge ideal of a complete graph K_4, a chordal graph
                                 isGVD(i,Verbose=>true)
 				assert(isGVD(i))
 
@@ -767,6 +768,9 @@ doc///
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
                 		isGVD i
 				assert(isGVD(i)==false)
+		References
+		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CheckCM
