@@ -395,6 +395,7 @@ beginDocumentation()
 -- Documentation for package
 --******************************************************************************
 
+
 doc///
         Node
                 Key
@@ -530,7 +531,7 @@ doc///
                         oneStepGVD
 ///
 
--- Mike to do: add nonexample [done, also added an example]
+
 doc///
         Node
                 Key
@@ -594,7 +595,7 @@ doc///
                         isLexCompatiblyGVD
 ///
 
--- AVT: add more to the description [Done]
+
 doc///
         Node
                 Key
@@ -678,7 +679,7 @@ doc///
                         isWeaklyGVD
 ///
 
--- Mike: move assert statements to the test cases [done]
+
 doc///
         Node
                 Key
@@ -781,7 +782,6 @@ doc///
 ///
 
 
--- [KR, Definition 2.11] [AVT: Done]
 doc///
         Node
                 Key
@@ -842,7 +842,7 @@ doc///
                         Verbose
 ///
 
--- Mike: add example from test case [AVT: done]
+
 doc///
         Node
                 Key
@@ -877,8 +877,7 @@ doc///
                         isWeaklyGVD
 ///
 
--- AVT: write description [Done]
--- see [KR, Example 4.10], should already be in the test cases at the bottom of this file
+
 doc///
         Node
                 Key
@@ -996,7 +995,7 @@ doc///
                         oneStepGVD
 ///
 
--- AVT: fix references, add to each page where needed
+
 doc///
        Node
                 Key
@@ -1096,7 +1095,6 @@ doc///
 -- Documentation for optional inputs
 --******************************************************************************
 
--- Mike: add `SeeAlso` for the optionals [done]
 
 doc///
         Node
@@ -1117,7 +1115,7 @@ doc///
                         isLexCompatiblyGVD
 ///
 
--- Mike: remove hyperlink in headline, add it elsewhere [done; hyperlink is in the SeeAlso]
+
 doc///
         Node
                 Key
