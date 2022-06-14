@@ -437,7 +437,7 @@ doc///
                         Graphs. In Preparation (2022).
 
                         [DSH] S. Da Silva and M. Harada. Regular Nilpotent Hessenberg Varieties,
-                        Gröbner Bases, and Toric Degenerations. In preparation (2022)
+                        Gröbner Bases, and Toric Degenerations. In preparation (2022).
 
                         [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
                         Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
@@ -447,7 +447,7 @@ doc///
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                         [SM] H. Saremi and A. Mafi. Unmixedness and Arithmetic Properties of
-                        Matroidal Ideals. Arch. Math. 114:299–304, 2020.
+                        Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
 
                 Subnodes
                         CheckCM
@@ -860,7 +860,21 @@ doc///
                         I:Ideal
                 Outputs
                         B:Boolean
-
+                Description
+		        Text 
+			        A function that checks if an ideal $I$ is unmixed, i.e., all of the associated primes of $I$ have the same height.
+			
+			        The function is used by @TO isGVD@ to check if the ideal $I$ satisfies one the requirements to be a geometrically
+			        vertex decomposable ideal.
+			
+			        The following example uses  [SM, Example 1.6]
+		        Example
+			        R = QQ[x_1..x_5];
+                                I = ideal(x_1*x_3, x_1*x_4, x_1*x_5, x_2*x_3, x_2*x_4, x_2*x_5);
+				isUnmixed I
+		References
+		        [SM] H. Saremi and A. Mafi. Unmixedness and Arithmetic Properties of
+                        Matroidal Ideals. Arch. Math. 114 (2020) 299-304.
                 SeeAlso
                         isGVD
                         isLexCompatiblyGVD
