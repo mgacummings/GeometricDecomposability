@@ -495,11 +495,8 @@ doc///
                         As a result, work is also done in the background to compute $N_{y,I}$ at
                         the same time, and as such, the user is encouraged to call {\tt oneStepGVD}
                         directly if they want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
-                        performing the same computation twice.  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
-                        a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
-			When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
-                        on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
-
+                        performing the same computation twice.  
+			
 	        Description
 	                Text
 			        Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
@@ -512,14 +509,21 @@ doc///
                                 $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
 			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$
 
+                                The ideal $C_{y,I}$ does not depend upon the choice of the Gröbner basis or
+                        	a particular $y$-compatible order (see comment after Defintion 2.3 of [KR]).
+				When computing $C_{y,I}$ we use a lexicographical ordering
+                        	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+
                                 The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
                         Example
                                 R = QQ[a,b,c,d];
-                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
+                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of a complete graph K_4, a chordal graph
                                 CyI(i,b)
 				l = oneStepGVD(i,b);
 			        l_1 == CyI(i,b) -- CyI is the second element in the list given oneStepGVD
-
+    	    	References
+		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
                 SeeAlso
                         getGVDIdeal
                         NyI
