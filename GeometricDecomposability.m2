@@ -1026,8 +1026,8 @@ doc///
                                 is degenerate or nondegenerate
 		Description
 			 Text
-                                This function computes a geometric vertex decomposition of an ideal based upon Theorem 2.1  of A. Knutson, E. Miller, A. Yong, "Gröbner geometry of vertex decompositions
-				and of flagged tableaux" J. Reine Angew. Math. 630 (2009), 1–31.  Geometic vertex decomposition is the key step in the recursive
+                                This function computes a geometric vertex decomposition of an ideal based upon work of Knutson,
+				Miller, and Yong [KMY, Theorem 2.1].  Geometic vertex decomposition is the key step in the recursive
 			        defintion of geometically vertex decomposable ideals.  The function {\tt oneStepGVD} is repeatedly used by @TO isGVD@ to determine
 				if an ideal is a geometically vertex decomposable ideal.
 
@@ -1050,7 +1050,7 @@ doc///
 				ideal $C_{y,I}$ and the third element in the list is the ideal $N_{y,I}$.
 
 				{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Defintion 2.3 of Klein and Rajchgot).
+                        	a particular $y$-compatible order (see comment after Defintion 2.3 of [KR]).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 			Example
@@ -1067,15 +1067,23 @@ doc///
                                 i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
                                 oneStepGVD(i,c,VerifyDegenerate=>true)
 			Text
-			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  A warning that
-				the Gröbner basis is not square-free in the variable $y=e_1$ is given.  By Lemma 2.6 of Klein and Rajchgot, for an ideal $I$
+			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  By [KR, Lemma 2.6] for an ideal $I$
 				to have a geometric vertex decomposition with respect to the variable $y$, no term of
-				the Gröbner bases can be divided by $y^2$.  So, the warning tells us that we cannot have a geometric
-				vertex decomposition.
+				the Gröbner bases can be divided by $y^2$.  In this example, the Gröbner basis of $I$ contains an element with a term
+				divisible by $e_1^2$.  So $I$ should have no geometric vertex decomposition with respect to $y = e_1$, as verified by
+				the function.
 			Example
                 	        R = QQ[e_1..e_10];
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
-                		oneStepGVD(i,e_1)
+                		mingens gb i
+				oneStepGVD(i,e_1)
+		References
+                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
+                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
+                        1–31.
+
+                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 		SeeAlso
                         CyI
                         getGVDIdeal
