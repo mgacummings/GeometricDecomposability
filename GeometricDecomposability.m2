@@ -594,7 +594,7 @@ doc///
                         isLexCompatiblyGVD
 ///
 
--- AVT: add more to the description
+-- AVT: add more to the description [Done]
 doc///
         Node
                 Key
@@ -616,15 +616,26 @@ doc///
                         Text
                                 The purpose of {\tt getGVDIdeal} is to return the ideal generated
                                 by a sequence of choices of $C$ or $N$ ideals and corresponding
-                                choices of indeterminates $y$.
+                                choices of indeterminates $y$.  
+				
+				Given an ideal $I$ and variable $y_1$ in $R = k[x_1,\ldots,x_n]$, we can compute the ideals
+				$C_{y_1,I}$ and $N_{y_1,I}$ (see @TO isGVD@ for the definition of these ideals).  But
+				then for each of these ideals in the ring $R = k[x_1,\ldots,\hat{y_1},\ldots,x_n]$, we can
+				then pick a new variable $y_2$ to form the ideals $C_{y_2,C_{y_1,I}}$, $C_{y_2,N_{y_1,I}}$,
+				$N_{y_2,C_{y_1,I}}$ or $N_{y_2,N_{y_1,I}}$.  This process can be continued by now picking a new
+				variable $y_3$, and find either the $C$ or $N$ ideals of these ideals.
 
-                                The input syntax is best explained via example. The following is
-                                [KR, Example 2.16].
+				The input syntax is best explained via example. The following is
+                                [KR, Example 2.16]. We are given the ideal $I$.  The input 
+				tells us to first find $C_{y,I}$ of $I$.  Then we find $N_{s,C_{y,I}}$.
 
                         Example
                                 R = QQ[x,y,z,w,r,s]
                                 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
                                 getGVDIdeal(I, {{"C", y}, {"N", s}})
+                References
+		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CyI
