@@ -517,10 +517,10 @@ doc///
                                 The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
                         Example
                                 R = QQ[a,b,c,d];
-                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of a complete graph K_4, a chordal graph
-                                CyI(i,b)
-				l = oneStepGVD(i,b);
-			        l_1 == CyI(i,b) -- CyI is the second element in the list given oneStepGVD
+                                I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of a complete graph K_4, a chordal graph
+                                CyI(I,b)
+				L = oneStepGVD(I,b);
+			        L_1 == CyI(I,b) -- CyI is the second element in the list given oneStepGVD
     	    	References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
@@ -564,6 +564,13 @@ doc///
 
                                 Once the list of orders is computed, the list is shuffled. For
                                 a consistent order in the computation, set a @TO RandomSeed@.
+				
+				Below is [KR, Example 2.16], which is an example of an ideal that is not $<$-compatibly geometrically 
+				vertex decomposable.   
+			Example
+			        R = QQ[x..z,w,r,s];
+                                I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
+				findLexCompatiblyGVDOrder I
 
                 Caveat
                         The program does not learn from orders that do not work. For instance,
@@ -578,6 +585,10 @@ doc///
                         to $<$, then if there are $n-1$ other indeterminates, we would check
                         $(n-1)!$ monomial orders, all beginning with $y$, that do not work before
                         trying another choice of most expensive indeterminate.
+		
+		References 
+		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         isLexCompatiblyGVD
