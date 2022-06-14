@@ -808,6 +808,31 @@ doc///
                         output:Boolean
                 Outputs
                         B:Boolean
+                Description
+		 	Text   
+			        An ideal is $<$-compatibly geometrically vertex decomposable if
+                                there exists a (lexicographic) order $<$ such that at each one-step
+                                geometric vertex decomposition, we pick $y$ to be the most expensive
+                                indeterminate remaining in the ideal [KR, Definition 2.11].
+
+                                This method returns a Boolean value depending upon whether or not
+				the given ideal is $<$-comptabibly geometrically vertex decomposable with
+				respect to a given ordering lex ordering of the vertices.
+				
+				Compare this function to the command @TO findLexCompatiblyGVDOrder@ which checks all possible lex
+				orders of the variables in order to find at least one $<$-comptabibly lex order. 
+							
+				Below is [KR, Example 2.16], which is an example of an ideal that is not $<$-compatibly geometrically 
+				vertex decomposable.   Any permutation of the variables we give in this example will result in {\tt false}.
+			Example
+			        R = QQ[x..z,w,r,s];
+                                I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2));
+				isLexCompatiblyGVD(I,{x,y,z,w,r,s})
+				isLexCompatiblyGVD(I,{s,x,w,y,r,z},Verbose=>true)
+                References
+		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.  
+		    
 
                 SeeAlso
                         CheckCM
