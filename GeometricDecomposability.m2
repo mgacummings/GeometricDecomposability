@@ -2,8 +2,8 @@ indetOrder-- -*- coding: utf-8 -*-
 
 newPackage(
         "GeometricDecomposability",
-        Version => "0.3",
-        Date => "June 13, 2022",
+        Version => "0.4",
+        Date => "June 15, 2022",
         Headline => "A package to check if ideals are geometrically vertex decomposable",
         Authors => {
                 {
