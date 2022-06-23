@@ -980,7 +980,7 @@ doc///
 				a degenerate geometric vertex decomposition and the the contraction of $N_{y,I}$ to the ring $k[x_1,\ldots,\hat{y},\ldots,x_n]$
 				is weakly geometrically vertex decomposable, or
 
-				(3) (Nondegenerate Case) for some varialbe $y= x_j$ of $R$,  ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$ is
+				(3) (Nondegenerate Case) for some variable $y= x_j$ of $R$,  ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$ is
 				a non-degenerate geometric vertex decomposition, the contraction $C_{y,I}$ to the ring  $k[x_1,\ldots,\hat{y},\ldots,x_n]$
 				is weakly geometrically vertex decomposable, and $N_{y,I}$ is radical and Cohen-Macaulay.
 
