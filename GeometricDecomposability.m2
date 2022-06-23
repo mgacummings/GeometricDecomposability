@@ -25,6 +25,7 @@ newPackage(
         -- functions
         "CyI",
         "findLexCompatiblyGVDOrder",
+        "findOneStepGVD",
         "getGVDIdeal",
         "isGeneratedByIndeterminates",
         "isGVD",
@@ -33,11 +34,14 @@ newPackage(
         "isWeaklyGVD",
         "NyI",
         "oneStepGVD",
+        "yInit",
 
         -- options
         "CheckCM",
         "IsIdealHomogeneous",
         "IsIdealUnmixed",
+        "OnlyDegenerate",
+        "OnlyNondegenerate",
         "RandomSeed",
         "Verbose",
         "VerifyDegenerate"
@@ -72,6 +76,35 @@ findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
+findOneStepGVD = method(TypicalValue => List, Options => {OnlyNondegenerate => false, OnlyDegenerate => false})
+findOneStepGVD(Ideal) := opts -> I -> (
+        -- returns a list of indeterminates for which there exists a one step geometric vertex decomposition
+
+        if opts.OnlyNondegenerate and opts.OnlyDegenerate then (
+                error("a geometric vertex decomposition cannot be both degenerate and nondegenerate");
+                return;
+                );
+
+        satisfiesOneStep := (I, y, ND, D) -> (
+                if ND or D then (
+                        oneStep := oneStepGVD(I, y, VerifyDegenerate=>true);
+                        if ND then (
+                                return oneStep_0 and oneStep_3 == "nondegenerate";
+                                ) else (
+                                return oneStep_0 and oneStep_3 == "degenerate";
+                                )
+                        );
+                return (oneStepGVD(I, y))_0;
+                );
+
+        R := ring I;
+        indets := support I;
+        L := for y in indets list (if satisfiesOneStep(I, y, opts.OnlyNondegenerate, opts.OnlyDegenerate) then y else 0);
+        return delete(0, L);
+        )
+
+--------------------------------------------------------------------------------
+
 getGVDIdeal = method(TypicalValue => List)
 getGVDIdeal(Ideal, List) := (I, L) -> (
         CNs := new HashTable from {
@@ -97,7 +130,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 isGVD = method(TypicalValue => Boolean, Options => {Verbose => false, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
 isGVD(Ideal) := opts -> I -> (
         R := ring I;
-        printIf(opts.Verbose, toString I);  --remove this later?
+        printIf(opts.Verbose, toString I);
 
         if I == 0 then (printIf(opts.Verbose, "-- zero ideal"); return true);
         if I == 1 then (printIf(opts.Verbose, "-- unit ideal"); return true);
@@ -145,7 +178,7 @@ isGVD(Ideal) := opts -> I -> (
 isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {Verbose => false, IsIdealUnmixed => false, CheckCM => "once", IsIdealHomogeneous => false})
 isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
         R := ring I;
-        printIf(opts.Verbose, toString I);  --remove this later?
+        printIf(opts.Verbose, toString I);
 
         if I == 0 then (printIf(opts.Verbose, "-- zero ideal"); return true);
         if I == 1 then (printIf(opts.Verbose, "-- unit ideal"); return true);
@@ -203,7 +236,7 @@ isUnmixed(Ideal) := I -> (
 isWeaklyGVD = method(TypicalValue => Boolean, Options => {IsIdealUnmixed => false, Verbose => false})
 isWeaklyGVD(Ideal) := opts -> I -> (
         R := ring I;
-        printIf(opts.Verbose, toString I);  --remove this later?
+        printIf(opts.Verbose, toString I);
 
         if I == 0 then (printIf(opts.Verbose, "-- zero ideal"); return true);
         if I == 1 then (printIf(opts.Verbose, "-- unit ideal"); return true);
@@ -262,43 +295,34 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         cr := coefficientRing ring I;
 
         givenRing := ring I;
-        initYFormRing := cr[indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}];
         lexRing := cr[indeterminates, MonomialOrder=>Lex];
         contractedRing := cr[remainingIndets];
 
-        -- get the ideal of initial y-forms using the product order
-        I = sub(I, initYFormRing);
-        y = sub(y, initYFormRing);
-        inyFormIdeal := ideal leadTerm(1,I);
-
         -- pull evertying into a lex ring
-        use lexRing;
-        I = sub(I, lexRing);
-        y = sub(y, lexRing);
-        inyForm := sub(inyFormIdeal, lexRing);
-        G := first entries gens gb I;
+        I1 := sub(I, lexRing);
+        y1 := sub(y, lexRing);
+        inyForm := sub(yInit(I1, y1), lexRing);
+        G := first entries gens gb I1;
 
         -- get N_{y,I}
-        gensN := delete(0, apply(G, g -> isInN(g, y)));
+        gensN := delete(0, apply(G, g -> isInN(g, y1)));
         NyI := ideal(gensN);
 
         -- get C_{y, I} and determine whether the GB is squarefree in y
-        gensC := delete(true, flatten(apply(G, g -> isInC(g, y))));
+        gensC := delete(true, flatten(apply(G, g -> isInC(g, y1))));
         squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
         CyI := ideal(delete(false, gensC));
 
         -- [KR, Lemma 2.6]
         if not squarefree then (
                 printIf(opts.Verbose, "Warning: Gröbner basis not squarefree in " | toString y);
-                use givenRing;
-                return {false, CyI, NyI};
+                return {false, sub(CyI, givenRing), sub(NyI, givenRing)};
                 );
 
         -- check that the intersection holds
         -- sub CyI, NyI into lexRing in case either is zero or unit ideal
-        validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y) ) == inyForm );
+        validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y1) ) == inyForm );
 
-        use givenRing;
         C := sub(CyI, givenRing);
         N := sub(NyI, givenRing);
 
@@ -336,6 +360,26 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         )
 
 --------------------------------------------------------------------------------
+
+-- [KMY, Section 2.1]
+yInit = method(TypicalValue => Ideal)
+yInit(Ideal, RingElement) := (I, y) -> (
+
+        -- set up the ring
+        indeterminates := switch(0, index y, gens ring y);
+        cr := coefficientRing ring I;
+
+        initYFormRing := cr[indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}];
+
+        -- get the ideal of initial y-forms using the product order
+        I = sub(I, initYFormRing);
+        y = sub(y, initYFormRing);
+        inyFormIdeal := ideal leadTerm(1,I);
+
+        return inyFormIdeal;
+        )
+
+--------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 --** METHODS (HIDDEN FROM USER)
@@ -352,7 +396,7 @@ isInC(RingElement, RingElement) := (f, y) -> (
 isInN = method()
 isInN(RingElement, RingElement) := (f, y) -> (
         -- f is a polynomial, y an indeterminate
-        if degree(y, f) == 0 then return f else return 0;  -- 0 is a temp value which we remove immediately, used as opposed to null
+        if degree(y, f) == 0 then return f else return 0;  -- 0 is a temp value which we remove immediately
         )
 
 
@@ -368,17 +412,6 @@ getQ(RingElement, RingElement) := (f, y) -> (
 printIf = method()
 printIf(Boolean, String) := (bool, str) -> (
         if bool then print str;
-        )
-
--- remove this? -- it is not currently used
-ringWeights = method(TypicalValue => List)
-ringWeights(RingElement) := y -> (
-        -* y{ will be weighted 10, the rest of the indeterminates will be weighted 0 *-
-
-        R := ring y;
-        indets := gens R;
-        weights := append( splice{ (#indets-1):0 } , 10);
-        switch(index y, -1, weights)
         )
 
 --------------------------------------------------------------------------------
@@ -454,6 +487,7 @@ doc///
                         CheckCM
                         CyI
                         findLexCompatiblyGVDOrder
+                        findOneStepGVD
                         getGVDIdeal
                         isGeneratedByIndeterminates
                         isGVD
@@ -464,9 +498,12 @@ doc///
                         isWeaklyGVD
                         NyI
                         oneStepGVD
+                        OnlyDegenerate
+                        OnlyNondegenerate
                         RandomSeed
                         Verbose
                         VerifyDegenerate
+                        yInit
 ///
 
 --******************************************************************************
@@ -549,6 +586,7 @@ doc///
                         L:List
                                 if no order exists, returns {\tt \{false\}}, otherwise returns {\tt \{true, L\}},
                                 where {\tt L} is the lex order which works, stored as a list
+
                 Description
 
                         Text
@@ -593,6 +631,38 @@ doc///
 
                 SeeAlso
                         isLexCompatiblyGVD
+///
+
+
+doc///
+        Node
+                Key
+                        findOneStepGVD
+                        (findOneStepGVD, Ideal)
+                Headline
+
+                Usage
+                        findOneStepGVD I
+                        findOneStepGVD(I, OnlyNondegenerate=>nondegenerate)
+                        findOneStepGVD(I, OnlyDegenerate=>degenerate)
+                Inputs
+                        I:Ideal
+                        nondegenerate:Boolean
+                        degenerate:Boolean
+                Outputs
+                        L:List
+
+                Description
+
+                        Text
+
+
+		References
+		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+
+                SeeAlso
+                        oneStepGVD
 ///
 
 
@@ -1091,6 +1161,38 @@ doc///
 ///
 
 
+doc///
+       Node
+                Key
+                        yInit
+                        (yInit, Ideal, RingElement)
+                Headline
+                        computes the ideal of initial y-forms
+                Usage
+                        yInit(I, y)
+                Inputs
+                        I:Ideal
+                        y:RingElement
+                                an indeterminate in the ring
+                Outputs
+                        J:Ideal
+
+		Description
+			 Text
+
+
+		References
+                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
+                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
+                        1–31.
+
+                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		SeeAlso
+                        oneStepGVD
+///
+
+
 --******************************************************************************
 -- Documentation for optional inputs
 --******************************************************************************
@@ -1182,6 +1284,38 @@ doc///
                         isGVD
                         isLexCompatiblyGVD
                         isWeaklyGVD
+///
+
+
+doc///
+        Node
+                Key
+                        OnlyDegenerate
+                        [findOneStepGVD, OnlyDegenerate]
+                Headline
+                        optional argument for findOneStepGVD
+                Description
+                        Text
+                                Set to {\tt true} to restrict the output of @TO oneStepGVD@ to return only
+                                those indeterminates for which their geometric vertex decomposition is degenerate.
+                SeeAlso
+                        findOneStepGVD
+///
+
+
+doc///
+        Node
+                Key
+                        OnlyNondegenerate
+                        [findOneStepGVD, OnlyNondegenerate]
+                Headline
+                        optional argument for findOneStepGVD
+                Description
+                        Text
+                                Set to {\tt true} to restrict the output of @TO oneStepGVD@ to return only
+                                those indeterminates for which their geometric vertex decomposition is nondegenerate.
+                SeeAlso
+                        findOneStepGVD
 ///
 
 
@@ -1534,3 +1668,8 @@ assert( oneStepGVD(I, y, VerifyDegenerate=>true) == {true, ideal(z*s-x^2, w*r), 
 
 
 end--
+
+TODO
+
+-- yInit  <- maybe strip it from oneStep
+-- add documentation skeleton for anything added
