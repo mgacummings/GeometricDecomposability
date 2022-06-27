@@ -657,7 +657,8 @@ doc///
 
                 Description
                         Text
-                                Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.
+                                Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.  In otherwords, a list
+				of all the variables that statisfy ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$.
                                 All indeterminates $y$ which appear in the ideal are checked.
 
                         Example
@@ -666,7 +667,8 @@ doc///
                                 findOneStepGVD I
 
                         Text
-                                The following example is [KR, Example 2.16].
+                                The following example is [KR, Example 2.16], which shows that only the variable
+				$y$ gives a geometric vertex decomposition of the ideal $I$.
 
                         Example
                                 R = QQ[x,y,z,w,r,s]
