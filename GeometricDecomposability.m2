@@ -1417,7 +1417,8 @@ doc///
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( CyI(I, y) == ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s) )
+C = CyI(I,y);
+assert( C == substitute(ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s),ring C))
 ///
 
 
@@ -1613,15 +1614,15 @@ assert(not isGVD I)
 
 
 TEST///
-R = QQ[x,y]
-I = ideal(x^2 - y^2)
+R = QQ[x,y];
+I = ideal(x^2 - y^2);
 assert(not isLexCompatiblyGVD(I, {x,y}))
 ///
 
 
 TEST///
-R = QQ[x..z]
-I = ideal(x-y,x-z)
+R = QQ[x..z];
+I = ideal(x-y,x-z);
 assert(isLexCompatiblyGVD(I, {x,y,z}))
 ///
 
