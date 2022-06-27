@@ -463,7 +463,7 @@ doc///
                                 appearing in the ideal increases.
 
                 Acknowledgement
-                        We thank S. Da Silva, J. Rajchgot, and M. Harada for feedback. Cummings
+                        We thank S. Da Silva, P. Klein, J. Rajchgot, and M. Harada for feedback. Cummings
                         was partially supported by an NSERC USRA. Van Tuyl's research is partially
                         supported by NSERC Discovery Grant 2019-05412.
 
@@ -541,9 +541,10 @@ doc///
 	        Description
 	                Text
 			        Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
-				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
-
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$. 
+				Here, ${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
+				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
+				
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
                                 ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
                                 that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $C_{y,I}$ is given by
@@ -561,7 +562,7 @@ doc///
                                 I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of a complete graph K_4, a chordal graph
                                 CyI(I,b)
 				L = oneStepGVD(I,b);
-			        L_1 == CyI(I,b) -- CyI is the second element in the list given oneStepGVD
+			        L_1 == CyI(I,b) -- CyI is the second element in the list given by oneStepGVD
     	    	References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
@@ -712,7 +713,7 @@ doc///
 				then for each of these ideals in the ring $R = k[x_1,\ldots,\hat{y_1},\ldots,x_n]$, we can
 				then pick a new variable $y_2$ to form the ideals $C_{y_2,C_{y_1,I}}$, $C_{y_2,N_{y_1,I}}$,
 				$N_{y_2,C_{y_1,I}}$ or $N_{y_2,N_{y_1,I}}$.  This process can be continued by now picking a new
-				variable $y_3$, and find either the $C$ or $N$ ideals of these ideals.
+				variable $y_3$, and finding either the $C$ or $N$ ideals of these ideals.
 
 				The input syntax is best explained via example. The following is
                                 [KR, Example 2.16]. We are given the ideal $I$.  The input
@@ -851,7 +852,7 @@ doc///
                                 isGVD(i,Verbose=>true)
 
                         Text
-                                The following example gives an example of toric ideal of graph that is geometrically vertex decomposable, and another example
+                                The following example gives an example of a toric ideal of graph that is geometrically vertex decomposable, and another example
                 		of a toric ideal that is not geometric vertex decomposable.  The second toric ideal is not Cohen-Macaulay, so it
                 		cannot be geometrically vertex decomposable.
 
@@ -1060,9 +1061,11 @@ doc///
                 Description
                         Text
                                 Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
-				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, the non-zero coefficient of the highest power of $y^i$ appearing in $f$.
-
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.
+				Here,
+				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
+				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
+			    
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
                                 ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
                                 that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $N_{y,I}$ is given by
