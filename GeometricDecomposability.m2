@@ -3,7 +3,7 @@ indetOrder-- -*- coding: utf-8 -*-
 newPackage(
         "GeometricDecomposability",
         Version => "0.4",
-        Date => "June 15, 2022",
+        Date => "June 29, 2022",
         Headline => "A package to check if ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -316,6 +316,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- [KR, Lemma 2.6]
         if not squarefree then (
                 printIf(opts.Verbose, "Warning: Gröbner basis not squarefree in " | toString y);
+                use givenRing;
                 return {false, sub(CyI, givenRing), sub(NyI, givenRing)};
                 );
 
@@ -323,6 +324,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- sub CyI, NyI into lexRing in case either is zero or unit ideal
         validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y1) ) == inyForm );
 
+        use givenRing;
         C := sub(CyI, givenRing);
         N := sub(NyI, givenRing);
 
@@ -377,6 +379,7 @@ yInit(Ideal, RingElement) := (I, y) -> (
         y = sub(y, initYFormRing);
         inyFormIdeal := ideal leadTerm(1,I);
 
+        use givenRing;
         return sub(inyFormIdeal, givenRing);
         )
 
@@ -1377,8 +1380,8 @@ doc///
                         optional argument for findLexCompatiblyGVDOrder
                 Description
                         Text
-                                When brute forcing all possible orders, we shuffle their order upon each
-                                method call. Set a seed for a consistent order.
+                                When brute forcing all possible orders in @TO findLexCompatiblyGVDOrder@,
+                                we shuffle their order upon each time. Set a seed for a consistent order.
                 SeeAlso
                         findLexCompatiblyGVDOrder
 ///
@@ -1421,7 +1424,7 @@ TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
 C = CyI(I,y);
-assert( C == substitute(ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s),ring C))
+assert( CyI(I, y) == ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s) )
 ///
 
 
