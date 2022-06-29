@@ -1362,15 +1362,15 @@ doc///
                                 any $C_{y,I}$ or $N_{y,I}$ ideals are unmixed. Setting {\tt CheckUnmixed => false}
                                 will speed up computations since it is not performing a check of this condition.
 
-                                If you know that $I$ is unmixed but want to check for $C_{y,I}$, $N_{y,I}$, and any
-                                later ideals, use @TO IsIdealUnmixed@ instead.
+                                If you know that $I$ is unmixed but want to check unmixedness for $C_{y,I}$, $N_{y,I}$,
+                                and any later ideals, use @TO IsIdealUnmixed@ instead.
 
                                 Notice that if {\tt isGVD(I, CheckUnmixed=>false)} returns {\tt false}, then $I$ is
                                 definitively not geometrically vertex decomposable as there is some other condition
                                 that is not met.
 
                 Caveat
-                        If you set {\tt CheckUnmixed => false} and you do not know that both $I$ is unmixed
+                        If you set {\tt CheckUnmixed => false} and you do not already know that both $I$ is unmixed
                         and all later $C_{y,I}$ and $N_{y,I}$ ideals are unmixed, then the output of
                         @TO isGVD@ or any other GVD method cannot definitely conclude that $I$ is geometrically
                         vertex decomposable, as not all of conditions in the definition were checked.
