@@ -65,7 +65,7 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 findLexCompatiblyGVDOrder = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, RandomSeed => 1})
 findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
-        -- restrict to the ring of indeterminates appearing in I by [CDRV, tensor product result]
+        -- restrict to the ring of indeterminates appearing in I by [CDSRVT, tensor product result]
         setRandomSeed opts.RandomSeed;
         possibleOrders := random permutations support I;
 
@@ -1634,7 +1634,7 @@ assert(not isGVD I)
 ///
 
 
-TEST///  -- Toric ideal of the complete bipartite graph K_{3,2}; GVD by a result from [CDRV]
+TEST///  -- Toric ideal of the complete bipartite graph K_{3,2}; GVD by a result from [CDSRVT]
 loadPackage "Quasidegrees";
 R = QQ[e_1..e_6];
 A = matrix{
