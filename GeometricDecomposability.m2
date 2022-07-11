@@ -305,7 +305,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         lexRing := cr[indeterminates, MonomialOrder=>Lex];
         contractedRing := cr[remainingIndets];
 
-        -- pull evertying into a lex ring
+        -- pull everything into a lex ring
         I1 := sub(I, lexRing);
         y1 := sub(y, lexRing);
         inyForm := sub(yInit(I1, y1), lexRing);
@@ -315,14 +315,14 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         gensN := delete(0, apply(G, g -> isInN(g, y1)));
         NyI := ideal(gensN);
 
-        -- get C_{y, I} and determine whether the GB is squarefree in y
+        -- get C_{y, I} and determine whether the GB is square-free in y
         gensC := delete(true, flatten(apply(G, g -> isInC(g, y1))));
-        squarefree := (number(gensC, i -> (i === false)) == 0);  -- squarefree is true iff number of `false` in gensC is 0
+        squarefree := (number(gensC, i -> (i === false)) == 0);  -- square-free is true iff number of `false` in gensC is 0
         CyI := ideal(delete(false, gensC));
 
         -- [KR, Lemma 2.6]
         if not squarefree then (
-                printIf(opts.Verbose, "Warning: Gröbner basis not squarefree in " | toString y);
+                printIf(opts.Verbose, "Warning: Gröbner basis not square-free in " | toString y);
                 use givenRing;
                 return (false, sub(CyI, givenRing), sub(NyI, givenRing));
                 );
@@ -942,11 +942,11 @@ doc///
                                 indeterminate remaining in the ideal [KR, Definition 2.11].
 
                                 This method returns a Boolean value depending upon whether or not
-				the given ideal is $<$-comptabibly geometrically vertex decomposable with
+				the given ideal is $<$-compatibly geometrically vertex decomposable with
 				respect to a given ordering lex ordering of the vertices.
 
 				Compare this function to the command @TO findLexCompatiblyGVDOrder@ which checks all possible lex
-				orders of the variables in order to find at least one $<$-comptabibly lex order.
+				orders of the variables in order to find at least one $<$-compatibly lex order.
 
 				Below is [KR, Example 2.16], which is an example of an ideal that is not $<$-compatibly geometrically
 				vertex decomposable.   Any permutation of the variables we give in this example will result in {\tt false}.
@@ -1326,7 +1326,7 @@ doc///
                                 a list of length four, where the fourth entry is either
                                 {\tt "degenerate"} or {\tt "nondegenerate"}.
                                 Otherwise, {\tt oneStepGVD} does not check whether the geometric
-                                vertex decomposition was degenerate.
+                                vertex decomposition is degenerate.
 
                                 Note that a degenerate geometric vertex decomposition does not matter
                                 with regards to whether an ideal is geometrically vertex decomposable.
