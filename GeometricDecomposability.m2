@@ -567,7 +567,7 @@ doc///
 			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$
 
                                 The ideal $C_{y,I}$ does not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Defintion 2.3 of [KR]).
+                        	a particular $y$-compatible order (see comment after Definition 2.3 of [KR]).
 				When computing $C_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
@@ -858,7 +858,7 @@ doc///
                                         vertex decomposable.
 
                         	{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after [KR, Defintion 2.3]).
+                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
@@ -1113,7 +1113,7 @@ doc///
                                 This functions  takes an ideal $I$ and variable $y$, and returns $N_{y,I}$
 
                                 The ideal $N_{y,I}$ does not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Defintion 2.3 of [KR]).
+                        	a particular $y$-compatible order (see comment after Definition 2.3 of [KR]).
 				When computing $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
@@ -1190,7 +1190,7 @@ doc///
 				ideal $C_{y,I}$ and the third element in the list is the ideal $N_{y,I}$.
 
 				{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Defintion 2.3 of [KR]).
+                        	a particular $y$-compatible order (see comment after Definition 2.3 of [KR]).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 			Example
