@@ -1165,8 +1165,8 @@ doc///
 		Description
 			 Text
                                 This function computes a geometric vertex decomposition of an ideal based upon work of Knutson,
-				Miller, and Yong [KMY, Theorem 2.1].  Geometic vertex decomposition is the key step in the recursive
-			        defintion of geometrically vertex decomposable ideals.  The function {\tt oneStepGVD} is repeatedly used by @TO isGVD@ to determine
+				Miller, and Yong [KMY, Theorem 2.1].  Geometric vertex decomposition is the key step in the recursive
+			        definition of geometrically vertex decomposable ideals.  The function {\tt oneStepGVD} is repeatedly used by @TO isGVD@ to determine
 				if an ideal is a geometrically vertex decomposable ideal.
 
 				Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
