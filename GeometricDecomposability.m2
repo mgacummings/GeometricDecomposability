@@ -679,8 +679,8 @@ doc///
 
                 Description
                         Text
-                                Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.  In otherwords, a list
-				of all the variables that statisfy ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$.
+                                Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.  In other words, a sequence
+				of all the variables that satisfy ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$.
                                 All indeterminates $y$ which appear in the ideal are checked.
 
                         Example
