@@ -17,7 +17,7 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"PrimaryDecomposition", "Depth"},  -- I don't think these need to be imported for the user? As a result we use PackageImports and not PackageExports
+        PackageImports => {"PrimaryDecomposition", "Depth"},
         HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank/remove
         )
 
@@ -1400,7 +1400,7 @@ doc///
                 Description
                         Text
                                 Whether the input ideal is homogeneous, if known. This only matters if
-                                the Cohen-Macaulay check is completed.
+                                the Cohen-Macaulay check @TO CheckCM@ is completed.
                 SeeAlso
                         isGVD
                         isLexCompatiblyGVD
