@@ -159,7 +159,7 @@ isGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N) := toSequence oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
+                (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
                 if not isValid then continue;  -- go back to top of for loop
 
                 printIf(opts.Verbose, "-- C = " | toString C);
@@ -213,7 +213,7 @@ isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
 
         printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-        (isValid, C, N) := toSequence oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
+        (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
         if not isValid then return false;  -- order didn't work
 
         printIf(opts.Verbose, "-- C = " | toString C);
