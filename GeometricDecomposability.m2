@@ -145,7 +145,9 @@ isGVD(Ideal) := opts -> I -> (
 
         x := opts.IsIdealHomogeneous or isHomogeneous(I);
         if opts.CheckCM == "once" or opts.CheckCM == "always" then (
-                if x then (if (not isCM(R/I)) then return false;);
+                if x then (
+                        if (not isCM(R/I)) then return false;
+                        );
                 );
 
         CMTable := new HashTable from {
@@ -626,12 +628,18 @@ doc///
                                 a consistent order in the computation, set a @TO RandomSeed@.
 
 			Example
-			        R = QQ[x,y];
-                                I = ideal(x^2 - y^2);
-				findLexCompatiblyGVDOrder I
                                 R = QQ[x,y,z];
                                 I = ideal(x-y, x-z);
                                 findLexCompatiblyGVDOrder I
+
+                        Text
+                                The ideal in the following example is not square-free with respect to
+                                any indeterminate, so no one-step geometric vertex decompositions exist.
+
+                        Example
+			        R = QQ[x,y];
+                                I = ideal(x^2 - y^2);
+				findLexCompatiblyGVDOrder I
 
                 Caveat
                         The program does not learn from orders that do not work. For instance,
@@ -1334,6 +1342,11 @@ doc///
                                 of weakly geometrically vertex decomposable depends on whether each
                                 one-step geometric vertex decomposition is degenerate, so
                                 {\tt isWeaklyGVD} asks for this check.
+
+                        Example
+                                R = QQ[x,y,z]
+                                I = ideal(x-y, x-z)
+                                oneStepGVD(I, x, CheckDegenerate=>true)
                 SeeAlso
                         isWeaklyGVD
                         oneStepGVD
@@ -1369,11 +1382,21 @@ doc///
                                 definitively not geometrically vertex decomposable as there is some other condition
                                 that is not met.
 
+                                The following is not unmixed by [SM, Example 1.6], and hence not geometrically vertex
+                                decomposable. However, if we disable the unmixedness check and skip the Cohen-Macaulay check,
+                                {\tt isGVD} returns true.
+                        Example
+                                R = QQ[x_1..x_5]
+                                I = ideal(x_1*x_3, x_1*x_4, x_1*x_5, x_2*x_3, x_2*x_4, x_2*x_5)
+                                isUnmixed I
+                                isGVD(I, CheckCM=>"never", CheckUnmixed=>false)
+
                 Caveat
-                        If you set {\tt CheckUnmixed => false} and you do not already know that both $I$ is unmixed
-                        and all later $C_{y,I}$ and $N_{y,I}$ ideals are unmixed, then the output of
-                        @TO isGVD@ or any other GVD method cannot definitely conclude that $I$ is geometrically
+                        As in the above example, if you set {\tt CheckUnmixed => false} and you do not already know
+                        that both $I$ is unmixed and all later $C_{y,I}$ and $N_{y,I}$ ideals are unmixed, then the
+                        output of @TO isGVD@ or any other GVD method cannot definitely conclude that $I$ is geometrically
                         vertex decomposable, as not all of conditions in the definition were checked.
+
 
                 SeeAlso
                         CyI
@@ -1479,6 +1502,11 @@ doc///
                         Text
                                 When brute forcing all possible orders in @TO findLexCompatiblyGVDOrder@,
                                 we shuffle their order upon each time. Set a seed for a consistent order.
+                        Example
+                                R = QQ[x,y,z]
+                                I = ideal(x-y, x-z)
+                                findLexCompatiblyGVDOrder I
+                                findLexCompatiblyGVDOrder(I, RandomSeed => 11)
                 SeeAlso
                         findLexCompatiblyGVDOrder
 ///
@@ -1497,6 +1525,11 @@ doc///
                 Description
                         Text
                                 If true, prints intermediate steps taken. Otherwise, prints nothing.
+                        Example
+                                R = QQ[x,y,z]
+                                I = ideal(x-y, x-z)
+                                isGVD I
+                                isGVD(I, Verbose=>true)
                 SeeAlso
                         isGVD
                         isLexCompatiblyGVD
