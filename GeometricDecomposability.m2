@@ -1315,7 +1315,7 @@ doc///
                         CheckDegenerate
                         [oneStepGVD, CheckDegenerate]
                 Headline
-                        optional argument for {\tt oneStepGVD}
+                        optional argument for oneStepGVD
                 Description
                         Text
                                 A geometric vertex decomposition is degenerate if
