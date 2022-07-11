@@ -63,21 +63,21 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 --------------------------------------------------------------------------------
 
-findLexCompatiblyGVDOrder = method(TypicalValue => List, Options => {CheckUnmixed => true, RandomSeed => 1})
+findLexCompatiblyGVDOrder = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, RandomSeed => 1})
 findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
         -- restrict to the ring of indeterminates appearing in I by [CDRV, tensor product result]
         setRandomSeed opts.RandomSeed;
         possibleOrders := random permutations support I;
 
         for indetOrder in possibleOrders do (
-                if isLexCompatiblyGVD(I, indetOrder, CheckUnmixed=>opts.CheckUnmixed, Verbose=>false) then return {true, indetOrder};
+                if isLexCompatiblyGVD(I, indetOrder, CheckUnmixed=>opts.CheckUnmixed, Verbose=>false) then return (true, indetOrder);
                 );
-        return {false};   -- no order worked
+        return Sequence {false};   -- no order worked
         )
 
 --------------------------------------------------------------------------------
 
-findOneStepGVD = method(TypicalValue => List, Options => {CheckUnmixed => true, OnlyNondegenerate => false, OnlyDegenerate => false})
+findOneStepGVD = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, OnlyNondegenerate => false, OnlyDegenerate => false})
 findOneStepGVD(Ideal) := opts -> I -> (
         -- returns a list of indeterminates for which there exists a one step geometric vertex decomposition
 
@@ -101,18 +101,18 @@ findOneStepGVD(Ideal) := opts -> I -> (
         R := ring I;
         indets := support I;
         L := for y in indets list (if satisfiesOneStep(I, y, opts.OnlyNondegenerate, opts.OnlyDegenerate) then y else 0);
-        return delete(0, L);
+        return toSequence delete(0, L);
         )
 
 --------------------------------------------------------------------------------
 
-getGVDIdeal = method(TypicalValue => List, Options => {CheckUnmixed => true})
+getGVDIdeal = method(TypicalValue => Sequence, Options => {CheckUnmixed => true})
 getGVDIdeal(Ideal, List) := opts -> (I, L) -> (
         CNs := new HashTable from {
                 "C" => CyI,
                 "N" => NyI
                 };
-        return accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed) , prepend(I, L) );  -- last entry is the desired ideal
+        return toSequence accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed) , prepend(I, L) );  -- last entry is the desired ideal
         )
 
 --------------------------------------------------------------------------------
@@ -293,7 +293,7 @@ NyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 --------------------------------------------------------------------------------
 
 -- [KMY, Theorem 2.1]
-oneStepGVD = method(TypicalValue => List, Options => {CheckDegenerate => false, CheckUnmixed => true, Verbose => false})
+oneStepGVD = method(TypicalValue => Sequence, Options => {CheckDegenerate => false, CheckUnmixed => true, Verbose => false})
 oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
         -- set up the rings
@@ -324,7 +324,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         if not squarefree then (
                 printIf(opts.Verbose, "Warning: Gröbner basis not squarefree in " | toString y);
                 use givenRing;
-                return {false, sub(CyI, givenRing), sub(NyI, givenRing)};
+                return (false, sub(CyI, givenRing), sub(NyI, givenRing));
                 );
 
         -- check that the intersection holds
@@ -337,7 +337,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
         if not validOneStep then (
                 printIf(opts.Verbose, "Warning: not a valid geometric vertex decomposition");
-                return {false, C, N};
+                return (false, C, N);
                 );
 
         if opts.CheckUnmixed then (
@@ -352,22 +352,22 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
                         printIf(opts.Verbose, "Warning: NyI is not unmixed");
                         );
                 if not (isUnmixedC and isUnmixedN) then (
-                        return {false, C, N};
+                        return (false, C, N);
                         );
                 );
 
         if opts.CheckDegenerate then (
                 -- degenerate if C == 1 or radical C == radical N
-                if C == 1 then return {true, C, N, "degenerate"};
+                if C == 1 then return (true, C, N, "degenerate");
 
                 radC := radical(C, Unmixed=>true);
                 radN := radical(N, Unmixed=>true);
-                if (radC == radN) then return {true, C, N, "degenerate"};
+                if (radC == radN) then return (true, C, N, "degenerate");
 
                 -- if we are here, we are nondegenerate
-                return {true, C, N, "nondegenerate"};
+                return (true, C, N, "nondegenerate");
                 );
-        return {true, C, N};
+        return (true, C, N);
         )
 
 --------------------------------------------------------------------------------
@@ -605,9 +605,9 @@ doc///
                         seed:ZZ
                         B:Boolean
                 Outputs
-                        L:List
-                                if no order exists, returns {\tt \{false\}}, otherwise returns {\tt \{true, L\}},
-                                where {\tt L} is the lex order which works, stored as a list
+                        S:Sequence
+                                if no order exists, returns {\tt \{false\}}, otherwise returns {\tt (true, L)},
+                                where {\tt S} is the lex order which works
 
                 Description
 
@@ -675,7 +675,7 @@ doc///
                         degenerate:Boolean
                         nondegenerate:Boolean
                 Outputs
-                        L:List
+                        S:Sequence
 
                 Description
                         Text
@@ -727,7 +727,7 @@ doc///
                                 indeterminate in the ring
                         B:Boolean
                 Outputs
-                        M:List
+                        S:Sequence
                 Description
                         Text
                                 The purpose of {\tt getGVDIdeal} is to return the ideal generated
@@ -1157,8 +1157,8 @@ doc///
                         cu:Boolean
                         output:Boolean
                 Outputs
-                        L:List
-                                a list containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
+                        S:Sequence
+                                a sequence containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
                                 a valid geometric vertex decomposition, these ideals, and if
                                 {\tt CheckDegenerate=>true}, whether the one-step decomposition
                                 is degenerate or nondegenerate
@@ -1540,14 +1540,14 @@ assert( CyI(I, y) == ideal(z*s-x^2, w*r) )
 TEST///
 R = QQ[x,y];
 I = ideal(x^2 - y^2);
-assert(findLexCompatiblyGVDOrder I == {false})
+assert(findLexCompatiblyGVDOrder I == toSequence {false})
 ///
 
 
 TEST///
 R = QQ[x..z];
 I = ideal(x-y, x-z);
-assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == {true, {z, y, x}} )
+assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == (true, {z, y, x}) )
 ///
 
 
@@ -1559,14 +1559,14 @@ assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == {true, {z, y, x}} )
 TEST///
 R = QQ[x..z];
 I = ideal(x-y, y-z);
-assert( findOneStepGVD I == {x,y,z} )
+assert( findOneStepGVD I == (x,y,z) )
 ///
 
 
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( findOneStepGVD I == {y} )
+assert( findOneStepGVD I == toSequence {y} )
 ///
 
 
@@ -1578,7 +1578,7 @@ assert( findOneStepGVD I == {y} )
 TEST///
 R = QQ[x,y,z,w,r,s]
 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
-assert(getGVDIdeal(I, {{"C", y}, {"N", s}}) == {ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(w*r)})
+assert(getGVDIdeal(I, {{"C", y}, {"N", s}}) == (ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(w*r)))
 ///
 
 
@@ -1825,14 +1825,14 @@ assert( NyI(I, y) == ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2) )
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate"} )
+assert( oneStepGVD(I, y, CheckDegenerate=>true) == (true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate") )
 ///
 
 
 TEST///  -- [KR, Example 4.10]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
-assert( oneStepGVD(I, y, CheckDegenerate=>true) == {true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate"} )
+assert( oneStepGVD(I, y, CheckDegenerate=>true) == (true, ideal(z*s-x^2, w*r), ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2), "nondegenerate") )
 ///
 
 
