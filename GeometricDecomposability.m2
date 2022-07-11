@@ -232,7 +232,7 @@ isUnmixed(Ideal) := I -> (
         R := ring I;
         D := primaryDecomposition I;
         d := apply(D, i -> dim(R/i));
-        return all(apply(d, i -> (i == d_0)), i -> i);  -- list only contains true values
+        return all(apply(d, i -> (i == d_0)), i -> i);  -- list contains only true values
         )
 
 --------------------------------------------------------------------------------
@@ -1399,7 +1399,7 @@ doc///
                         optional argument for GVD methods
                 Description
                         Text
-                                Whether the input ideal is homogeneous, if known. This only matters if
+                                Whether the input ideal is homogeneous, if known. This matters only if
                                 the Cohen-Macaulay check @TO CheckCM@ is completed.
                 SeeAlso
                         isGVD
