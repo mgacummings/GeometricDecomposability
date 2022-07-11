@@ -72,7 +72,7 @@ findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
         for indetOrder in possibleOrders do (
                 if isLexCompatiblyGVD(I, indetOrder, CheckUnmixed=>opts.CheckUnmixed, Verbose=>false) then return (true, indetOrder);
                 );
-        return Sequence {false};   -- no order worked
+        return toSequence {false};   -- no order worked
         )
 
 --------------------------------------------------------------------------------
