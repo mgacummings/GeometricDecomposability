@@ -3,7 +3,7 @@ indetOrder-- -*- coding: utf-8 -*-
 newPackage(
         "GeometricDecomposability",
         Version => "0.5",
-        Date => "July 11, 2022",
+        Date => "July 14, 2022",
         Headline => "A package to check if ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -128,8 +128,15 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 2.7]
-isGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", CheckUnmixed => true, IsIdealHomogeneous => false,IsIdealUnmixed => false, Verbose => false})
+isGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", CheckUnmixed => true, IsIdealHomogeneous => false, IsIdealUnmixed => false, Verbose => false})
 isGVD(Ideal) := opts -> I -> (
+
+        if not instance(opts.CheckCM, String) then (
+                error "value of CheckCM must be a string";
+                ) else (
+                if not isSubset({opts.CheckCM}, {"always", "once", "never"}) then error ///unknown value of CheckCM, options are "once" (default), "always", "never"///;
+                );
+
         R := ring I;
         printIf(opts.Verbose, toString I);
 
@@ -182,6 +189,12 @@ isGVD(Ideal) := opts -> I -> (
 -- [KR, Definition 2.11]
 isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", CheckUnmixed => true, IsIdealHomogeneous => false, IsIdealUnmixed => false, Verbose => false})
 isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
+        if not instance(opts.CheckCM, String) then (
+                error "value of CheckCM must be a string";
+                ) else (
+                if not isSubset({opts.CheckCM}, {"always", "once", "never"}) then error ///unknown value of CheckCM, options are "once" (default), "always", "never"///;
+                );
+
         R := ring I;
         printIf(opts.Verbose, toString I);
 
