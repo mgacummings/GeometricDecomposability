@@ -21,7 +21,7 @@ newPackage(
         HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank/remove
         )
 
-        export {
+export {
         -- functions
         "CyI",
         "findLexCompatiblyGVDOrder",
