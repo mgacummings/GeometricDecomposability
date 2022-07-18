@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposability",
         Version => "0.5",
-        Date => "July 14, 2022",
+        Date => "July 18, 2022",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -153,7 +153,7 @@ isGVD(Ideal) := opts -> I -> (
         x := opts.IsIdealHomogeneous or isHomogeneous(I);
         if opts.CheckCM == "once" or opts.CheckCM == "always" then (
                 if x then (
-                        if (not isCM(R/I)) then return false;
+                        if (not isCM(R/I)) then (printIf(opts.Verbose, "-- ideal is homogeneous but not Cohen-Macaulay") ; return false);
                         );
                 );
 
