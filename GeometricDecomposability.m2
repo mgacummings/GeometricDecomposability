@@ -551,12 +551,10 @@ doc///
                         computes the ideal $C_{y,I}$ for a given ideal and indeterminate
                 Usage
                         CyI(I, y)
-                        CyI(I, y, CheckUnmixed=>B)
                 Inputs
                         I:Ideal
                         y:RingElement
                                 an indeterminate in the ring
-                        B:Boolean
                 Outputs
                         :Ideal
 
@@ -613,12 +611,8 @@ doc///
                         finds a lexicographic monomial order $<$ such that the ideal is $<$-compatibly geometrically vertex decomposable
                 Usage
                         findLexCompatiblyGVDOrder I
-                        findLexCompatiblyGVDOrder(I, RandomSeed=>seed)
-                        findLexCompatiblyGVDOrder(I, CheckUnmixed=>B)
                 Inputs
                         I:Ideal
-                        seed:ZZ
-                        B:Boolean
                 Outputs
                         :Sequence
                                 if no order exists, returns {\tt \{false\}}, otherwise returns {\tt (true, L)},
@@ -687,14 +681,8 @@ doc///
                         for which indeterminates does there exist a geometric vertex decomposition
                 Usage
                         findOneStepGVD I
-                        findOneStepGVD(I, CheckUnmixed=>B)
-                        findOneStepGVD(I, OnlyDegenerate=>degenerate)
-                        findOneStepGVD(I, OnlyNondegenerate=>nondegenerate)
                 Inputs
                         I:Ideal
-                        B:Boolean
-                        degenerate:Boolean
-                        nondegenerate:Boolean
                 Outputs
                         :Sequence
 
@@ -739,14 +727,12 @@ doc///
                         computes the $C_{y,I}$ or $N_{y,I}$ ideal at any point in the GVD recursion tree
                 Usage
                         getGVDIdeal(I, L)
-                        getGVDIdeal(I, L, CheckUnmixed=>B)
                 Inputs
                         I:Ideal
                         L:List
                                 a nested list where each list within {\tt L} is of length two, the
                                 first entry is either "C" or "N" and the second entry is an
                                 indeterminate in the ring
-                        B:Boolean
                 Outputs
                         :Sequence
                 Description
@@ -826,18 +812,8 @@ doc///
                         checks whether an ideal is geometrically vertex decomposable
                 Usage
                         isGVD I
-                        isGVD(I, CheckCM=>cm)
-                        isGVD(I, CheckUnmixed=>cu)
-                        isGVD(I, IsIdealHomogeneous=>homogeneous)
-                        isGVD(I, IsIdealUnmixed=>unmixed)
-                        isGVD(I, Verbose=>output)
                 Inputs
                         I:Ideal
-                        cm:String
-                        cu:Boolean
-                        homogeneous:Boolean
-                        unmixed:Boolean
-                        output:Boolean
                 Outputs
                         :Boolean
                 Description
@@ -940,19 +916,9 @@ doc///
                         checks whether an ideal is <-compatibly geometrically vertex decomposable for a given order
                 Usage
                         isLexCompatiblyGVD(I, L)
-                        isLexCompatiblyGVD(I, L, CheckCM=>cm)
-                        isLexCompatiblyGVD(I, L, CheckUnmixed=>cu)
-                        isLexCompatiblyGVD(I, L, IsIdealHomogeneous=>homogeneous)
-                        isLexCompatiblyGVD(I, L, IsIdealUnmixed=>unmixed)
-                        isLexCompatiblyGVD(I, L, Verbose=>output)
                 Inputs
                         I:Ideal
                         L:List
-                        cm:String
-                        cu:Boolean
-                        homogeneous:Boolean
-                        unmixed:Boolean
-                        output:Boolean
                 Outputs
                         :Boolean
                 Description
@@ -1041,14 +1007,8 @@ doc///
                         checks whether an ideal is weakly geometrically vertex decomposable
                 Usage
                         isWeaklyGVD I
-                        isWeaklyGVD(I, CheckUnmixed=>cu)
-                        isWeaklyGVD(I, IsIdealUnmixed=>unmixed)
-                        isWeaklyGVD(I, Verbose=>output)
                 Inputs
                         I:Ideal
-                        cu:Boolean
-                        unmixed:Boolean
-                        output:Boolean
                 Outputs
                         :Boolean
                 Description
@@ -1103,12 +1063,10 @@ doc///
                         computes the ideal $N_{y,I}$ for a given ideal and indeterminate
                 Usage
                         NyI(I, y)
-                        NyI(I, y, CheckUnmixed=>cu)
                 Inputs
                         I:Ideal
                         y:RingElement
                                 an indeterminate in the ring
-                        cu:Boolean
                 Outputs
                         :Ideal
 
@@ -1167,16 +1125,10 @@ doc///
                         computes a geometric vertex decomposition
                 Usage
                         oneStepGVD(I, y)
-                        oneStepGVD(I, y, CheckDegenerate=>cd)
-                        oneStepGVD(I, y, CheckUnmixed=>cu)
-                        oneStepGVD(I, y, Verbose=>output)
                 Inputs
                         I:Ideal
                         y:RingElement
                                 an indeterminate in the ring
-                        cd:Boolean
-                        cu:Boolean
-                        output:Boolean
                 Outputs
                         :Sequence
                                 a sequence containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
