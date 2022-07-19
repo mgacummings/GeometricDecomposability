@@ -77,16 +77,16 @@ findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
-findOneStepGVD = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, OnlyNondegenerate => false, OnlyDegenerate => false})
+findOneStepGVD = method(TypicalValue => List, Options => {CheckUnmixed => true, OnlyNondegenerate => false, OnlyDegenerate => false})
 findOneStepGVD(Ideal) := opts -> I -> (
         -- returns a list of indeterminates for which there exists a one step geometric vertex decomposition
 
         if opts.OnlyNondegenerate and opts.OnlyDegenerate then (
                 error("a geometric vertex decomposition cannot be both degenerate and nondegenerate");
-                return;
+                return {};
                 );
 
-        satisfiesOneStep := (I, y, ND, D) -> (
+        satisfiesOneStep := (I, y, D, ND) -> (
                 if ND or D then (
                         oneStep := oneStepGVD(I, y, CheckDegenerate=>true, CheckUnmixed=>opts.CheckUnmixed);
                         if ND then (
