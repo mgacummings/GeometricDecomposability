@@ -63,16 +63,16 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 --------------------------------------------------------------------------------
 
-findLexCompatiblyGVDOrder = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, RandomSeed => 1})
+findLexCompatiblyGVDOrder = method(TypicalValue => List, Options => {CheckUnmixed => true, RandomSeed => 1})
 findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
         -- restrict to the ring of indeterminates appearing in I by [CDSRVT, tensor product result]
         setRandomSeed opts.RandomSeed;
         possibleOrders := random permutations support I;
 
         for indetOrder in possibleOrders do (
-                if isLexCompatiblyGVD(I, indetOrder, CheckUnmixed=>opts.CheckUnmixed, Verbose=>false) then return (true, indetOrder);
+                if isLexCompatiblyGVD(I, indetOrder, CheckUnmixed=>opts.CheckUnmixed, Verbose=>false) then return {true, indetOrder};
                 );
-        return toSequence {false};   -- no order worked
+        return {false};   -- no order worked
         )
 
 --------------------------------------------------------------------------------
@@ -100,19 +100,19 @@ findOneStepGVD(Ideal) := opts -> I -> (
 
         R := ring I;
         indets := support I;
-        L := for y in indets list (if satisfiesOneStep(I, y, opts.OnlyNondegenerate, opts.OnlyDegenerate) then y else 0);
-        return toSequence delete(0, L);
+        L := for y in indets list (if satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate) then y else 0);
+        return delete(0, L);
         )
 
 --------------------------------------------------------------------------------
 
-getGVDIdeal = method(TypicalValue => Sequence, Options => {CheckUnmixed => true})
+getGVDIdeal = method(TypicalValue => List, Options => {CheckUnmixed => true})
 getGVDIdeal(Ideal, List) := opts -> (I, L) -> (
         CNs := new HashTable from {
                 "C" => CyI,
                 "N" => NyI
                 };
-        return toSequence accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed) , prepend(I, L) );  -- last entry is the desired ideal
+        return accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed) , prepend(I, L) );  -- last entry is the desired ideal
         )
 
 --------------------------------------------------------------------------------
