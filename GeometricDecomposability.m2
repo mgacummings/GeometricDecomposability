@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposability",
         Version => "0.5",
-        Date => "July 18, 2022",
+        Date => "July 22, 2022",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -79,7 +79,7 @@ findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
 
 findOneStepGVD = method(TypicalValue => List, Options => {CheckUnmixed => true, OnlyNondegenerate => false, OnlyDegenerate => false})
 findOneStepGVD(Ideal) := opts -> I -> (
-        -- returns a list of indeterminates for which there exists a one step geometric vertex decomposition
+        -- returns a list of indeterminates for which there exists a one-step geometric vertex decomposition
 
         if opts.OnlyNondegenerate and opts.OnlyDegenerate then (
                 error("a geometric vertex decomposition cannot be both degenerate and nondegenerate");
@@ -479,8 +479,8 @@ doc///
 
                                 An unmixed ideal $I$ in a polynomial ring $R$ is geometrically vertex
                                 decomposable if it is the zero ideal, the unit ideal, an ideal generated
-                                by indeterminates, or if there is a indeterminate $y$ of $R$ such the
-                                two ideals $C_{y,I}$ and $N_{y,I}$ that are constructed from $I$ are
+                                by indeterminates, or if there is a indeterminate $y$ of $R$ such that
+                                two ideals $C_{y,I}$ and $N_{y,I}$ constructed from $I$ are
                                 both geometrically vertex decomposable. For the complete definition, see
                                 @TO isGVD@.
 
@@ -560,10 +560,10 @@ doc///
 
                 Caveat
                         This method is a shortcut to extract the ideal $C_{y,I}$ as computed
-                        in @TO oneStepGVD@. That is, to compute $C_{y,I}$, we call {\tt oneStepGVD}.
+                        in @TO oneStepGVD@. That is, to compute $C_{y,I}$, {\tt oneStepGVD} is called in the background.
                         As a result, work is also done in the background to compute $N_{y,I}$ at
-                        the same time, and as such, the user is encouraged to call {\tt oneStepGVD}
-                        directly if they want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
+                        the same time, and as such, we encourage calling {\tt oneStepGVD}
+                        directly if we want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
                         performing the same computation twice.
 
 	        Description
@@ -577,17 +577,17 @@ doc///
                                 ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
                                 that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $C_{y,I}$ is given by
                                 $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
-			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$
+			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$.
 
                                 The ideal $C_{y,I}$ does not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Definition 2.3 of [KR]).
+                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
 				When computing $C_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
                                 The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
                         Example
                                 R = QQ[a,b,c,d];
-                                I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of a complete graph K_4, a chordal graph
+                                I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of the complete graph K_4, a chordal graph
                                 CyI(I,b)
 				L = oneStepGVD(I,b);
 			        L_1 == CyI(I,b) -- CyI is the second element in the list given by oneStepGVD
@@ -614,25 +614,27 @@ doc///
                 Inputs
                         I:Ideal
                 Outputs
-                        :Sequence
-                                if no order exists, returns {\tt \{false\}}, otherwise returns {\tt (true, L)},
-                                where {\tt S} is the lex order which works
+                        :List
+                                if no order exists, returns {\tt {false}}, otherwise returns {\tt {true, L}},
+                                where {\tt L} is a list containing the lex order which works
 
                 Description
 
                         Text
 
-                                An ideal is $<$-compatibly geometrically vertex decomposable if
-                                there exists a (lexicographic) order $<$ such that at each one-step
-                                geometric vertex decomposition, we pick $y$ to be the most expensive
-                                indeterminate remaining in the ideal [KR, Definition 2.11].
+                                An ideal $I$ is $<$-compatibly geometrically vertex decomposable if
+                                there exists a (lexicographic) order $<$ such that $I$ is geometrically vertex
+                                decomposable and for every (one-step) geometric vertex decomposition, we
+                                pick $y$ to be the most expensive indeterminate remaining in the ideal according
+                                to $<$ [KR, Definition 2.11].
+                                For the definition of a (one-step) geometric vertex decomposition, see @TO oneStepGVD@.
 
-                                This method computes all possible lex orders on the indeterminates
+                                This method computes all possible lex orders for the indeterminates
                                 appearing in the ideal and checks each until one which works is
                                 found.
 
-                                Once the list of orders is computed, the list is shuffled. For
-                                a consistent order in the computation, set a @TO RandomSeed@.
+                                To mediate the issue noted in the caveat, the list of lex orders is shuffled.
+                                For a consistent order in the computation, set a @TO RandomSeed@.
 
 			Example
                                 R = QQ[x,y,z];
@@ -641,7 +643,7 @@ doc///
 
                         Text
                                 The ideal in the following example is not square-free with respect to
-                                any indeterminate, so no one-step geometric vertex decompositions exist.
+                                any indeterminate, so no one-step geometric vertex decomposition exists.
 
                         Example
 			        R = QQ[x,y];
@@ -650,17 +652,22 @@ doc///
 
                 Caveat
                         The program does not learn from orders that do not work. For instance,
-                        suppose that there does not exist a geometric vertex decomposition for
+                        suppose that there does not exist a one-step geometric vertex decomposition for
                         a given ideal with respect to some $y$. This program will nonetheless
                         check all the lex orders with $y$ as the most expensive indeterminate
-                        in the order. As a result, the execution time may be very slow.
+                        in the order. As a result, this method may be very slow.
 
                         It is for this reason that the monomial orders are shuffled upon their
-                        generation. That is, if we did not shuffle the orders and $y$ was
-                        the first choice for the most expensive indeterminate with respect
-                        to $<$, then if there are $n-1$ other indeterminates, we would check
-                        $(n-1)!$ monomial orders, all beginning with $y$, that do not work before
-                        trying another choice of most expensive indeterminate.
+                        generation.
+                        To see why, note the following example which demonstrates what happens if we did not
+                        shuffle the orders.
+                        Suppose that there are $n$ variables and $y$ is the first indeterminate in
+                        the ring, {\tt R = QQ[y, ...]}.
+                        Then, there are $(n-1)!$ lex orders $>$ which have $y$ as the most expensive
+                        indeterminate.
+                        If $I$ does not have a (one-step) geometric vertex decomposition with respect to $y$,
+                        then these $(n-1)!$ orders are attempted first.
+
 
 		References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
@@ -684,12 +691,12 @@ doc///
                 Inputs
                         I:Ideal
                 Outputs
-                        :Sequence
+                        :List
 
                 Description
                         Text
-                                Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.  In other words, a sequence
-				of all the variables that satisfy ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$.
+                                Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.  In other words, a list
+				of all the variables $y$ that satisfy ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$.
                                 All indeterminates $y$ which appear in the ideal are checked.
 
                         Example
@@ -698,12 +705,12 @@ doc///
                                 findOneStepGVD I
 
                         Text
-                                The following example is [KR, Example 2.16], which shows that only the variable
-				$y$ gives a geometric vertex decomposition of the ideal $I$.
+                                The following example is [KR, Example 2.16]. The variable $b$ is
+                                the only indeterminate for which there exists a geometric vertex decomposition.
 
                         Example
-                                R = QQ[x,y,z,w,r,s]
-                                I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
+                                R = QQ[a,b,c,d,e,f]
+                                I = ideal(b*(c*f - a^2), b*d*e, d*e*(c^2+a*c+d*e+f^2))
                                 findOneStepGVD I
 
                 References
@@ -734,7 +741,7 @@ doc///
                                 first entry is either "C" or "N" and the second entry is an
                                 indeterminate in the ring
                 Outputs
-                        :Sequence
+                        :List
                 Description
                         Text
                                 The purpose of {\tt getGVDIdeal} is to return the ideal generated
@@ -786,9 +793,6 @@ doc///
                                 An ideal is generated by indeterminates if the generators are a
                                 (possibly empty) subset of the indeterminates in the ring.
 
-				This function is used to check if a given ideal satisfies one of the conditions
-				of being geometrically vertex decomposable (see @TO isGVD@).
-
                         Example
                                 R = QQ[x,y]
                                 isGeneratedByIndeterminates ideal 0
@@ -818,7 +822,7 @@ doc///
                         :Boolean
                 Description
                         Text
-                                This function tests if a given ideal is geometric vertex decomposable.
+                                This function tests whether a given ideal is geometrically vertex decomposable.
 		                Geometrically vertex decomposable ideals are based upon the geometric vertex
 				decomposition defined by Knutson, Miller, and Yong [KMY].  Using geometric
 				vertex decomposition, Klein and Rajchgot gave a recursive definition for
@@ -830,7 +834,7 @@ doc///
                                 {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
 				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
 				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
-				We set ${\rm in}_y(I) = \langle {\rm in}_y(f) ~|~ f \in I \rangle$ to be the ideal generated by all the initial $y$-forms in $I$
+				We set ${\rm in}_y(I) = \langle {\rm in}_y(f) ~|~ f \in I \rangle$ to be the ideal generated by all the initial $y$-forms in $I$.
 
 
 
@@ -841,7 +845,7 @@ doc///
                                 $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
                                 and
                                 $$N_{y,I} = \langle q_i ~|~ d_i = 0 \rangle.$$
-                                Recall that an ideal $I$ is {\it unmixed} if the ideal $I$  satisfies $\dim(R/I) = \dim(R/P)$ for all associated primes $P \in {\rm Ass}_R(R/I)$.
+                                Recall that an ideal $I$ is {\it unmixed} if all of the associated primes of $I$ have the same height.
 
                                 An ideal $I$ of $R =k[x_1,\ldots,x_n]$ is {\it geometrically vertex decomposable} if $I$ is unmixed and
 
@@ -861,9 +865,9 @@ doc///
 
                         Example
                 	        R = QQ[a,b,c,d]
-                		f = 3*a*b + 4*b*c+ 16*a*c+18*d
-                		i = ideal(f)
-                		isGVD(i)
+                		f = 3*a*b + 4*b*c+ 16*a*c + 18*d
+                		i = ideal f
+                		isGVD i
 
                         Text
                 	        Square-free monomial ideals that are geometrically vertex decomposable are precisely those square-free monomial ideals
@@ -878,10 +882,9 @@ doc///
                                 isGVD(i,Verbose=>true)
 
                         Text
-                                The following example gives an example of a toric ideal of graph that is geometrically vertex decomposable, and another example
-                		of a toric ideal that is not geometric vertex decomposable.  The second toric ideal is not Cohen-Macaulay, so it
-                		cannot be geometrically vertex decomposable.
-
+                                The following is an example of a toric ideal of graph that is geometrically vertex decomposable, and another example
+                		of a toric ideal of a graph that is not geometric vertex decomposable. The second ideal is not Cohen-Macaulay, so it
+                		cannot be geometrically vertex decomposable [KR, Corollary 4.5].
                         Example
                 	        R = QQ[e_1..e_7]
                 		i = ideal(e_2*e_7-e_5*e_6,e_1*e_4-e_2*e_3) -- the toric ideal of a graph
@@ -890,6 +893,10 @@ doc///
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
                 		isGVD i
 		References
+                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
+                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
+                        1–31.
+
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
@@ -923,23 +930,24 @@ doc///
                         :Boolean
                 Description
 		 	Text
-			        An ideal is $<$-compatibly geometrically vertex decomposable if
-                                there exists a (lexicographic) order $<$ such that at each one-step
-                                geometric vertex decomposition, we pick $y$ to be the most expensive
-                                indeterminate remaining in the ideal [KR, Definition 2.11].
+                                An ideal $I$ is $<$-compatibly geometrically vertex decomposable if
+                                there exists a (lexicographic) order $<$ such that $I$ is geometrically vertex
+                                decomposable and for every (one-step) geometric vertex decomposition, we
+                                pick $y$ to be the most expensive indeterminate remaining in the ideal according
+                                to $<$ [KR, Definition 2.11].
+                                For the definition of a (one-step) geometric vertex decomposition, see @TO oneStepGVD@.
 
                                 This method returns a Boolean value depending upon whether or not
 				the given ideal is $<$-compatibly geometrically vertex decomposable with
-				respect to a given ordering lex ordering of the vertices.
-
+				respect to a given ordering lex ordering of the indeterminates.
 				Compare this function to the command @TO findLexCompatiblyGVDOrder@ which checks all possible lex
 				orders of the variables in order to find at least one $<$-compatibly lex order.
 
 				Below is [KR, Example 2.16], which is an example of an ideal that is not $<$-compatibly geometrically
-				vertex decomposable.   Any permutation of the variables we give in this example will result in {\tt false}.
+				vertex decomposable. Any permutation of the variables we give in this example will result in {\tt false}.
 			Example
-			        R = QQ[x..z,w,r,s];
-                                I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2));
+			        R = QQ[x,y,z,w,r,s];
+                                I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2));
 				isLexCompatiblyGVD(I,{x,y,z,w,r,s})
 				isLexCompatiblyGVD(I,{s,x,w,y,r,z},Verbose=>true)
                 References
@@ -976,10 +984,8 @@ doc///
                         :Boolean
                 Description
 		        Text
-			        A function that checks if an ideal $I$ is unmixed, i.e., all of the associated primes of $I$ have the same height.
-
-			        The function is used by @TO isGVD@ to check if the ideal $I$ satisfies one the requirements to be a geometrically
-			        vertex decomposable ideal.
+			        A function that checks whether an ideal $I \subseteq R$ is unmixed, i.e., the ideal $I$
+                                satisfies $\dim(R/I) = \dim(R/P)$ for all associated primes $P \in {\rm Ass}_R(R/I)$.
 
 			        The following example uses  [SM, Example 1.6].
 		        Example
@@ -1013,33 +1019,34 @@ doc///
                         :Boolean
                 Description
 		        Text
-			        This function tests if a given ideal is weakly geometrically vertex decomposable, as defined in [KR, Definition 4.6].
+			        This function tests whether a given ideal is weakly geometrically vertex decomposable [KR, Definition 4.6].
 
-				See @TO isGVD@ for the definition of the ideals $C_{y,I}$ and $N_{y,I}$ used below.  Furthermore, we say that a geometric
+				See @TO isGVD@ for the definition of the ideals $C_{y,I}$ and $N_{y,I}$ used below. Furthermore, we say that a geometric
 				vertex decomposition is {\it degenerate} if $C_{y,I} = \langle 1 \rangle$ or if $\sqrt{C_{y,I}} = \sqrt{N_{y,I}}$.
+                                The geometric vertex decomposition is {\it nondegenerate} otherwise.
 
-				An ideal is {\it weakly geometrically vertex decomposable} if $I$ is unmixed and
+				An ideal $I \subseteq R = k[x_1, \ldots, x_n]$ is {\it weakly geometrically vertex decomposable} if $I$ is unmixed and
 
                                 (1) $I = \langle 1 \rangle$, or $I$ is generated by a (possibly empty) subset of variables of $R$, or
 
 				(2) (Degenerate Case) for some variable $y = x_j$ of $R$, ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$ is
-				a degenerate geometric vertex decomposition and the the contraction of $N_{y,I}$ to the ring $k[x_1,\ldots,\hat{y},\ldots,x_n]$
+				a degenerate geometric vertex decomposition and the contraction of $N_{y,I}$ to the ring $k[x_1,\ldots,\hat{y},\ldots,x_n]$
 				is weakly geometrically vertex decomposable, or
 
-				(3) (Nondegenerate Case) for some variable $y= x_j$ of $R$,  ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$ is
-				a non-degenerate geometric vertex decomposition, the contraction $C_{y,I}$ to the ring  $k[x_1,\ldots,\hat{y},\ldots,x_n]$
+				(3) (Nondegenerate Case) for some variable $y = x_j$ of $R$,  ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$ is
+				a nondegenerate geometric vertex decomposition, the contraction of $C_{y,I}$ to the ring  $k[x_1,\ldots,\hat{y},\ldots,x_n]$
 				is weakly geometrically vertex decomposable, and $N_{y,I}$ is radical and Cohen-Macaulay.
 
-		                The following example is based upon [KR, Example 4.10]; this is an example of an ideal that is weakly geometrically
+		                The following example is [KR, Example 4.10]. It is an example of an ideal that is weakly geometrically
 				vertex decomposable, but not geometrically vertex decomposable.
 		        Example
                 	        R = QQ[x..z,w,r,s];
-                                I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r));
+                                I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r));
 				isWeaklyGVD I
 				isGVD I
 
-               References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                References
+        	        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
@@ -1072,10 +1079,10 @@ doc///
 
                 Caveat
                         This method is a shortcut to extract the ideal $N_{y,I}$ as computed
-                        in @TO oneStepGVD@. That is, to compute $N_{y,I}$, we call {\tt oneStepGVD}.
+                        in @TO oneStepGVD@. That is, to compute $N_{y,I}$, {\tt oneStepGVD} is called in the background.
                         As a result, work is also done in the background to compute $C_{y,I}$ at
-                        the same time, and as such, the user is encouraged to call {\tt oneStepGVD}
-                        directly if they want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
+                        the same time, and as such, we encourage calling {\tt oneStepGVD}
+                        directly if we want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
                         performing the same computation twice.
                 Description
                         Text
@@ -1092,7 +1099,7 @@ doc///
                                 This functions  takes an ideal $I$ and variable $y$, and returns $N_{y,I}$
 
                                 The ideal $N_{y,I}$ does not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after Definition 2.3 of [KR]).
+                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
 				When computing $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
@@ -1131,8 +1138,8 @@ doc///
                                 an indeterminate in the ring
                 Outputs
                         :Sequence
-                                a sequence containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
-                                a valid geometric vertex decomposition, these ideals, and if
+                                containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
+                                a valid geometric vertex decomposition, these ideals $C_{y,I}$ and $N_{y,I}$, and if
                                 {\tt CheckDegenerate=>true}, whether the one-step decomposition
                                 is degenerate or nondegenerate
 		Description
@@ -1158,11 +1165,17 @@ doc///
                                 If ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle),$
                                 then we call this decomposition a {\it geometric vertex decomposition of $I$}.
 
-				For a given variable $y$, the function {\tt oneStepGVD} returns a list, where the first element in the list is true or false
-				depending if the given variable gives a geometric vertex decomposition of $I$, while the second element is the
-				ideal $C_{y,I}$ and the third element in the list is the ideal $N_{y,I}$.
+                                Furthermore, we say that a geometric vertex decomposition is {\it degenerate} if
+                                $C_{y,I} = \langle 1 \rangle$ or if $\sqrt{C_{y,I}} = \sqrt{N_{y,I}}$.
+                                The geometric vertex decomposition is {\it nondegenerate} otherwise.
 
-				{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
+				For a given variable $y$, the function {\tt oneStepGVD} returns a sequence, where the first element in the sequence is true or false
+				depending if the given variable $y$ gives a geometric vertex decomposition of $I$, while the second element is the
+				ideal $C_{y,I}$ and the third element in the sequence is the ideal $N_{y,I}$.
+                                If {\tt CheckDegenerate=>true}, then there is a fourth element in the output, either "degenerate" or "nondegenerate", corresponding
+                                to whether the geometric vertex decomposition is degenerate.
+
+				{\it Note:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
                         	a particular $y$-compatible order (see comment after Definition 2.3 of [KR]).
                         	When computing $C_{y,I}$ and $N_{y,I}$ we use a lexicographical ordering
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
@@ -1180,13 +1193,12 @@ doc///
                                 i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
                                 oneStepGVD(i,c,CheckDegenerate=>true)
 			Text
-			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  By [KR, Lemma 2.6] for an ideal $I$
+			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  By [KR, Lemma 2.6], for an ideal $I$
 				to have a geometric vertex decomposition with respect to the variable $y$, no term of
 				the Gröbner bases can be divided by $y^2$.  In this example, the Gröbner basis of $I$ contains an element with a term
-				divisible by $e_1^2$.  So $I$ should have no geometric vertex decomposition with respect to $y = e_1$, as verified by
-				the function.
+				divisible by $e_1^2$. So $I$ does not have a geometric vertex decomposition with respect to $y = e_1$.
 			Example
-                	        R = QQ[e_1..e_10];
+                	        R = QQ[e_1..e_10, MonomialOrder=>Lex];
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
                 		mingens gb i
 				oneStepGVD(i,e_1)
@@ -1269,13 +1281,21 @@ doc///
                         [isGVD, CheckCM]
                         [isLexCompatiblyGVD, CheckCM]
                 Headline
-                        optional argument for GVD methods
+                        when to perform a Cohen-Macaulay check on the ideal
                 Description
                         Text
-                                Whether to check that the ideal is GVD using the result of
-                                [KR, Corollary 4.5] "once" (default, only for the ideal given
-                                in the input and none of the following C, N ideals), "always",
-                                or "never".
+                                Whether to check that the ideal is geometrically vertex
+                                decomposable using the result of [KR, Corollary 4.5] which relates the
+                                geometrically vertex decomposable and Cohen-Macaulay properties.
+                                Set {\tt CheckCM=>"once"} to perform this check once (default, only for the
+                                ideal given in the input), {\tt CheckCM=>"always"} check for
+                                the following $C_{y,I}$ and $N_{y,I}$ ideals as well, or
+                                {\tt CheckCM=>"never"}.
+
+                References
+                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+
                 SeeAlso
                         isGVD
                         isLexCompatiblyGVD
@@ -1288,30 +1308,35 @@ doc///
                         CheckDegenerate
                         [oneStepGVD, CheckDegenerate]
                 Headline
-                        optional argument for oneStepGVD
+                        check whether the geometric vertex decomposition is degenerate
                 Description
                         Text
                                 A geometric vertex decomposition is degenerate if
                                 $\sqrt{C_{y,I}} = \sqrt{N_{y,I}}$ or if $C_{y,I} = \langle 1 \rangle$,
                                 and nondegenerate otherwise [KR, Section 2.2].
 
-                                If {\tt CheckDegenerate => true}, then {\tt oneStepGVD} returns
-                                a list of length four, where the fourth entry is either
+                                If {\tt CheckDegenerate=>true}, then {\tt oneStepGVD} returns
+                                a sequence of length four, where the fourth entry is either
                                 {\tt "degenerate"} or {\tt "nondegenerate"}.
                                 Otherwise, {\tt oneStepGVD} does not check whether the geometric
-                                vertex decomposition is degenerate.
+                                vertex decomposition is degenerate and the sequence in the output has length three.
 
-                                Note that a degenerate geometric vertex decomposition does not matter
+                                Note that the degeneracy of a geometric vertex decomposition does not matter
                                 with regards to whether an ideal is geometrically vertex decomposable.
-                                As a result, {\tt isGVD} does not check this. However, the definition
-                                of weakly geometrically vertex decomposable depends on whether each
-                                one-step geometric vertex decomposition is degenerate, so
-                                {\tt isWeaklyGVD} asks for this check.
+                                As a result, @TO isGVD@ does not check this. However, the definition
+                                of weakly geometrically vertex decomposable depends the
+                                one-step geometric vertex decomposition at each step is degenerate, so
+                                @TO isWeaklyGVD@ asks for this check.
 
                         Example
                                 R = QQ[x,y,z]
                                 I = ideal(x-y, x-z)
                                 oneStepGVD(I, x, CheckDegenerate=>true)
+
+                References
+                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+
                 SeeAlso
                         isWeaklyGVD
                         oneStepGVD
@@ -1332,19 +1357,20 @@ doc///
                         [NyI, CheckUnmixed]
                         [oneStepGVD, CheckUnmixed]
                 Headline
-                        optional argument for GVD methods
+                        check whether ideals encountered are unmixed
                 Description
                         Text
 
                                 If set to {\tt false}, the program never checks whether the ideal $I$ or
-                                any $C_{y,I}$ or $N_{y,I}$ ideals are unmixed. Setting {\tt CheckUnmixed => false}
-                                will speed up computations since it is not performing a check of this condition.
+                                any $C_{y,I}$ or $N_{y,I}$ ideals are unmixed. Setting {\tt CheckUnmixed=>false}
+                                will speed up computations since it is not performing a check of this condition but comes
+                                at the cost that not all the necessary conditions are checked.
 
                                 If you know that $I$ is unmixed but want to check unmixedness for $C_{y,I}$, $N_{y,I}$,
                                 and any later ideals, use @TO IsIdealUnmixed@ instead.
 
                                 Notice that if {\tt isGVD(I, CheckUnmixed=>false)} returns {\tt false}, then $I$ is
-                                definitively not geometrically vertex decomposable as there is some other condition
+                                conclusively not geometrically vertex decomposable as there is some other condition
                                 that is not met.
 
                                 The following is not unmixed by [SM, Example 1.6], and hence not geometrically vertex
@@ -1357,10 +1383,14 @@ doc///
                                 isGVD(I, CheckCM=>"never", CheckUnmixed=>false)
 
                 Caveat
-                        As in the above example, if you set {\tt CheckUnmixed => false} and you do not already know
+                        As in the above example, if you set {\tt CheckUnmixed=>false} and you do not already know
                         that both $I$ is unmixed and all later $C_{y,I}$ and $N_{y,I}$ ideals are unmixed, then the
                         output of @TO isGVD@ or any other GVD method cannot definitely conclude that $I$ is geometrically
                         vertex decomposable, as not all of conditions in the definition were checked.
+
+                References
+                        [SM] H. Saremi and A. Mafi. Unmixedness and Arithmetic Properties of
+                        Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
 
 
                 SeeAlso
@@ -1384,12 +1414,13 @@ doc///
                         [isGVD, IsIdealHomogeneous]
                         [isLexCompatiblyGVD, IsIdealHomogeneous]
                 Headline
-                        optional argument for GVD methods
+                        specify whether an ideal is homogeneous
                 Description
                         Text
-                                Whether the input ideal is homogeneous, if known. This matters only if
-                                the Cohen-Macaulay check @TO CheckCM@ is completed.
+                                Whether the input ideal is homogeneous, if known.
+                                The value of this input is only checked if {\tt CheckCM=>true}.
                 SeeAlso
+                        CheckCM
                         isGVD
                         isLexCompatiblyGVD
 ///
@@ -1403,13 +1434,13 @@ doc///
                         [isLexCompatiblyGVD, IsIdealUnmixed]
                         [isWeaklyGVD, IsIdealUnmixed]
                 Headline
-                        optional argument for GVD methods
+                        specify whether an ideal is unmixed
                 Description
                         Text
-                                Whether the input ideal is unmixed, if known. If unknown, this is
-                                checked.
+                                Whether the input ideal is unmixed, if known. If unknown (corresponding to
+                                {\tt IsIdealUnmixed=>false}), this is checked.
 
-                                To skip the unmixedness check, use @TO CheckUnmixed@.
+                                To always skip the unmixedness check, use @TO CheckUnmixed@.
 
                 SeeAlso
                         CheckUnmixed
@@ -1426,11 +1457,11 @@ doc///
                         OnlyDegenerate
                         [findOneStepGVD, OnlyDegenerate]
                 Headline
-                        optional argument for findOneStepGVD
+                        restrict to degenerate geometric vertex decompositions
                 Description
                         Text
-                                Set to {\tt true} to restrict the output of @TO oneStepGVD@ to return only
-                                those indeterminates for which their geometric vertex decomposition is degenerate.
+                                Set to {\tt true} to restrict the output of @TO findOneStepGVD@ to return only
+                                the indeterminates for which their geometric vertex decomposition is degenerate.
                                 Default value {\tt false}.
                 SeeAlso
                         findOneStepGVD
@@ -1444,11 +1475,11 @@ doc///
                         OnlyNondegenerate
                         [findOneStepGVD, OnlyNondegenerate]
                 Headline
-                        optional argument for findOneStepGVD
+                        restrict to nondegenerate geometric vertex decompositions
                 Description
                         Text
-                                Set to {\tt true} to restrict the output of @TO oneStepGVD@ to return only
-                                those indeterminates for which their geometric vertex decomposition is nondegenerate.
+                                Set to {\tt true} to restrict the output of @TO findOneStepGVD@ to return only
+                                the indeterminates for which their geometric vertex decomposition is nondegenerate.
                                 Default value {\tt false}.
                 SeeAlso
                         findOneStepGVD
@@ -1462,16 +1493,16 @@ doc///
                         RandomSeed
                         [findLexCompatiblyGVDOrder, RandomSeed]
                 Headline
-                        optional argument for findLexCompatiblyGVDOrder
+                        consistent shuffle order for findLexCompatiblyGVDOrder
                 Description
                         Text
-                                When brute forcing all possible orders in @TO findLexCompatiblyGVDOrder@,
-                                we shuffle their order upon each time. Set a seed for a consistent order.
+                                When calling @TO findLexCompatiblyGVDOrder@, the list of all possible
+                                lex orders is shuffled every time. Set a seed for a consistent order.
                         Example
                                 R = QQ[x,y,z]
                                 I = ideal(x-y, x-z)
                                 findLexCompatiblyGVDOrder I
-                                findLexCompatiblyGVDOrder(I, RandomSeed => 11)
+                                findLexCompatiblyGVDOrder(I, RandomSeed=>11)
                 SeeAlso
                         findLexCompatiblyGVDOrder
 ///
@@ -1486,7 +1517,7 @@ doc///
                         [isWeaklyGVD, Verbose]
                         [oneStepGVD, Verbose]
                 Headline
-                        optional argument for GVD methods
+                        print additional output
                 Description
                         Text
                                 If true, prints intermediate steps taken. Otherwise, prints nothing.
