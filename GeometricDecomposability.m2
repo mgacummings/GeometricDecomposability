@@ -65,7 +65,7 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 findLexCompatiblyGVDOrder = method(TypicalValue => List, Options => {CheckUnmixed => true, RandomSeed => 1})
 findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
-        -- restrict to the ring of indeterminates appearing in I by [CDSRVT, tensor product result]
+        -- restrict to the ring of indeterminates appearing in I by [CDSRVT, Theorem 2.9]
         setRandomSeed opts.RandomSeed;
         possibleOrders := random permutations support I;
 
@@ -497,10 +497,10 @@ doc///
 
                         [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
                         Geometric Vertex Decomposition and Liaison for Toric Ideals of
-                        Graphs. In Preparation (2022).
+                        Graphs. Preprint, @arXiv "2207.06391"@ (2022).
 
                         [DSH] S. Da Silva and M. Harada. Regular Nilpotent Hessenberg Varieties,
-                        Gröbner Bases, and Toric Degenerations. In preparation (2022).
+                        Gröbner Bases, and Toric Degenerations. Preprint, @arXiv "2207.08573"@ (2022).
 
                         [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
                         Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
@@ -1662,7 +1662,7 @@ assert(not isGVD I)
 ///
 
 
-TEST///  -- Toric ideal of the complete bipartite graph K_{3,2}; GVD by a result from [CDSRVT]
+TEST///  -- Toric ideal of the complete bipartite graph K_{3,2}; GVD by [CDSRVT, Theorem 5.8]
 loadPackage "Quasidegrees";
 R = QQ[e_1..e_6];
 A = matrix{
@@ -1694,7 +1694,7 @@ assert(not isGVD I)
 ///
 
 
-TEST///  -- Hessenberg patch ideal corresponding to the $w_0$ chart and Hessenberg function h=(2,3,4,5,6,6), GVD by a result from [DH]
+TEST///  -- Hessenberg patch ideal corresponding to the $w_0$ chart and Hessenberg function h=(2,3,4,5,6,6), GVD by [DSH, Corollary 5.13]
 R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51];
 A = matrix{
         {x_11, x_12, x_13, x_14, x_15, 1},
@@ -1770,7 +1770,7 @@ assert(not isUnmixed I)
 ///
 
 
-TEST///  -- Unmixed by [DH]
+TEST///  -- Unmixed by [DSH, Corollary 5.13]
 R = QQ[x_11..x_15, x_21..x_24, x_31..x_33, x_41, x_42, x_51];
 A = matrix{
         {x_11, x_12, x_13, x_14, x_15, 1},
