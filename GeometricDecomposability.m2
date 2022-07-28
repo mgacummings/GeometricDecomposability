@@ -338,7 +338,6 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- [KR, Lemma 2.6]
         if not squarefree then (
                 printIf(opts.Verbose, "Warning: Gröbner basis not square-free in " | toString y);
-                --use givenRing;
                 return (false, sub(CyI, givenRing), sub(NyI, givenRing));
                 );
 
@@ -346,7 +345,6 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- sub CyI, NyI into lexRing in case either is zero or unit ideal
         validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y1) ) == inyForm );
 
-        --use givenRing;
         C := sub(CyI, givenRing);
         N := sub(NyI, givenRing);
 
