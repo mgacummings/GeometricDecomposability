@@ -1197,7 +1197,7 @@ doc///
 				the Gröbner bases can be divided by $y^2$.  In this example, the Gröbner basis of $I$ contains an element with a term
 				divisible by $e_1^2$. So $I$ does not have a geometric vertex decomposition with respect to $y = e_1$.
 			Example
-                	        R = QQ[e_1..e_10, MonomialOrder=>Lex];
+                	        R = QQ[e_1..e_10];
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
                 		mingens gb i
 				oneStepGVD(i,e_1)
