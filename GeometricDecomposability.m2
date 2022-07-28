@@ -466,13 +466,15 @@ doc///
                         Text
 
                                 This package includes routines to check whether an ideal is
-                                geometrically vertex decomposable. The notion of geometric vertex
-                                decomposability can be considered as a generalization of the properties
+                                geometrically vertex decomposable.
+
+                                Geometric vertex
+                                decomposable ideals can be viewed as a generalization of the properties
                                 of the Stanley-Reisner ideal of a vertex decomposable simplicial complex.
-                                Geometrically vertex decomposable ideals are based upon the geometric vertex
-				decomposition defined by Knutson, Miller, and Yong [KMY].  Using geometric
-				vertex decomposition, Klein and Rajchgot gave a recursive definition for
-				geometrically vertex decomposable ideals in [KR].
+                                This family of ideals is based upon the geometric vertex
+				decomposition property defined by Knutson, Miller, and Yong [KMY]. Klein and Rajchgot
+                                then gave a recursive definition for
+				geometrically vertex decomposable ideals in [KR] using this notion.
 
                                 An unmixed ideal $I$ in a polynomial ring $R$ is geometrically vertex
                                 decomposable if it is the zero ideal, the unit ideal, an ideal generated
@@ -1566,14 +1568,14 @@ assert( CyI(I, y) == ideal(z*s-x^2, w*r) )
 TEST///
 R = QQ[x,y];
 I = ideal(x^2 - y^2);
-assert(findLexCompatiblyGVDOrder I == toSequence {false})
+assert(findLexCompatiblyGVDOrder I == {false})
 ///
 
 
 TEST///
 R = QQ[x..z];
 I = ideal(x-y, x-z);
-assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == (true, {z, y, x}) )
+assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == {true, {z, y, x}} )
 ///
 
 
@@ -1585,14 +1587,14 @@ assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == (true, {z, y, x}) )
 TEST///
 R = QQ[x..z];
 I = ideal(x-y, y-z);
-assert( findOneStepGVD I == (x,y,z) )
+assert( findOneStepGVD I == {x,y,z} )
 ///
 
 
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( findOneStepGVD I == toSequence {y} )
+assert( findOneStepGVD I == {y} )
 ///
 
 
@@ -1604,7 +1606,7 @@ assert( findOneStepGVD I == toSequence {y} )
 TEST///
 R = QQ[x,y,z,w,r,s]
 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
-assert(getGVDIdeal(I, {{"C", y}, {"N", s}}) == (ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(w*r)))
+assert(getGVDIdeal(I, {{"C", y}, {"N", s}}) == {ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(w*r)})
 ///
 
 
