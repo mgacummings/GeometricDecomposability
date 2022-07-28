@@ -11,7 +11,7 @@ export {
 
 changeUsersRing = method(TypicalValue => Ideal)
 changeUsersRing(Ideal) := I -> (
-        S := (coefficientRing ring I)[support I];
+        S := (coefficientRing ring I)(monoid [support I]);
         return I;
         )
 
