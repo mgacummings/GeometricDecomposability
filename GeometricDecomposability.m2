@@ -317,8 +317,8 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         cr := coefficientRing ring I;
 
         givenRing := ring I;
-        lexRing := cr[indeterminates, MonomialOrder=>Lex];
-        contractedRing := cr[remainingIndets];
+        lexRing := (cr) monoid([indeterminates, MonomialOrder=>Lex]);
+        contractedRing := (cr) monoid([remainingIndets]);
 
         -- pull everything into a lex ring
         I1 := sub(I, lexRing);
@@ -338,7 +338,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- [KR, Lemma 2.6]
         if not squarefree then (
                 printIf(opts.Verbose, "Warning: Gröbner basis not square-free in " | toString y);
-                use givenRing;
+                --use givenRing;
                 return (false, sub(CyI, givenRing), sub(NyI, givenRing));
                 );
 
@@ -346,7 +346,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- sub CyI, NyI into lexRing in case either is zero or unit ideal
         validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y1) ) == inyForm );
 
-        use givenRing;
+        --use givenRing;
         C := sub(CyI, givenRing);
         N := sub(NyI, givenRing);
 
@@ -396,14 +396,13 @@ yInit(Ideal, RingElement) := (I, y) -> (
         indeterminates := switch(0, index y, gens ring y);
         cr := coefficientRing ring I;
 
-        initYFormRing := cr[indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}];
+        initYFormRing := (cr) monoid([indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}]);
 
         -- get the ideal of initial y-forms using the product order
         I = sub(I, initYFormRing);
         y = sub(y, initYFormRing);
         inyFormIdeal := ideal leadTerm(1,I);
 
-        use givenRing;
         return sub(inyFormIdeal, givenRing);
         )
 
