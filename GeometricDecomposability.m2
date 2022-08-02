@@ -588,10 +588,10 @@ doc///
 
                         Example
                                 R = QQ[a,b,c,d];
-                                I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of the complete graph K_4, a chordal graph
-                                CyI(I,b)
-				L = oneStepGVD(I,b);
-			        L_1 == CyI(I,b) -- CyI is the second element in the list given by oneStepGVD
+                                I = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of the complete graph K_4, a chordal graph
+                                CyI(I, b)
+				L = oneStepGVD(I, b);
+			        L_1 == CyI(I, b) -- CyI is the second element in the list given by oneStepGVD
     	    	References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
@@ -648,7 +648,7 @@ doc///
 
                         Example
 			        R = QQ[x,y];
-                                I = ideal(x^2 - y^2);
+                                I = ideal(x^2-y^2);
 				findLexCompatiblyGVDOrder I
 
                 Caveat
@@ -710,7 +710,7 @@ doc///
                                 the only indeterminate for which there exists a geometric vertex decomposition.
 
                         Example
-                                R = QQ[a,b,c,d,e,f]
+                                R = QQ[a..f]
                                 I = ideal(b*(c*f - a^2), b*d*e, d*e*(c^2+a*c+d*e+f^2))
                                 findOneStepGVD I
 
@@ -892,10 +892,10 @@ doc///
 
                         Example
                 	        R = QQ[e_1..e_7]
-                		i = ideal(e_2*e_7-e_5*e_6,e_1*e_4-e_2*e_3) -- the toric ideal of a graph
+                		i = ideal(e_2*e_7-e_5*e_6, e_1*e_4-e_2*e_3) -- the toric ideal of a graph
                 		isGVD i
                 	        R = QQ[e_1..e_10]
-                		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
+                		i = ideal(e_1*e_4-e_2*e_3, e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10, e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10, e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
                 		isGVD i
 		References
                         [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
@@ -957,8 +957,8 @@ doc///
 			Example
 			        R = QQ[x,y,z,w,r,s];
                                 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2));
-				isLexCompatiblyGVD(I,{x,y,z,w,r,s})
-				isLexCompatiblyGVD(I,{s,x,w,y,r,z},Verbose=>true)
+				isLexCompatiblyGVD(I, {x,y,z,w,r,s})
+				isLexCompatiblyGVD(I, {s,x,w,y,r,z}, Verbose=>true)
                 References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
@@ -1049,7 +1049,7 @@ doc///
 		                The following example is [KR, Example 4.10]. It is an example of an ideal that is weakly geometrically
 				vertex decomposable, but not geometrically vertex decomposable.
 		        Example
-                	        R = QQ[x..z,w,r,s];
+                	        R = QQ[x,y,z,w,r,s];
                                 I = ideal(y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r));
 				isWeaklyGVD I
 				isGVD I
@@ -1117,10 +1117,10 @@ doc///
 
                         Example
                                 R = QQ[a,b,c,d];
-                                I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of a complete graph K_4, a chordal graph
-                                NyI(I,b)
-                                L = oneStepGVD(I,b);
-                                L_2 == NyI(I,b) -- NyI is the second element in the list given by oneStepGVD
+                                I = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of a complete graph K_4, a chordal graph
+                                NyI(I, b)
+                                L = oneStepGVD(I, b);
+                                L_2 == NyI(I, b) -- NyI is the second element in the list given by oneStepGVD
 		References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
@@ -1192,8 +1192,8 @@ doc///
 			Example
 			        R = QQ[a,b,c,d]
                 		f = 3*a*b + 4*b*c+ 16*a*c+18*d
-                		i = ideal(f)
-                		oneStepGVD(i,a)
+                		i = ideal f
+                		oneStepGVD(i, a)
 
                         Text
                                 In the example below, the ideal $I$ is the edge ideal of the complete graph $K_4$.  We also check
@@ -1202,8 +1202,8 @@ doc///
 
                         Example
                                 R = QQ[a,b,c,d];
-                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
-                                oneStepGVD(i,c,CheckDegenerate=>true)
+                                i = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of complete graph K_4, a chordal graph
+                                oneStepGVD(i, c, CheckDegenerate=>true)
 			Text
 			        The example below is the toric ideal of a graph such that the quotient ring is not Cohen-Macaulay.  By [KR, Lemma 2.6], for an ideal $I$
 				to have a geometric vertex decomposition with respect to the variable $y$, no term of
@@ -1213,9 +1213,9 @@ doc///
 
 			Example
                 	        R = QQ[e_1..e_10];
-                		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
+                		i = ideal(e_1*e_4-e_2*e_3, e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10, e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10, e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
                 		mingens gb i
-				oneStepGVD(i,e_1)
+				oneStepGVD(i, e_1)
 		References
                         [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
                         Geometric Vertex Decomposition and Liaison for Toric Ideals of
@@ -1270,8 +1270,8 @@ doc///
                                 [KR, Example 2.16].
 
                         Example
-                                R = QQ[x..z,w,r,s]
-                                I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) )
+                                R = QQ[x,y,z,w,r,s]
+                                I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
                                 yInit(I, y)
 
 
@@ -1391,7 +1391,7 @@ doc///
                                 conclusively not geometrically vertex decomposable as there is some other condition
                                 that is not met.
 
-                                The following is not unmixed by [SM, Example 1.6], and hence not geometrically vertex
+                                The following is not unmixed [SM, Example 1.6] and hence not geometrically vertex
                                 decomposable. However, if we disable the unmixedness check and skip the Cohen-Macaulay check,
                                 {\tt isGVD} returns true.
                         Example
