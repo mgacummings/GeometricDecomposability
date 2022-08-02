@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposability",
         Version => "0.6",
-        Date => "July 28, 2022",
+        Date => "August 2, 2022",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -17,7 +17,7 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"PrimaryDecomposition", "Depth"},
+        PackageImports => {"Depth", "PrimaryDecomposition"},
         HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank/remove
         )
 
@@ -584,6 +584,8 @@ doc///
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
                                 The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
+                                For more on edge ideals, see the EdgeIdeals package.
+
                         Example
                                 R = QQ[a,b,c,d];
                                 I = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of the complete graph K_4, a chordal graph
@@ -871,19 +873,23 @@ doc///
                         Text
                 	        Square-free monomial ideals that are geometrically vertex decomposable are precisely those square-free monomial ideals
                 		whose associated simplicial complex are vertex decomposable [KR, Proposition 2.9].
-				 The edge ideal of a chordal graph corresponds to a simplicial
-                		complex that is vertex decomposable.  The option {\tt Verbose} shows the intermediate steps; in particular, {\tt Verbose}
+				The edge ideal of a chordal graph corresponds to a simplicial
+                		complex that is vertex decomposable (for more, see the EdgeIdeals package).  The option {\tt Verbose} shows the intermediate steps; in particular, {\tt Verbose}
 				displays what variable is being used to test a decomposition, as well as the ideals
 				$C_{y,I}$ and $N_{y,I}$.
+
+
                         Example
                                 R = QQ[a,b,c,d]
-                                i = ideal(a*b,a*c,a*d,b*c,b*d,c*d) -- edge ideal of a complete graph K_4, a chordal graph
-                                isGVD(i,Verbose=>true)
+                                i = ideal(a*b, a*c, a*d, b*c, b*d, c*d) -- edge ideal of a complete graph K_4, a chordal graph
+                                isGVD(i, Verbose=>true)
 
                         Text
                                 The following is an example of a toric ideal of graph that is geometrically vertex decomposable, and another example
-                		of a toric ideal of a graph that is not geometric vertex decomposable. The second ideal is not Cohen-Macaulay, so it
+                		of a toric ideal of a graph that is not geometrically vertex decomposable. The second ideal is not Cohen-Macaulay, so it
                 		cannot be geometrically vertex decomposable [KR, Corollary 4.5].
+                                For background on toric ideals of graphs, see [CDSRVT, Section 3].
+
                         Example
                 	        R = QQ[e_1..e_7]
                 		i = ideal(e_2*e_7-e_5*e_6,e_1*e_4-e_2*e_3) -- the toric ideal of a graph
@@ -892,6 +898,10 @@ doc///
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
                 		isGVD i
 		References
+                        [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
+                        Geometric Vertex Decomposition and Liaison for Toric Ideals of
+                        Graphs. Preprint, @arXiv "2207.06391"@ (2022).
+
                         [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
                         Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
                         1–31.
@@ -1103,6 +1113,7 @@ doc///
                         	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
 
                                 The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
+                                For more on edge ideals, see the EdgeIdeals package.
 
                         Example
                                 R = QQ[a,b,c,d];
@@ -1187,6 +1198,8 @@ doc///
                         Text
                                 In the example below, the ideal $I$ is the edge ideal of the complete graph $K_4$.  We also check
 				if the decomposition is degenerate (see @TO CheckDegenerate@).
+                                For more on edge ideals, see the EdgeIdeals package.
+
                         Example
                                 R = QQ[a,b,c,d];
                                 i = ideal(a*b,a*c,a*d,b*c,b*d,c*d); -- edge ideal of complete graph K_4, a chordal graph
@@ -1196,12 +1209,18 @@ doc///
 				to have a geometric vertex decomposition with respect to the variable $y$, no term of
 				the Gröbner bases can be divided by $y^2$.  In this example, the Gröbner basis of $I$ contains an element with a term
 				divisible by $e_1^2$. So $I$ does not have a geometric vertex decomposition with respect to $y = e_1$.
+                                For background on toric ideals of graphs, see [CDSRVT, Section 3].
+
 			Example
                 	        R = QQ[e_1..e_10];
                 		i = ideal(e_1*e_4-e_2*e_3,e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10,e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10,e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
                 		mingens gb i
 				oneStepGVD(i,e_1)
 		References
+                        [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
+                        Geometric Vertex Decomposition and Liaison for Toric Ideals of
+                        Graphs. Preprint, @arXiv "2207.06391"@ (2022).
+
                         [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
                         Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
                         1–31.
