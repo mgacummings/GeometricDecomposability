@@ -469,7 +469,7 @@ doc///
                                 This package includes routines to check whether an ideal is
                                 geometrically vertex decomposable.
 
-                                Geometric vertex
+                                Geometrically vertex
                                 decomposable ideals can be viewed as a generalization of the properties
                                 of the Stanley-Reisner ideal of a vertex decomposable simplicial complex.
                                 This family of ideals is based upon the geometric vertex
