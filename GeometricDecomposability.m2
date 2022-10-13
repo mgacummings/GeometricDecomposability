@@ -2,8 +2,8 @@
 
 newPackage(
         "GeometricDecomposability",
-        Version => "0.6",
-        Date => "August 19, 2022",
+        Version => "1.0",
+        Date => "October 13, 2022",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -1384,13 +1384,13 @@ doc///
                                 any $C_{y,I}$ or $N_{y,I}$ ideals are unmixed. Setting {\tt CheckUnmixed=>false}
                                 will speed up computations since it is not performing a check of this condition but comes
                                 at the cost that not all the necessary conditions are checked.
-
-                                If you know that $I$ is unmixed but want to check unmixedness for $C_{y,I}$, $N_{y,I}$,
-                                and any later ideals, use @TO IsIdealUnmixed@ instead.
-
                                 Notice that if {\tt isGVD(I, CheckUnmixed=>false)} returns {\tt false}, then $I$ is
                                 conclusively not geometrically vertex decomposable as there is some other condition
                                 that is not met.
+                                The default value is {\tt true}.
+
+                                If you know that $I$ is unmixed but want to check unmixedness for $C_{y,I}$, $N_{y,I}$,
+                                and any later ideals, use @TO IsIdealUnmixed@ instead.
 
                                 The following is not unmixed [SM, Example 1.6] and hence not geometrically vertex
                                 decomposable. However, if we disable the unmixedness check and skip the Cohen-Macaulay check,
@@ -1456,10 +1456,18 @@ doc///
                         specify whether an ideal is unmixed
                 Description
                         Text
-                                Whether the input ideal is unmixed, if known. If unknown (corresponding to
-                                {\tt IsIdealUnmixed=>false}), this is checked.
+                                Specify {\tt IsIdealUnmixed=>true} if it is known {\em a priori}
+                                that an ideal is unmixed. In this case, the program will not
+                                check whether the given ideal $I$ is unmixed -- it will assume
+                                that it is unmixed -- but it will check whether $C_{y,I}$ and
+                                $N_{y,I}$ are unmixed, as well as any ideals defined from further
+                                degenerations.
+                                The default value is {\tt false} and in this case, the unmixedness
+                                property will be checked for $I$ and all later ideals.
 
-                                To always skip the unmixedness check, use @TO CheckUnmixed@.
+                                To always skip the unmixedness check (perhaps you know that
+                                every ideal you will encounter through repeated geometric vertex decompositions
+                                will always be unmixed), use @TO CheckUnmixed@.
 
                 SeeAlso
                         CheckUnmixed
