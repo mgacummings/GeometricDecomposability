@@ -857,7 +857,7 @@ doc///
                                         $${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle),$$
                                         and the contractions of the
                                         ideals $C_{y,I}$ and $N_{y,I}$ to the ring
-                                        $k[x_1,\ldots,x_{i-1},x_{i+1},\ldots,x_n]$ are geometrically
+                                        $k[x_1,\ldots,\hat{y},\ldots,x_n]$ are geometrically
                                         vertex decomposable.
 
                         	{\it NOTE:}  The ideals $C_{y,I}$ and $N_{y,I}$ do not depend upon the choice of the Gröbner basis or
@@ -1029,7 +1029,7 @@ doc///
                         :Boolean
                 Description
 		        Text
-			        This function tests whether a given ideal is weakly geometrically vertex decomposable [KR, Definition 4.6].
+			        This function tests whether an ideal $I \subseteq k[x_1,\ldots,x_n]$ is weakly geometrically vertex decomposable [KR, Definition 4.6].
 
 				See @TO isGVD@ for the definition of the ideals $C_{y,I}$ and $N_{y,I}$ used below. Furthermore, we say that a geometric
 				vertex decomposition is {\it degenerate} if $C_{y,I} = \langle 1 \rangle$ or if $\sqrt{C_{y,I}} = \sqrt{N_{y,I}}$.
