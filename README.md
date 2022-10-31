@@ -6,6 +6,8 @@ A Macaulay2 package to check whether an ideal is geometrically vertex decomposab
 This package can be installed to Macaulay2 by copying the file `GeoetricDecomposability.m2` to your working directory from which you launch Macaulay2. 
 Then in M2, run the command `installPackage "GeometricDecomposability"` and use the package as you would any other. 
 
+After the package is loaded, you can read the documentation by running `viewHelp GeometricDecomposability`, which will open the documentation in your web browser.
+
 In the future, this package will be included with Macaualy2 so external installation will not be necessary.
 
 
