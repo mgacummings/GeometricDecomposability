@@ -18,8 +18,7 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"Depth", "PrimaryDecomposition"},
-        HomePage => ""  -- homepage for the package, if one exists, otherwise leave blank/remove
+        PackageImports => {"Depth", "PrimaryDecomposition"}
         )
 
 export {
@@ -66,8 +65,9 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 findLexCompatiblyGVDOrder = method(TypicalValue => List, Options => {CheckUnmixed => true, RandomSeed => 1})
 findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
-        -- restrict to the ring of indeterminates appearing in I by [CDSRVT, Theorem 2.9]
         setRandomSeed opts.RandomSeed;
+
+        -- restrict to the ring of indeterminates appearing in I by [CDSRVT, Theorem 2.9]
         possibleOrders := random permutations support I;
 
         for indetOrder in possibleOrders do (
