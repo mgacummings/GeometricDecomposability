@@ -64,6 +64,9 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 findLexCompatiblyGVDOrders = method(TypicalValue => List, Options => {CheckUnmixed => true})
 findLexCompatiblyGVDOrders(Ideal) := opts -> I -> (
+        if isGVDBaseCase I then (
+                return permutations gens ring I;
+                )
         try (
                 orders := sort lexOrderHelper({I}, {}, CheckUnmixed=>opts.CheckUnmixed);
                 truncatedOrders := recursiveFlatten orders;
