@@ -2,8 +2,8 @@
 
 newPackage(
         "GeometricDecomposability",
-        Version => "1.0",
-        Date => "October 13, 2022",
+        Version => "1.1",
+        Date => "October 31, 2022",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -24,7 +24,7 @@ newPackage(
 export {
         -- methods
         "CyI",
-        "findLexCompatiblyGVDOrder",
+        "findLexCompatiblyGVDOrders",
         "findOneStepGVD",
         "getGVDIdeal",
         "isGeneratedByIndeterminates",
@@ -44,7 +44,6 @@ export {
         "IsIdealUnmixed",
         "OnlyDegenerate",
         "OnlyNondegenerate",
-        "RandomSeed",
         "Verbose"
         };
 
@@ -63,17 +62,20 @@ CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opt
 
 --------------------------------------------------------------------------------
 
-findLexCompatiblyGVDOrder = method(TypicalValue => List, Options => {CheckUnmixed => true, RandomSeed => 1})
-findLexCompatiblyGVDOrder(Ideal) := opts -> I -> (
-        setRandomSeed opts.RandomSeed;
-
-        -- restrict to the ring of indeterminates appearing in I by [CDSRVT, Theorem 2.9]
-        possibleOrders := random permutations support I;
-
-        for indetOrder in possibleOrders do (
-                if isLexCompatiblyGVD(I, indetOrder, CheckUnmixed=>opts.CheckUnmixed, Verbose=>false) then return {true, indetOrder};
-                );
-        return {false};   -- no order worked
+findLexCompatiblyGVDOrders = method(TypicalValue => List, Options => {CheckUnmixed => true})
+findLexCompatiblyGVDOrders(Ideal) := opts -> I -> (
+        try (
+                orders := sort lexOrderHelper({I}, {}, CheckUnmixed=>opts.CheckUnmixed);
+                truncatedOrders := recursiveFlatten orders;
+                )
+        then (
+                allLexOrders := permutations gens ring I;
+                validLexOrders := select(allLexOrders, lexOrder -> inTruncatedList(lexOrder, truncatedOrders) );
+                return validLexOrders;
+                )
+        else (
+                return {};
+        )
         )
 
 --------------------------------------------------------------------------------
@@ -410,6 +412,13 @@ yInit(Ideal, RingElement) := (I, y) -> (
 
 --** METHODS (Hidden from users, not exported)
 
+
+isGVDBaseCase = method(TypicalValue => Boolean)
+isGVDBaseCase(Ideal) := I -> (
+        return (I == 1 or I == 0 or isGeneratedByIndeterminates(I));
+        )
+
+
 isInC = method(TypicalValue => List)
 isInC(RingElement, RingElement) := (f, y) -> (
         -- f is a polynomial, y an indeterminate
@@ -426,6 +435,32 @@ isInN(RingElement, RingElement) := (f, y) -> (
         )
 
 
+intersectLists = method(TypicalValue => List)
+intersectLists(List) := L -> (
+        -- L is a list of lists
+        S := for l in L list (set l);
+        return toList fold(intersectSets, S)
+        )
+
+
+intersectSets = method(TypicalValue => Set)
+intersectSets(Set, Set) := (S1, S2) -> (
+        return S1 * S2;
+        )
+
+
+inTruncatedList = method(TypicalValue => Boolean)
+inTruncatedList(List, List) := (L, LL) -> (
+        -- LL is a list of lists
+        -- return True if: for some list l of length n in LL, the first n terms of L are exactly l
+        for l in LL do (
+                n := #l;
+                if l == take(L, n) then return true;
+                );
+        return false;
+        )
+
+
 getQ = method(TypicalValue => RingElement)
 getQ(RingElement, RingElement) := (f, y) -> (
         -- f is of the form q*y^d+r, return q
@@ -434,11 +469,51 @@ getQ(RingElement, RingElement) := (f, y) -> (
         return sub(qy, y=>1);
         )
 
+lexOrderHelper = method(TypicalValue => List, Options => {CheckUnmixed => true})
+lexOrderHelper(List, List) := opts -> (idealList, order) -> (
+        -- remove ideals that are trivially GVD
+        nontrivialIdeals := select(idealList, i -> not isGVDBaseCase i);
+        -- if there are none left, return the order
+        if (#nontrivialIdeals) == 0 then (
+                return order;
+                );
+
+        -- for each ideal, get the indets which form a oneStepGVD
+        possibleIndets := apply(nontrivialIdeals, i -> findOneStepGVD(i, CheckUnmixed=>opts.CheckUnmixed));
+        commonPossibleIndets := intersectLists possibleIndets;
+        if commonPossibleIndets == {} then return;
+
+        -- for each variable, compute the C and N ideals
+        nextIdeals := for y in commonPossibleIndets list (
+                flatten apply( nontrivialIdeals, i -> (
+                        oneStep := oneStepGVD(i, y);
+                        {oneStep_1, oneStep_2}
+                        ))
+                );
+
+        L := for m from 0 to (#commonPossibleIndets)-1 list (
+                lexOrderHelper(nextIdeals#m, append(order, commonPossibleIndets#m))
+                );
+        return L;
+        )
+
 
 printIf = method()
 printIf(Boolean, String) := (bool, str) -> (
         if bool then print str;
         )
+
+        recursiveFlatten = method(TypicalValue => List)
+        recursiveFlatten(List) := L -> (
+                Lstr := toString L;
+                if Lstr#2 == "{" then (
+                        return recursiveFlatten flatten L;
+                        )
+                else (
+                        return L;
+                        )
+                )
+
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -518,7 +593,7 @@ doc///
                         CheckDegenerate
                         CheckUnmixed
                         CyI
-                        findLexCompatiblyGVDOrder
+                        findLexCompatiblyGVDOrders
                         findOneStepGVD
                         getGVDIdeal
                         isGeneratedByIndeterminates
@@ -532,7 +607,6 @@ doc///
                         oneStepGVD
                         OnlyDegenerate
                         OnlyNondegenerate
-                        RandomSeed
                         Verbose
                         yInit
 ///
@@ -607,12 +681,12 @@ doc///
 doc///
         Node
                 Key
-                        findLexCompatiblyGVDOrder
-                        (findLexCompatiblyGVDOrder, Ideal)
+                        findLexCompatiblyGVDOrders
+                        (findLexCompatiblyGVDOrders, Ideal)
                 Headline
-                        finds a lexicographic monomial order $<$ such that the ideal is $<$-compatibly geometrically vertex decomposable
+                        finds all lexicographic monomial orders $<$ such that the ideal is $<$-compatibly geometrically vertex decomposable
                 Usage
-                        findLexCompatiblyGVDOrder I
+                        findLexCompatiblyGVDOrders I
                 Inputs
                         I:Ideal
                 Outputs
@@ -631,17 +705,13 @@ doc///
                                 to $<$ [KR, Definition 2.11].
                                 For the definition of a (one-step) geometric vertex decomposition, see @TO oneStepGVD@.
 
-                                This method computes all possible lex orders for the indeterminates
-                                appearing in the ideal and checks each until one which works is
-                                found.
-
-                                To mediate the issue noted in the caveat, the list of lex orders is shuffled.
-                                For a consistent order in the computation, set a @TO RandomSeed@.
+                                This method computes all possible lex orders $<$ for which the ideal $I$ is $<$-compatibly
+                                geometrically vertex decomposable.
 
 			Example
                                 R = QQ[x,y,z];
                                 I = ideal(x-y, x-z);
-                                findLexCompatiblyGVDOrder I
+                                findLexCompatiblyGVDOrders I
 
                         Text
                                 The ideal in the following example is not square-free with respect to
@@ -650,25 +720,11 @@ doc///
                         Example
 			        R = QQ[x,y];
                                 I = ideal(x^2-y^2);
-				findLexCompatiblyGVDOrder I
+				findLexCompatiblyGVDOrders I
 
                 Caveat
-                        The program does not learn from orders that do not work. For instance,
-                        suppose that there does not exist a one-step geometric vertex decomposition for
-                        a given ideal with respect to some $y$. This program will nonetheless
-                        check all the lex orders with $y$ as the most expensive indeterminate
-                        in the order. As a result, this method may be very slow.
-
-                        It is for this reason that the monomial orders are shuffled upon their
-                        generation.
-                        To see why, note the following example which demonstrates what happens if we did not
-                        shuffle the orders.
-                        Suppose that there are $n$ variables and $y$ is the first indeterminate in
-                        the ring, {\tt R = QQ[y, ...]}.
-                        Then, there are $(n-1)!$ lex orders $>$ which have $y$ as the most expensive
-                        indeterminate.
-                        If $I$ does not have a (one-step) geometric vertex decomposition with respect to $y$,
-                        then these $(n-1)!$ orders are attempted first.
+                        In the ring $k[x_1, \ldots, x_n]$, there are $n!$ possible lexicographic
+                        monomial orders, so this function can be computationally expensive.
 
 
 		References
@@ -950,7 +1006,7 @@ doc///
                                 This method returns a Boolean value depending upon whether or not
 				the given ideal is $<$-compatibly geometrically vertex decomposable with
 				respect to a given ordering lex ordering of the indeterminates.
-				Compare this function to the command @TO findLexCompatiblyGVDOrder@ which checks all possible lex
+				Compare this function to the command @TO findLexCompatiblyGVDOrders@ which checks all possible lex
 				orders of the variables in order to find at least one $<$-compatibly lex order.
 
 				Below is [KR, Example 2.16], which is an example of an ideal that is not $<$-compatibly geometrically
@@ -1367,7 +1423,7 @@ doc///
                 Key
                         CheckUnmixed
                         [CyI, CheckUnmixed]
-                        [findLexCompatiblyGVDOrder, CheckUnmixed]
+                        [findLexCompatiblyGVDOrders, CheckUnmixed]
                         [findOneStepGVD, CheckUnmixed]
                         [getGVDIdeal, CheckUnmixed]
                         [isGVD, CheckUnmixed]
@@ -1414,7 +1470,7 @@ doc///
 
                 SeeAlso
                         CyI
-                        findLexCompatiblyGVDOrder
+                        findLexCompatiblyGVDOrders
                         findOneStepGVD
                         getGVDIdeal
                         isGVD
@@ -1517,27 +1573,6 @@ doc///
 doc///
         Node
                 Key
-                        RandomSeed
-                        [findLexCompatiblyGVDOrder, RandomSeed]
-                Headline
-                        consistent shuffle order for findLexCompatiblyGVDOrder
-                Description
-                        Text
-                                When calling @TO findLexCompatiblyGVDOrder@, the list of all possible
-                                lex orders is shuffled every time. Set a seed for a consistent order.
-                        Example
-                                R = QQ[x,y,z]
-                                I = ideal(x-y, x-z)
-                                findLexCompatiblyGVDOrder I
-                                findLexCompatiblyGVDOrder(I, RandomSeed=>11)
-                SeeAlso
-                        findLexCompatiblyGVDOrder
-///
-
-
-doc///
-        Node
-                Key
                         Verbose
                         [isGVD, Verbose]
                         [isLexCompatiblyGVD, Verbose]
@@ -1589,21 +1624,21 @@ assert( CyI(I, y) == ideal(z*s-x^2, w*r) )
 
 
 --------------------------------------------------------------------------------
--- Test findLexCompatiblyGVDOrder
+-- Test findLexCompatiblyGVDOrders
 --------------------------------------------------------------------------------
 
 
 TEST///
 R = QQ[x,y];
 I = ideal(x^2 - y^2);
-assert(findLexCompatiblyGVDOrder I == {false})
+assert(findLexCompatiblyGVDOrders I == {})
 ///
 
 
 TEST///
 R = QQ[x..z];
 I = ideal(x-y, x-z);
-assert( findLexCompatiblyGVDOrder(I, RandomSeed => 11) == {true, {z, y, x}} )
+assert( findLexCompatiblyGVDOrders I == {{x, y, z}, {x, z, y}, {y, x, z}, {y, z, x}, {z, x, y}, {z, y, x}} )
 ///
 
 
