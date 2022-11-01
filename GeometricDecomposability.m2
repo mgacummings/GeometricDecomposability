@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposability",
         Version => "1.1",
-        Date => "October 31, 2022",
+        Date => "November 1, 2022",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -694,8 +694,7 @@ doc///
                         I:Ideal
                 Outputs
                         :List
-                                if no order exists, returns {\tt {false}}, otherwise returns {\tt {true, L}},
-                                where {\tt L} is a list containing the lex order which works
+                                if no order exists, returns {}, otherwise returns {\tt L}, a list containing all the lexicographical orders which work
 
                 Description
 
