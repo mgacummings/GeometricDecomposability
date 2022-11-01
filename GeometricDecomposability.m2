@@ -66,7 +66,7 @@ findLexCompatiblyGVDOrders = method(TypicalValue => List, Options => {CheckUnmix
 findLexCompatiblyGVDOrders(Ideal) := opts -> I -> (
         if isGVDBaseCase I then (
                 return permutations gens ring I;
-                )
+                );
         try (
                 orders := sort lexOrderHelper({I}, {}, CheckUnmixed=>opts.CheckUnmixed);
                 truncatedOrders := recursiveFlatten orders;
