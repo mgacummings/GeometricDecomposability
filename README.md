@@ -1,5 +1,5 @@
 # GeometricDecomposability
-A _Macaulay2_ package to check whether an ideal is geometrically vertex decomposable, developed by [Mike Cummings](https://www.math.mcmaster.ca/~cummim5/) and [Adam Van Tuyl](https://www.ms.mcmaster.ca/~vantuyl/).
+A _Macaulay2_ package to check whether an ideal is geometrically vertex decomposable, developed by [Mike Cummings](https://www.math.mcmaster.ca/~cummim5/) and [Adam Van Tuyl](https://ms.mcmaster.ca/~vantuyl/).
 
 For further information, see: [The GeometricDecomposability package for Macaulay2](https://arxiv.org/abs/2211.02471).
 
