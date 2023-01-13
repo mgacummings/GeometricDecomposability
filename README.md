@@ -5,12 +5,12 @@ For further information, see: [The GeometricDecomposability package for Macaulay
 
 ## Installation
 
-This package can be installed to Macaulay2 by copying the file `GeoetricDecomposability.m2` to your working directory from which you launch _Macaulay2_. 
+Using version 1.21 of _Macaulay2_, run the command `loadPackage "GeometricDecomposability"`.
+
+Alternatively, this package can be installed to _Macaulay2_ by copying the file `GeoetricDecomposability.m2` to your working directory from which you launch _Macaulay2_. 
 Then in M2, run the command `installPackage "GeometricDecomposability"` and use the package as you would any other. 
 
 After the package is loaded, you can read the documentation by running `viewHelp GeometricDecomposability`, which will open the documentation in your web browser.
-
-In the future, this package will be included with _Macaualy2_ so external installation will not be necessary.
 
 
 ## Background
