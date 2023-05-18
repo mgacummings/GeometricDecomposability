@@ -1,7 +1,7 @@
 -- -*- coding: utf-8 -*-
 
 newPackage(
-        "GeometricDecomposability",
+        "GeometricDecomposabilityExperimental",
         Version => "1.2",
         Date => "April 14, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
@@ -90,6 +90,7 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 error("a geometric vertex decomposition cannot be both degenerate and nondegenerate");
                 return {};
                 );
+        
 
         satisfiesOneStep := (I, y, D, ND) -> (
                 if ND or D then (
@@ -105,6 +106,21 @@ findOneStepGVD(Ideal) := opts -> I -> (
 
         R := ring I;
         indets := support I;
+
+        -- if neither OnlyNondegenerate nor OnlyDegenerate is specified, use the result of [KR, Lemma 2.6] and [KR, Lemma 2.12]
+        if not (opts.OnlyNondegenerate and opts.OnlyDegenerate) then (
+                -- first pick the indeterminates y for which the generators of I are squarefree in y
+                -- for the remaining indeterminates z, compute a GB of I with respect to a z-compatible order & check if squareefree in z
+
+                gensTerms := flatten apply(first entries gens I, f -> terms f);
+                clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
+
+                remainingIndets := toList( set(indets) - set(clearlySquarefreeIndets) );
+                otherSquarefreeIndets := select(remainingIndets, y -> isIdealSquarefreeInY(I, y) );
+
+                return reverse sort toList( set(clearlySquarefreeIndets) + set(otherSquarefreeIndets) );
+                );
+
         L := for y in indets list (if satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate) then y else 0);
         return delete(0, L);
         )
@@ -415,9 +431,36 @@ yInit(Ideal, RingElement) := (I, y) -> (
 --** METHODS (Hidden from users, not exported)
 
 
+areGensSquarefreeInY = method(TypicalValue => Boolean)
+areGensSquarefreeInY(List, RingElement) := (L, y) -> (
+        -- L a list of polynomials (e.g., generators of some ideal), and y an indeterminate in the ring
+        -- returns true if and only if ideal(L) is squarefre in y, that is, if y^2 does not divide any term of any of the polynomials
+
+        return all( apply(L, m -> isSquarefreeInY(m, y)), i->i );
+        )
+
+
 isGVDBaseCase = method(TypicalValue => Boolean)
 isGVDBaseCase(Ideal) := I -> (
         return (I == 1 or I == 0 or isGeneratedByIndeterminates(I));
+        )
+
+
+isIdealSquarefreeInY = method(TypicalValue => Boolean)
+isIdealSquarefreeInY(Ideal, RingElement) := (I, y) -> (
+        -- returns true if and only if I is squarefree in y, that is: if and only if
+        -- y^2 does not divide any term of a Grobner basis of I with respect to a y-compatible monomial order 
+        -- we use lex with y > all other variables
+
+        R := ring I;
+        cr := coefficientRing R;
+        indeterminates := switch(0, index y, gens ring y);  -- assumes that y and I are "from" the same ring
+
+        S := (cr) monoid([indeterminates, MonomialOrder=>Lex]);  -- ring that has lex order with y > all other variables
+        J := sub(I, S);
+        z := sub(y, S);
+        grobnerGens := first entries gens gb J;
+        return areGensSquarefreeInY(grobnerGens, z);
         )
 
 
@@ -500,6 +543,14 @@ lexOrderHelper(List, List) := opts -> (idealList, order) -> (
         )
 
 
+isSquarefreeInY = method()
+isSquarefreeInY(RingElement, RingElement) := (m, y) -> (
+        -- m a monomial, y an indeterminate
+        -- returns true if and only if m is squarefree in y
+        return not (m % y^2 == 0)
+        )
+
+
 printIf = method()
 printIf(Boolean, String) := (bool, str) -> (
         if bool then print str;
@@ -535,7 +586,7 @@ beginDocumentation()
 doc///
         Node
                 Key
-                        GeometricDecomposability
+                        GeometricDecomposabilityExperimental
 
                 Headline
                         a package to check whether ideals are geometrically vertex decomposable
