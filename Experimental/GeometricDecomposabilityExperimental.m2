@@ -184,8 +184,10 @@ isGVD(Ideal) := opts -> I -> (
                 "never" => "never"
                 };
 
+        viableIndets := findOneStepGVD I;
+
         -- check all options for y until one works
-        for y in (support I) do (
+        for y in viableIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
@@ -289,8 +291,10 @@ isWeaklyGVD(Ideal) := opts -> I -> (
                         );
                 );
 
+        viableIndets := findOneStepGVD I;
+
         -- check all options for y until one works
-        for y in (support I) do (
+        for y in viableIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
