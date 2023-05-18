@@ -459,8 +459,8 @@ isIdealSquarefreeInY(Ideal, RingElement) := (I, y) -> (
         S := (cr) monoid([indeterminates, MonomialOrder=>Lex]);  -- ring that has lex order with y > all other variables
         J := sub(I, S);
         z := sub(y, S);
-        grobnerGens := first entries gens gb J;
-        return areGensSquarefreeInY(grobnerGens, z);
+        grobnerLeadTerms := first entries gens leadTerm J;
+        return areGensSquarefreeInY(grobnerLeadTerms, z);
         )
 
 
