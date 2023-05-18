@@ -1,5 +1,5 @@
 newPackage(
-        "samplePackage",
+        "SamplePackage",
         Headline => "a sample package"
 )
 
@@ -19,7 +19,7 @@ beginDocumentation()
 
 doc ///
         Key
-                samplePackage
+                SamplePackage
         Subnodes
                 foo
 ///
