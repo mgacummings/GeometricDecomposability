@@ -90,39 +90,102 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 error("a geometric vertex decomposition cannot be both degenerate and nondegenerate");
                 return {};
                 );
+
+
+        getGBandCNideals := (I, y) -> (
+                -- returns {GB, CyI, NyI}
+                R := ring I;
+                cr := coefficientRing R;
+                indeterminates := switch(0, index y, gens ring y);  -- assumes that y and I are "from" the same ring
+
+                S := (cr) monoid([indeterminates, MonomialOrder=>Lex]);  -- ring that has lex order with y > all other variables
+                J := sub(I, S);
+                z := sub(y, S);
+                grobnerBasis := first entries gens gb J;
+
+                gensN := delete(0, apply(grobnerBasis, g -> isInN(g, z)));
+                NyI := ideal(gensN);
+
+                gensC := delete(true, flatten(apply(grobnerBasis, g -> isInC(g, z))));
+                CyI := ideal(delete(false, gensC));
+
+                return {grobnerBasis, CyI, NyI};
+                );
+
+        
+        CheckDegeneracy := (C, N, D, ND) -> (
+                -- assumes either D (onlyDegenerate) xor ND (onlyNondegenerate)
+                isDegenerate := (C == 1) or (radical C == radical N);
+                if D then (
+                        return isDegenerate
+                        );
+                
+                if ND then (
+                        return not isDegenerate
+                        );
+                );
+
+        
+        easyCaseHandler := (I, y, D, ND) -> (
+                -- in the "easy" case but where degeneracy must be checked, GB/C/N are not already computed, 
+                -- so we combine the previous two functions here
+
+                o := getGBandCNideals(I, y);
+                C := o_1;
+                N := o_2;
+
+                return CheckDegeneracy(C, N, D, ND)
+                );
         
 
         satisfiesOneStep := (I, y, D, ND) -> (
-                if ND or D then (
-                        oneStep := oneStepGVD(I, y, CheckDegenerate=>true, CheckUnmixed=>opts.CheckUnmixed);
+                o := getGBandCNideals(I, y);
+                grobnerBasis := o_0;
+                C := o_1;
+                N := o_2;
+                
+                grobnerLeadTerms := apply(grobnerBasis, f -> leadTerm f);
+                hasOneStep := areGensSquarefreeInY(grobnerLeadTerms, sub(y, ring C));  -- whether I has a geometric vertex decomposition with respect to y
+
+                -- check degeneracy condition, if specified
+                if hasOneStep and (ND or D) then (
+                        isDegenerate := (CyI == 1) or (radical CyI == radical NyI);
+                        if D then (
+                                return isDegenerate
+                                );
+                        
                         if ND then (
-                                return oneStep_0 and oneStep_3 == "nondegenerate";
-                                ) else (
-                                return oneStep_0 and oneStep_3 == "degenerate";
-                                )
+                                return not isDegenerate
+                                );
                         );
-                return (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed))_0;
+
+                return hasOneStep;
                 );
 
         R := ring I;
         indets := support I;
 
-        -- if neither OnlyNondegenerate nor OnlyDegenerate is specified, use the result of [KR, Lemma 2.6] and [KR, Lemma 2.12]
-        if not (opts.OnlyNondegenerate and opts.OnlyDegenerate) then (
-                -- first pick the indeterminates y for which the generators of I are squarefree in y
-                -- for the remaining indeterminates z, compute a GB of I with respect to a z-compatible order & check if squareefree in z
+        -- we use [KR, Lemma 2.6] and [KR, Lemma 2.12]
 
-                gensTerms := flatten apply(first entries gens I, f -> terms f);
-                clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
+        -- first get the indets with respect to which the ideal is "clearly" squarefree 
+        -- the variables y such that y^2 does not divide any term of any generator of I
+        gensTerms := flatten apply(first entries gens I, f -> terms f);
+        clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
 
-                remainingIndets := toList( set(indets) - set(clearlySquarefreeIndets) );
-                otherSquarefreeIndets := select(remainingIndets, y -> isIdealSquarefreeInY(I, y) );
+        remainingIndets := toList( set(indets) - set(clearlySquarefreeIndets) );
+        -- for the remaining indets, compute a Gröbner basis and check whether the initial terms
+        -- are squarefree with respect to each
+        -- in the case that OnlyDegenerate or OnlyNondegenerate is specified, then check these conditions
+        validRemaining := select(remainingIndets, y -> satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate));
 
-                return reverse sort toList( set(clearlySquarefreeIndets) + set(otherSquarefreeIndets) );
-                );
 
-        L := for y in indets list (if satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate) then y else 0);
-        return delete(0, L);
+        -- check the degeneracy conditions, if specified
+        if (opts.OnlyDegenerate or opts.OnlyNondegenerate) then (
+                clearlyDegenerateIndets := select(clearlySquarefreeIndets, y -> easyCaseHandler(I, y));
+                return reverse sort toList( set(clearlyDegenerateIndets) + set(validRemaining) );
+        );
+
+        return reverse sort toList( set(clearlySquarefreeIndets) + set(validRemaining) );
         )
 
 --------------------------------------------------------------------------------
@@ -184,9 +247,9 @@ isGVD(Ideal) := opts -> I -> (
                 "never" => "never"
                 };
 
-        viableIndets := findOneStepGVD I;
 
-        -- check all options for y until one works
+        -- check all options for y which yield a one-step geometric vertex decomposition
+        viableIndets := findOneStepGVD I;
         for y in viableIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
@@ -632,8 +695,8 @@ doc///
                         Geometric Vertex Decomposition and Liaison for Toric Ideals of
                         Graphs. Preprint, @arXiv "2207.06391"@ (2022).
 
-                        [DSH] S. Da Silva and M. Harada. Regular Nilpotent Hessenberg Varieties,
-                        Gröbner Bases, and Toric Degenerations. Preprint, @arXiv "2207.08573"@ (2022).
+                        [DSH] S. Da Silva and M. Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
+                        splittings for regular nilpotent Hessenberg Varieties. Preprint, @arXiv "2207.08573"@ (2022).
 
                         [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
                         Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
@@ -812,6 +875,16 @@ doc///
                                 Returns a list containing the $y$ for which there exists a @TO oneStepGVD@.  In other words, a list
 				of all the variables $y$ that satisfy ${\rm in}_y(I) = C_{y,I} \cap (N_{y,I} + \langle y \rangle)$.
                                 All indeterminates $y$ which appear in the ideal are checked.
+
+                                The results [KR, Lemma 2.6] and [KR, Lemma 2.12] are used to check whether $I$ has a geometric vertex 
+                                decomposition with respect to each indeterminate $y$.
+                                First, for each indeterminate $y$ appearing in the ideal, we check whether the given generators of the ideal
+                                are squarefree in $y$.
+                                That is, if $y^2$ does not divide any term of any generator.
+                                Note that this is a sufficient but not necessary condition.
+                                For the indeterminates $z$ that do not satisfy this sufficient condition, we compute a Gröbner of $I$ 
+                                with respect to a $z$-compatible monomial order, and repeat the squarefree-check for the entries of this
+                                Gröbner basis.
 
                         Example
                                 R = QQ[x,y,z]
