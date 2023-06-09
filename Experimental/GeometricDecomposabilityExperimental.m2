@@ -18,7 +18,8 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"Depth", "PrimaryDecomposition"}
+        PackageImports => {"Depth", "PrimaryDecomposition"},
+        DebuggingMode=>true
         )
 
 export {
@@ -29,11 +30,13 @@ export {
         "getGVDIdeal",
         "isGeneratedByIndeterminates",
         "isGVD",
+        "isGVDuptoSub",
         "isLexCompatiblyGVD",
         "isUnmixed",
         "isWeaklyGVD",
         "NyI",
         "oneStepGVD",
+        "subGVD",
         "yInit",
 
         -- options
@@ -272,6 +275,13 @@ isGVD(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
+isGVDuptoSub = method(TypicalValue => Boolean)  -- probably will need to add more parameters
+isGVDuptoSub(Ideal) := opts -> I -> (
+        -- to be filled in
+        )
+
+--------------------------------------------------------------------------------
+
 -- [KR, Definition 2.11]
 isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", CheckUnmixed => true, IsIdealHomogeneous => false, IsIdealUnmixed => false, Verbose => false})
 isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
@@ -469,6 +479,41 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
                 return (true, C, N, "nondegenerate");
                 );
         return (true, C, N);
+        )
+
+--------------------------------------------------------------------------------
+
+subGVD = method(TypicalValue => RingElement)
+subGVD(RingElement, RingElement, ZZ) := (f, y, d) -> (
+        
+        if not (ring f === ring y) then (
+                error("inputs do not belong to the same ring");
+                return;
+                );
+
+        givenRing := ring f;
+        cr := coefficientRing ring f;
+        givenIndets := gens ring f;
+        yIndex := index y;  -- the index of y in ```gens ring y```
+
+        oldIndetsNewOrder := switch(0, index y, givenIndets);  -- y is the 0th entry of this list
+        otherOldIndets := drop(oldIndetsNewOrder, {0, 0});
+
+        tempRing := (cr) monoid([oldIndetsNewOrder]);
+
+        I := sub(ideal f, tempRing);
+        z := sub(y, tempRing);
+        otherOldIndetsNewRing := apply(otherOldIndets, x -> sub(x, tempRing));
+
+        -- ring maps
+        F := map(tempRing, tempRing, prepend(z^d, otherOldIndetsNewRing));
+        identityMap := map(tempRing, tempRing, prepend(z, otherOldIndetsNewRing));
+
+        J := preimage(F, I);
+        I1 := identityMap J;
+
+
+        return sub(first flatten entries gens I1, givenRing);
         )
 
 --------------------------------------------------------------------------------
@@ -718,6 +763,7 @@ doc///
                         getGVDIdeal
                         isGeneratedByIndeterminates
                         isGVD
+                        isGVDuptoSub
                         IsIdealHomogeneous
                         IsIdealUnmixed
                         isLexCompatiblyGVD
@@ -727,6 +773,7 @@ doc///
                         oneStepGVD
                         OnlyDegenerate
                         OnlyNondegenerate
+                        subGVD
                         yInit
 ///
 
@@ -1110,6 +1157,23 @@ doc///
 ///
 
 
+-- may have other optional parameters (for ``Key'' entry)
+doc///
+        Node
+                Key
+                        isGVDuptoSub
+                        (isGVDuptoSub, Ideal) 
+                Headline
+                        checks whether an ideal is geometrically vertex decomposition up to substitution
+                Usage
+                        isGVDuptoSub I
+                Inputs
+                        I:Ideal
+                Outputs
+                        :Boolean
+///
+
+
 doc///
         Node
                 Key
@@ -1427,6 +1491,15 @@ doc///
                         isWeaklyGVD
                         NyI
                         Verbose
+///
+
+
+-- more to fill in here
+doc///
+        Node
+                Key
+                        subGVD
+                        (subGVD, RingElement, RingElement, ZZ)
 ///
 
 
