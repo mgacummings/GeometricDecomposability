@@ -19,7 +19,7 @@ newPackage(
                 },
         Keywords => {"Commutative Algebra"},
         PackageImports => {"Depth", "PrimaryDecomposition"},
-        DebuggingMode=>true
+        DebuggingMode => true  -- remove this later
         )
 
 export {
@@ -36,7 +36,7 @@ export {
         "isWeaklyGVD",
         "NyI",
         "oneStepGVD",
-        "subGVD",
+        "oneStepSubGVD",
         "yInit",
 
         -- options
@@ -275,7 +275,7 @@ isGVD(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
-isGVDuptoSub = method(TypicalValue => Boolean)  -- probably will need to add more parameters
+isGVDuptoSub = method(TypicalValue => Boolean, Options => {Verbose => false})  -- probably will need to add more parameters
 isGVDuptoSub(Ideal) := opts -> I -> (
         -- to be filled in
         )
@@ -483,6 +483,65 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
 --------------------------------------------------------------------------------
 
+oneStepSubGVD = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, Verbose => false})
+oneStepSubGVD(Ideal, RingElement) := opts -> (I, y) -> (
+
+        -- set up the rings
+        indeterminates := switch(0, index y, gens ring y);
+        remainingIndets := drop(gens ring y, {index y, index y});
+        cr := coefficientRing ring I;
+
+        givenRing := ring I;
+        lexRing := (cr) monoid([indeterminates, MonomialOrder=>Lex]);
+        contractedRing := (cr) monoid([remainingIndets]);
+
+        J := sub(I, lexRing);
+        z := sub(y, lexRing);
+
+        G := first entries gens gb J;
+        gbTerms := flatten apply(G, f -> terms f);
+        yDegrees := unique apply(gbTerms, m -> degree(z, m));
+
+        yMaxDegree := max yDegrees;
+        yOtherDegrees := delete(0, delete(yMaxDegree, yDegrees));  -- all degrees of y in the GB that are not 0 and not the highest degree
+
+        noOtherYDegrees := (#yOtherDegrees == 0);
+
+        -- get N_{y,I}
+        gensN := delete(0, apply(G, g -> isInN(g, z)));
+        NyI := ideal(gensN);
+
+        -- get C_{y, I}
+        gensC := delete(true, flatten(apply(G, g -> isInC(g, z))));
+        CyI := ideal(delete(false, gensC));
+
+        C := sub(CyI, contractedRing);
+        N := sub(NyI, contractedRing);
+
+        if opts.CheckUnmixed then (
+                -- check unmixedness of both CyI and NyI
+                isUnmixedC := isUnmixed C;
+                isUnmixedN := isUnmixed N;
+
+                bothUnmixed := (isUnmixedC and isUnmixedN);
+
+                if not isUnmixedC then (
+                        printIf(opts.Verbose, "Warning: CyI is not unmixed");
+                        );
+                if not isUnmixedN then (
+                        printIf(opts.Verbose, "Warning: NyI is not unmixed");
+                        );
+
+                canSub := (noOtherYDegrees and bothUnmixed);
+                return (canSub, C, N);
+        );
+        
+        return (noOtherYDegrees, C, N);
+        )
+
+--------------------------------------------------------------------------------
+
+-*
 subGVD = method(TypicalValue => RingElement)
 subGVD(RingElement, RingElement, ZZ) := (f, y, d) -> (
         
@@ -512,9 +571,9 @@ subGVD(RingElement, RingElement, ZZ) := (f, y, d) -> (
         J := preimage(F, I);
         I1 := identityMap J;
 
-
         return sub(first flatten entries gens I1, givenRing);
         )
+*-
 
 --------------------------------------------------------------------------------
 
@@ -730,22 +789,22 @@ doc///
                                 appearing in the ideal increases.
 
                 Acknowledgement
-                        We thank S. Da Silva, P. Klein, J. Rajchgot, and M. Harada for feedback. Cummings
-                        was partially supported by an NSERC USRA. Van Tuyl's research is partially
-                        supported by NSERC Discovery Grant 2019-05412.
+                        We thank S. Da Silva, P. Klein, M. Harada, and J. Rajchgot for feedback and suggestions. 
+                        Cummings was partially supported by an NSERC USRA and CGS-M and the Milos Novotny Fellowship. 
+                        Van Tuyl's research is partially supported by NSERC Discovery Grant 2019-05412.
 
                 References
 
                         [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
                         Geometric Vertex Decomposition and Liaison for Toric Ideals of
-                        Graphs. Preprint, @arXiv "2207.06391"@ (2022).
+                        Graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
 
                         [DSH] S. Da Silva and M. Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
-                        splittings for regular nilpotent Hessenberg Varieties. Preprint, @arXiv "2207.08573"@ (2022).
+                        splittings for regular nilpotent Hessenberg Varieties. 
+                        To appear in Transformation Groups, preprint available at @arXiv "2207.08573"@ (2022).
 
                         [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
-                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
-                        1–31.
+                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
                         [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
@@ -771,9 +830,9 @@ doc///
                         isWeaklyGVD
                         NyI
                         oneStepGVD
+                        oneStepSubGVD
                         OnlyDegenerate
                         OnlyNondegenerate
-                        subGVD
                         yInit
 ///
 
@@ -1163,6 +1222,7 @@ doc///
                 Key
                         isGVDuptoSub
                         (isGVDuptoSub, Ideal) 
+                        [isGVDuptoSub, Verbose]
                 Headline
                         checks whether an ideal is geometrically vertex decomposition up to substitution
                 Usage
@@ -1403,7 +1463,7 @@ doc///
                 Outputs
                         :Sequence
                                 containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
-                                a valid geometric vertex decomposition, these ideals $C_{y,I}$ and $N_{y,I}$, and if
+                                a valid geometric vertex decomposition, the ideals $C_{y,I}$ and $N_{y,I}$, and if
                                 {\tt CheckDegenerate=>true}, whether the one-step decomposition
                                 is degenerate or nondegenerate
 		Description
@@ -1498,9 +1558,44 @@ doc///
 doc///
         Node
                 Key
+                        oneStepSubGVD
+                        (oneStepSubGVD, Ideal, RingElement)
+                        [oneStepSubGVD, Verbose]
+                Headline
+                        computes a geometric vertex decomposition after substitution
+                Usage
+                        oneStepSubGVD(I, y)
+                Inputs
+                        I:Ideal
+                        y:RingElement
+                                an indeterminate in the ring
+                Outputs
+                        :Sequence
+                                containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
+                                a valid geometric vertex decomposition and the ideals $C_{y,I}$ and $N_{y,I}$
+                Description
+                        Text
+                                To be filled in...
+                References
+                        None...
+                SeeAlso
+                        CheckUnmixed
+                        isGVDuptoSub
+                        Verbose
+///
+
+
+-*
+-- more to fill in here
+doc///
+        Node
+                Key
                         subGVD
                         (subGVD, RingElement, RingElement, ZZ)
+                Headline
+                        
 ///
+*-
 
 
 doc///
@@ -1637,6 +1732,7 @@ doc///
                         [isWeaklyGVD, CheckUnmixed]
                         [NyI, CheckUnmixed]
                         [oneStepGVD, CheckUnmixed]
+                        [oneStepSubGVD, CheckUnmixed]
                 Headline
                         check whether ideals encountered are unmixed
                 Description
@@ -1685,6 +1781,8 @@ doc///
                         isUnmixed
                         isWeaklyGVD
                         NyI
+                        oneStepGVD
+                        oneStepSubGVD
 ///
 
 
