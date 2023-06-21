@@ -2,8 +2,8 @@
 
 newPackage(
         "GeometricDecomposabilityExperimental",
-        Version => "1.2",
-        Date => "June 9, 2023",
+        Version => "1.2.1",
+        Date => "June 21, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -18,7 +18,7 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"Depth", "PrimaryDecomposition"},
+        PackageImports => {"Depth", "PrimaryDecomposition", "ThreadedGB"},
         DebuggingMode => true  -- remove this later
         )
 
