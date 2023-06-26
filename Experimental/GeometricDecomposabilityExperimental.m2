@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposabilityExperimental",
         Version => "1.2.1",
-        Date => "June 21, 2023",
+        Date => "June 26, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -18,7 +18,7 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"Depth", "PrimaryDecomposition", "ThreadedGB"},
+        PackageImports => {"Depth", "PrimaryDecomposition"},
         DebuggingMode => true  -- remove this later
         )
 
@@ -34,6 +34,7 @@ export {
         "isUnmixed",
         "isWeaklyGVD",
         "NyI",
+        "oneStepGVD",
         "yInit",
 
         -- options
@@ -44,7 +45,8 @@ export {
         "IsIdealHomogeneous",
         "IsIdealUnmixed",
         "OnlyDegenerate",
-        "OnlyNondegenerate"
+        "OnlyNondegenerate",
+        "UniversalGB"
         };
 
 --------------------------------------------------------------------------------
@@ -59,9 +61,12 @@ export {
 
 CyI = method(
         TypicalValue => Ideal, 
-        Options => {CheckUnmixed => true}
+        Options => {
+                CheckUnmixed => true,
+                UniversalGB => false
+                }
         )
-CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed))_1;
+CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB))_1;
 
 --------------------------------------------------------------------------------
 
@@ -95,7 +100,8 @@ findOneStepGVD = method(
                 AllowSub => false,  -- not yet implemented
                 CheckUnmixed => true, 
                 OnlyNondegenerate => false, 
-                OnlyDegenerate => false
+                OnlyDegenerate => false,
+                UniversalGB => false
                 }
         )
 findOneStepGVD(Ideal) := opts -> I -> (
@@ -106,7 +112,6 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 return {};
                 );
 
-
         getGBandCNideals := (I, y) -> (
                 -- returns {GB, CyI, NyI}
                 R := ring I;
@@ -116,7 +121,7 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 S := (cr) monoid([indeterminates, MonomialOrder=>Lex]);  -- ring that has lex order with y > all other variables
                 J := sub(I, S);
                 z := sub(y, S);
-                grobnerBasis := first entries gens gb J;
+                grobnerBasis := if opts.UniversalGB then J_* else first entries gens gb J;
 
                 gensN := delete(0, apply(grobnerBasis, g -> isInN(g, z)));
                 NyI := ideal(gensN);
@@ -207,14 +212,17 @@ findOneStepGVD(Ideal) := opts -> I -> (
 
 getGVDIdeal = method(
         TypicalValue => List, 
-        Options => {CheckUnmixed => true}
+        Options => {
+                CheckUnmixed => true,
+                UniversalGB => false
+                }
         )
 getGVDIdeal(Ideal, List) := opts -> (I, L) -> (
         CNs := new HashTable from {
                 "C" => CyI,
                 "N" => NyI
                 };
-        return accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed) , prepend(I, L) );  -- last entry is the desired ideal
+        return accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB) , prepend(I, L) );  -- last entry is the desired ideal
         )
 
 --------------------------------------------------------------------------------
@@ -238,6 +246,7 @@ isGVD = method(
                 CheckUnmixed => true, 
                 IsIdealHomogeneous => false, 
                 IsIdealUnmixed => false, 
+                UniversalGB => false,
                 Verbose => false
                 }
         )
@@ -276,19 +285,19 @@ isGVD(Ideal) := opts -> I -> (
                 };
 
         -- check all options for y which yield a one-step geometric vertex decomposition
-        viableIndets := findOneStepGVD I;
+        viableIndets := findOneStepGVD(I, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB);
         for y in viableIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
+                (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
                 if not isValid then continue;  -- go back to top of for loop
 
                 printIf(opts.Verbose, "-- C = " | toString C);
                 printIf(opts.Verbose, "-- N = " | toString N);
 
-                CisGVD := isGVD(C, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, Verbose=>opts.Verbose);
-                NisGVD := isGVD(N, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, Verbose=>opts.Verbose);
+                CisGVD := isGVD(C, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
+                NisGVD := isGVD(N, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
 
                 if (CisGVD and NisGVD) then return true;
                 );
@@ -307,6 +316,7 @@ isLexCompatiblyGVD = method(
                 CheckUnmixed => true, 
                 IsIdealHomogeneous => false, 
                 IsIdealUnmixed => false, 
+                UniversalGB => false, 
                 Verbose => false
                 }
         )
@@ -350,14 +360,14 @@ isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
 
         printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-        (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
+        (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
         if not isValid then return false;  -- order didn't work
 
         printIf(opts.Verbose, "-- C = " | toString C);
         printIf(opts.Verbose, "-- N = " | toString N);
 
-        CisGVD := isLexCompatiblyGVD(C, remainingOrder, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, Verbose=>opts.Verbose);
-        NisGVD := isLexCompatiblyGVD(N, remainingOrder, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, Verbose=>opts.Verbose);
+        CisGVD := isLexCompatiblyGVD(C, remainingOrder, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
+        NisGVD := isLexCompatiblyGVD(N, remainingOrder, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
 
         return (CisGVD and NisGVD);
         )
@@ -379,7 +389,8 @@ isWeaklyGVD = method(
         TypicalValue => Boolean, 
         Options => {
                 CheckUnmixed => true, 
-                IsIdealUnmixed => false, 
+                IsIdealUnmixed => false,
+                UniversalGB => false,
                 Verbose => false
                 }
         )
@@ -397,14 +408,14 @@ isWeaklyGVD(Ideal) := opts -> I -> (
                         );
                 );
 
-        viableIndets := findOneStepGVD I;
+        viableIndets := findOneStepGVD(I, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB);
 
         -- check all options for y until one works
         for y in viableIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                oneStep := oneStepGVD(I, y, CheckDegenerate=>true, CheckUnmixed=>opts.CheckUnmixed, Verbose=>opts.Verbose);
+                oneStep := oneStepGVD(I, y, CheckDegenerate=>true, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
                 isValid := oneStep_0;
                 if not isValid then continue;  -- go back to top of for loop
 
@@ -418,12 +429,12 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 if isDegenerate then (
                         -- degenerate case
-                        if isWeaklyGVD(N, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, Verbose=>opts.Verbose) then return true else continue;
+                        if isWeaklyGVD(N, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose) then return true else continue;
 
                         ) else (
                         -- nondegenerate case
                         if not (radical(N, Unmixed=>true) == N and isCM(ring N/N)) then continue;
-                        if isWeaklyGVD(C, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, Verbose=>opts.Verbose) then return true else continue;
+                        if isWeaklyGVD(C, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose) then return true else continue;
                         )
                 );
 
@@ -435,9 +446,12 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
 NyI = method(
         TypicalValue => Ideal, 
-        Options => {CheckUnmixed => true}
+        Options => {
+                CheckUnmixed => true,
+                UniversalGB => false
+                }
         )
-NyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed))_2;
+NyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB))_2;
 
 --------------------------------------------------------------------------------
 
@@ -447,6 +461,7 @@ oneStepGVD = method(
                 AllowSub => false,
                 CheckDegenerate => false, 
                 CheckUnmixed => true, 
+                UniversalGB => false,
                 Verbose => false
                 }
         )
@@ -468,7 +483,7 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         -- pull everthing into the new rings and get a (reduced) Gröbner basis
         J := sub(I, lexRing);
         z := sub(y, lexRing);
-        G := first entries gens gb J;
+        G := if opts.UniversalGB then J_* else first entries gens gb J;
 
         -- check whether the intersection condition holds
         isValid := isValidOneStep(G, z, opts.AllowSub);
@@ -509,8 +524,11 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 --------------------------------------------------------------------------------
 
 -- [KMY, Section 2.1]
-yInit = method(TypicalValue => Ideal)
-yInit(Ideal, RingElement) := (I, y) -> (
+yInit = method(
+        TypicalValue => Ideal,
+        Options => {UniversalGB => false}
+        )
+yInit(Ideal, RingElement) := opts -> (I, y) -> (
         givenRing := ring I;
 
         -- set up the ring
@@ -522,8 +540,15 @@ yInit(Ideal, RingElement) := (I, y) -> (
         -- get the ideal of initial y-forms using the product order
         I = sub(I, initYFormRing);
         y = sub(y, initYFormRing);
-        inyFormIdeal := ideal leadTerm(1,I);
 
+        -- compute in_y(I) manually if we have a UGB using [KMY, Theorem 2.1(a)]
+        if opts.UniversalGB then (
+                listOfInitYForms := apply(I_*, f -> leadTerm(1, f));
+                return sub(ideal listOfInitYForms, givenRing);
+                );
+
+        -- if we don't have a universal Gröbner bais
+        inyFormIdeal := ideal leadTerm(1,I);
         return sub(inyFormIdeal, givenRing);
         )
 
@@ -817,6 +842,7 @@ doc///
                         oneStepGVD
                         OnlyDegenerate
                         OnlyNondegenerate
+                        UniversalGB
                         yInit
 ///
 
@@ -885,6 +911,7 @@ doc///
                         getGVDIdeal
                         NyI
                         oneStepGVD
+                        UniversalGB
 ///
 
 
@@ -1000,6 +1027,7 @@ doc///
                         oneStepGVD
                         OnlyDegenerate
                         OnlyNondegenerate
+                        UniversalGB
 ///
 
 
@@ -1050,6 +1078,7 @@ doc///
                         CyI
                         NyI
                         oneStepGVD
+                        UniversalGB
 ///
 
 
@@ -1114,9 +1143,6 @@ doc///
 				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
 				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
 				We set ${\rm in}_y(I) = \langle {\rm in}_y(f) ~|~ f \in I \rangle$ to be the ideal generated by all the initial $y$-forms in $I$.
-
-
-
 
                                 Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
                                 ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
@@ -1198,6 +1224,7 @@ doc///
                         isUnmixed
                         isWeaklyGVD
                         oneStepGVD
+                        UniversalGB
                         Verbose
 ///
 
@@ -1254,6 +1281,7 @@ doc///
                         isUnmixed
                         isWeaklyGVD
                         oneStepGVD
+                        UniversalGB
                         Verbose
 ///
 
@@ -1347,6 +1375,7 @@ doc///
                         isLexCompatiblyGVD
                         isUnmixed
                         oneStepGVD
+                        UniversalGB
                         Verbose
 ///
 
@@ -1411,10 +1440,10 @@ doc///
                         CyI
                         getGVDIdeal
                         oneStepGVD
+                        UniversalGB
 ///
 
 
--- need to add that AllowSub and CheckDegenerate are not known to be compatible
 doc///
        Node
                 Key
@@ -1499,6 +1528,13 @@ doc///
                 		i = ideal(e_1*e_4-e_2*e_3, e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10, e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10, e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10);
                 		mingens gb i
 				oneStepGVD(i, e_1)
+
+                Caveat
+                        If both @TO AllowSub@ and @TO CheckDegenerate@ are set to {\tt true}, a warning be printed.
+                        In particular, there is no definition of degenerate/nondegenerate geometric vertex decompositions
+                        allowing substitutions, nor a version @TO isWeaklyGVD@ allowing substitutions, that is known to the 
+                        authors, and as such, is not explicitly supported in this package.
+
 		References
                         [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
                         Geometric Vertex Decomposition and Liaison for Toric Ideals of
@@ -1520,6 +1556,7 @@ doc///
                         isLexCompatiblyGVD
                         isWeaklyGVD
                         NyI
+                        UniversalGB
                         Verbose
 ///
 
@@ -1567,6 +1604,7 @@ doc///
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 		SeeAlso
                         oneStepGVD
+                        UniversalGB
 ///
 
 
@@ -1816,6 +1854,48 @@ doc///
                 SeeAlso
                         findOneStepGVD
                         OnlyDegenerate
+///
+
+
+-- incomplete description
+doc///
+        Node
+                Key
+                        UniversalGB
+                        [CyI, UniversalGB]
+                        [findOneStepGVD, UniversalGB]
+                        [getGVDIdeal, UniversalGB]
+                        [isGVD, UniversalGB]
+                        [isLexCompatiblyGVD, UniversalGB]
+                        [isWeaklyGVD, UniversalGB]
+                        [NyI, UniversalGB]
+                        [oneStepGVD, UniversalGB]
+                        [yInit, UniversalGB]
+                Headline
+                        if the generators for an ideal form a universal Gröbner basis
+                Description
+                        Text
+                                Let $I \subseteq R = k[x_1, \ldots, x_n]$ be an ideal.
+                                A set of generators $\mathcal G$ for $I$ is a universal Gröbner basis for $I$
+                                if it is a Gröbner basis for $I$ with respect to any monomial order on $R$.
+                                The default value is always {\tt UniversalGB=>false}.
+
+                                If {\tt UniversalGB} is set to {\tt true}, then we can avoid computing Gröbner bases.
+                                Importantly, geometric vertex decompositions preserve universal Gröbner basis, that is,
+                                if $\{ y^{d_i}q_i + r_i \mid i = 1, \ldots, s \}$ is a universal Gröbner basis for an 
+                                ideal $I$, then $\{ q_1, \ldots, q_s \}$ and $\{ q_i \mid d_i = 0 \}$ are universal 
+                                Gröbner bases for $C_{y,I}$ and $N_{y,I}$ in $k[x_1, \ldots, \hat y, \ldots, x_n]$, 
+                                respectively.
+                SeeAlso
+                        CyI
+                        findOneStepGVD
+                        getGVDIdeal
+                        isGVD
+                        isLexCompatiblyGVD
+                        isWeaklyGVD
+                        NyI
+                        oneStepGVD
+                        yInit
 ///
 
 
