@@ -527,12 +527,6 @@ yInit(Ideal, RingElement) := (I, y) -> (
         return sub(inyFormIdeal, givenRing);
         )
 
-yInit(List, RingElement) := (L, y) -> (
-        I := ideal(L);
-        init := yInit(I, y);
-        return first entries gens init;
-)
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -1540,19 +1534,12 @@ doc///
                         computes the ideal of initial y-forms
                 Usage
                         yInit(I, y)
-                        yInit(L, y)
                 Inputs
                         I:Ideal
-                        L:List
-                                a list of generators for an ideal
                         y:RingElement
                                 an indeterminate in the ring
                 Outputs
-                        :Ideal 
-                                if an ideal was given
-                        :List
-                                if a list was given
-
+                        :Ideal
 		Description
 			 Text
                                 Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
