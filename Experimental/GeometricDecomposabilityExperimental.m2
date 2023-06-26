@@ -30,7 +30,6 @@ export {
         "getGVDIdeal",
         "isGeneratedByIndeterminates",
         "isGVD",
-        "isGVDuptoSub",
         "isLexCompatiblyGVD",
         "isUnmixed",
         "isWeaklyGVD",
@@ -296,16 +295,6 @@ isGVD(Ideal) := opts -> I -> (
 
         -- if we are here, no choice of y worked
         return false;
-        )
-
---------------------------------------------------------------------------------
-
-isGVDuptoSub = method(
-        TypicalValue => Boolean, 
-        Options => {Verbose => false}
-        )  -- probably will need to add more parameters
-isGVDuptoSub(Ideal) := opts -> I -> (
-        -- to be filled in
         )
 
 --------------------------------------------------------------------------------
@@ -825,7 +814,6 @@ doc///
                         getGVDIdeal
                         isGeneratedByIndeterminates
                         isGVD
-                        isGVDuptoSub
                         IsIdealHomogeneous
                         IsIdealUnmixed
                         isLexCompatiblyGVD
@@ -1220,24 +1208,6 @@ doc///
 ///
 
 
--- may have other optional parameters (for ``Key'' entry)
-doc///
-        Node
-                Key
-                        isGVDuptoSub
-                        (isGVDuptoSub, Ideal) 
-                        [isGVDuptoSub, Verbose]
-                Headline
-                        checks whether an ideal is geometrically vertex decomposition up to substitution
-                Usage
-                        isGVDuptoSub I
-                Inputs
-                        I:Ideal
-                Outputs
-                        :Boolean
-///
-
-
 doc///
         Node
                 Key
@@ -1450,6 +1420,7 @@ doc///
 ///
 
 
+-- need to add that AllowSub and CheckDegenerate are not known to be compatible
 doc///
        Node
                 Key
