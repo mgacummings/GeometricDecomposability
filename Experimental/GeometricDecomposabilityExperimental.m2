@@ -1529,7 +1529,6 @@ doc///
                 Key
                         yInit
                         (yInit, Ideal, RingElement)
-                        (yInit, List, RingElement)
                 Headline
                         computes the ideal of initial y-forms
                 Usage
