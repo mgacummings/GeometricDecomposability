@@ -35,11 +35,10 @@ export {
         "isUnmixed",
         "isWeaklyGVD",
         "NyI",
-        "oneStepGVD",
-        "oneStepSubGVD",
         "yInit",
 
         -- options
+        "AllowSub",
         "CheckCM",
         "CheckDegenerate",
         "CheckUnmixed",
@@ -59,12 +58,18 @@ export {
 
 --------------------------------------------------------------------------------
 
-CyI = method(TypicalValue => Ideal, Options => {CheckUnmixed => true})
+CyI = method(
+        TypicalValue => Ideal, 
+        Options => {CheckUnmixed => true}
+        )
 CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed))_1;
 
 --------------------------------------------------------------------------------
 
-findLexCompatiblyGVDOrders = method(TypicalValue => List, Options => {CheckUnmixed => true})
+findLexCompatiblyGVDOrders = method(
+        TypicalValue => List, 
+        Options => {CheckUnmixed => true}
+        )
 findLexCompatiblyGVDOrders(Ideal) := opts -> I -> (
         if isGVDBaseCase I then (
                 return permutations gens ring I;
@@ -85,7 +90,15 @@ findLexCompatiblyGVDOrders(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
-findOneStepGVD = method(TypicalValue => List, Options => {CheckUnmixed => true, OnlyNondegenerate => false, OnlyDegenerate => false})
+findOneStepGVD = method(
+        TypicalValue => List, 
+        Options => {
+                AllowSub => false,  -- not yet implemented
+                CheckUnmixed => true, 
+                OnlyNondegenerate => false, 
+                OnlyDegenerate => false
+                }
+        )
 findOneStepGVD(Ideal) := opts -> I -> (
         -- returns a list of indeterminates for which there exists a one-step geometric vertex decomposition
 
@@ -193,7 +206,10 @@ findOneStepGVD(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
-getGVDIdeal = method(TypicalValue => List, Options => {CheckUnmixed => true})
+getGVDIdeal = method(
+        TypicalValue => List, 
+        Options => {CheckUnmixed => true}
+        )
 getGVDIdeal(Ideal, List) := opts -> (I, L) -> (
         CNs := new HashTable from {
                 "C" => CyI,
@@ -215,7 +231,17 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 2.7]
-isGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", CheckUnmixed => true, IsIdealHomogeneous => false, IsIdealUnmixed => false, Verbose => false})
+isGVD = method(
+        TypicalValue => Boolean, 
+        Options => {
+                AllowSub => false,  -- not yet implemented
+                CheckCM => "once", 
+                CheckUnmixed => true, 
+                IsIdealHomogeneous => false, 
+                IsIdealUnmixed => false, 
+                Verbose => false
+                }
+        )
 isGVD(Ideal) := opts -> I -> (
 
         if not instance(opts.CheckCM, String) then (
@@ -250,7 +276,6 @@ isGVD(Ideal) := opts -> I -> (
                 "never" => "never"
                 };
 
-
         -- check all options for y which yield a one-step geometric vertex decomposition
         viableIndets := findOneStepGVD I;
         for y in viableIndets do (
@@ -275,7 +300,10 @@ isGVD(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
-isGVDuptoSub = method(TypicalValue => Boolean, Options => {Verbose => false})  -- probably will need to add more parameters
+isGVDuptoSub = method(
+        TypicalValue => Boolean, 
+        Options => {Verbose => false}
+        )  -- probably will need to add more parameters
 isGVDuptoSub(Ideal) := opts -> I -> (
         -- to be filled in
         )
@@ -283,7 +311,16 @@ isGVDuptoSub(Ideal) := opts -> I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 2.11]
-isLexCompatiblyGVD = method(TypicalValue => Boolean, Options => {CheckCM => "once", CheckUnmixed => true, IsIdealHomogeneous => false, IsIdealUnmixed => false, Verbose => false})
+isLexCompatiblyGVD = method(
+        TypicalValue => Boolean, 
+        Options => {
+                CheckCM => "once", 
+                CheckUnmixed => true, 
+                IsIdealHomogeneous => false, 
+                IsIdealUnmixed => false, 
+                Verbose => false
+                }
+        )
 isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
         if not instance(opts.CheckCM, String) then (
                 error "value of CheckCM must be a string";
@@ -349,7 +386,14 @@ isUnmixed(Ideal) := I -> (
 --------------------------------------------------------------------------------
 
 -- [KR, Definition 4.6]
-isWeaklyGVD = method(TypicalValue => Boolean, Options => {CheckUnmixed => true, IsIdealUnmixed => false, Verbose => false})
+isWeaklyGVD = method(
+        TypicalValue => Boolean, 
+        Options => {
+                CheckUnmixed => true, 
+                IsIdealUnmixed => false, 
+                Verbose => false
+                }
+        )
 isWeaklyGVD(Ideal) := opts -> I -> (
         R := ring I;
         printIf(opts.Verbose, toString I);
@@ -400,91 +444,28 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
 --------------------------------------------------------------------------------
 
-NyI = method(TypicalValue => Ideal, Options => {CheckUnmixed => true})
+NyI = method(
+        TypicalValue => Ideal, 
+        Options => {CheckUnmixed => true}
+        )
 NyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed))_2;
 
 --------------------------------------------------------------------------------
 
--- [KMY, Theorem 2.1]
-oneStepGVD = method(TypicalValue => Sequence, Options => {CheckDegenerate => false, CheckUnmixed => true, Verbose => false})
+oneStepGVD = method(
+        TypicalValue => Sequence, 
+        Options => {
+                AllowSub => false,
+                CheckDegenerate => false, 
+                CheckUnmixed => true, 
+                Verbose => false
+                }
+        )
 oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
-        -- set up the rings
-        indeterminates := switch(0, index y, gens ring y);
-        remainingIndets := drop(gens ring y, {index y, index y});
-        cr := coefficientRing ring I;
-
-        givenRing := ring I;
-        lexRing := (cr) monoid([indeterminates, MonomialOrder=>Lex]);
-        contractedRing := (cr) monoid([remainingIndets]);
-
-        -- pull everything into a lex ring
-        I1 := sub(I, lexRing);
-        y1 := sub(y, lexRing);
-        inyForm := sub(yInit(I1, y1), lexRing);
-        G := first entries gens gb I1;
-
-        -- get N_{y,I}
-        gensN := delete(0, apply(G, g -> isInN(g, y1)));
-        NyI := ideal(gensN);
-
-        -- get C_{y, I} and determine whether the GB is square-free in y
-        gensC := delete(true, flatten(apply(G, g -> isInC(g, y1))));
-        squarefree := (number(gensC, i -> (i === false)) == 0);  -- square-free is true iff number of `false` in gensC is 0
-        CyI := ideal(delete(false, gensC));
-
-        -- [KR, Lemma 2.6]
-        if not squarefree then (
-                printIf(opts.Verbose, "Warning: Gröbner basis not square-free in " | toString y);
-                return (false, sub(CyI, givenRing), sub(NyI, givenRing));
+        if opts.AllowSub and opts.CheckDegenerate then (
+                print("Caution: A (non-)degenerate geometric vertex decomposition---and hence, the notion of weakly GVD---is not known to be compatible with allowing substitutions");
                 );
-
-        -- check that the intersection holds
-        -- sub CyI, NyI into lexRing in case either is zero or unit ideal
-        validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y1) ) == inyForm );
-
-        C := sub(CyI, givenRing);
-        N := sub(NyI, givenRing);
-
-        if not validOneStep then (
-                printIf(opts.Verbose, "Warning: not a valid geometric vertex decomposition");
-                return (false, C, N);
-                );
-
-        if opts.CheckUnmixed then (
-                -- check unmixedness of both CyI and NyI
-                isUnmixedC := isUnmixed C;
-                isUnmixedN := isUnmixed N;
-
-                if not isUnmixedC then (
-                        printIf(opts.Verbose, "Warning: CyI is not unmixed");
-                        );
-                if not isUnmixedN then (
-                        printIf(opts.Verbose, "Warning: NyI is not unmixed");
-                        );
-                if not (isUnmixedC and isUnmixedN) then (
-                        return (false, C, N);
-                        );
-                );
-
-        if opts.CheckDegenerate then (
-                -- degenerate if C == 1 or radical C == radical N
-                if C == 1 then return (true, C, N, "degenerate");
-
-                radC := radical(C, Unmixed=>true);
-                radN := radical(N, Unmixed=>true);
-                if (radC == radN) then return (true, C, N, "degenerate");
-
-                -- if we are here, we are nondegenerate
-                return (true, C, N, "nondegenerate");
-                );
-        return (true, C, N);
-        )
-
---------------------------------------------------------------------------------
-
-oneStepSubGVD = method(TypicalValue => Sequence, Options => {CheckUnmixed => true, Verbose => false})
-oneStepSubGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
         -- set up the rings
         indeterminates := switch(0, index y, gens ring y);
@@ -495,17 +476,16 @@ oneStepSubGVD(Ideal, RingElement) := opts -> (I, y) -> (
         lexRing := (cr) monoid([indeterminates, MonomialOrder=>Lex]);
         contractedRing := (cr) monoid([remainingIndets]);
 
+        -- pull everthing into the new rings and get a (reduced) Gröbner basis
         J := sub(I, lexRing);
         z := sub(y, lexRing);
-
         G := first entries gens gb J;
-        gbTerms := flatten apply(G, f -> terms f);
-        yDegrees := unique apply(gbTerms, m -> degree(z, m));
 
-        yMaxDegree := max yDegrees;
-        yOtherDegrees := delete(0, delete(yMaxDegree, yDegrees));  -- all degrees of y in the GB that are not 0 and not the highest degree
-
-        noOtherYDegrees := (#yOtherDegrees == 0);
+        -- check whether the intersection condition holds
+        isValid := isValidOneStep(G, z, opts.AllowSub);
+        if not isValid then (
+                printIf(opts.Verbose, "Warning: not a valid geometric vertex decomposition");
+                );
 
         -- get N_{y,I}
         gensN := delete(0, apply(G, g -> isInN(g, z)));
@@ -518,62 +498,24 @@ oneStepSubGVD(Ideal, RingElement) := opts -> (I, y) -> (
         C := sub(CyI, contractedRing);
         N := sub(NyI, contractedRing);
 
-        if opts.CheckUnmixed then (
-                -- check unmixedness of both CyI and NyI
-                isUnmixedC := isUnmixed C;
-                isUnmixedN := isUnmixed N;
-
-                bothUnmixed := (isUnmixedC and isUnmixedN);
-
-                if not isUnmixedC then (
-                        printIf(opts.Verbose, "Warning: CyI is not unmixed");
-                        );
-                if not isUnmixedN then (
-                        printIf(opts.Verbose, "Warning: NyI is not unmixed");
-                        );
-
-                canSub := (noOtherYDegrees and bothUnmixed);
-                return (canSub, C, N);
-        );
-        
-        return (noOtherYDegrees, C, N);
-        )
-
---------------------------------------------------------------------------------
-
--*
-subGVD = method(TypicalValue => RingElement)
-subGVD(RingElement, RingElement, ZZ) := (f, y, d) -> (
-        
-        if not (ring f === ring y) then (
-                error("inputs do not belong to the same ring");
-                return;
+        -- check unmixed & degenerate as needed, and return
+        if opts.CheckUnmixed and opts.CheckDegenerate then (
+                unmixedIdeals := unmixedCheck(C, N, opts.Verbose);
+                degeneracyStatus := degeneracyCheck(C, N);
+                return (isValid and unmixedIdeals, C, N, degeneracyStatus);
                 );
-
-        givenRing := ring f;
-        cr := coefficientRing ring f;
-        givenIndets := gens ring f;
-        yIndex := index y;  -- the index of y in ```gens ring y```
-
-        oldIndetsNewOrder := switch(0, index y, givenIndets);  -- y is the 0th entry of this list
-        otherOldIndets := drop(oldIndetsNewOrder, {0, 0});
-
-        tempRing := (cr) monoid([oldIndetsNewOrder]);
-
-        I := sub(ideal f, tempRing);
-        z := sub(y, tempRing);
-        otherOldIndetsNewRing := apply(otherOldIndets, x -> sub(x, tempRing));
-
-        -- ring maps
-        F := map(tempRing, tempRing, prepend(z^d, otherOldIndetsNewRing));
-        identityMap := map(tempRing, tempRing, prepend(z, otherOldIndetsNewRing));
-
-        J := preimage(F, I);
-        I1 := identityMap J;
-
-        return sub(first flatten entries gens I1, givenRing);
+        if opts.CheckUnmixed then (  -- not needed to CheckDegenerate
+                unmixedIdeals1 := unmixedCheck(C, N, opts.Verbose);
+                return (isValid and unmixedIdeals1, C, N);
+                );
+        if opts.CheckDegenerate then ( -- not needed to CheckUnmixed
+                degeneracyStatus1 := degeneracyCheck(C, N);
+                return (isValid, C, N, degeneracyStatus1);
+                );
+        
+        -- otherwise, we don't need not check unmixed nor degeneracy
+        return (isValid, C, N);
         )
-*-
 
 --------------------------------------------------------------------------------
 
@@ -614,6 +556,21 @@ areGensSquarefreeInY(List, RingElement) := (L, y) -> (
         -- returns true if and only if ideal(L) is squarefre in y, that is, if y^2 does not divide any term of any of the polynomials
 
         return all( apply(L, m -> isSquarefreeInY(m, y)), i->i );
+        )
+
+
+-- check if C_{y, I} and N_{y, I} form a degenerate (or not) geometric vertex decomposition
+degeneracyCheck = method(TypicalValue => String)
+degeneracyCheck(Ideal, Ideal) := (C, N) -> (
+        -- degenerate if C == 1 or radical C == radical N
+        if C == 1 then return "degenerate";
+
+        radC := radical(C, Unmixed=>true);
+        radN := radical(N, Unmixed=>true);
+        if (radC == radN) then return "degenerate";
+
+        -- if we are here, we are nondegenerate
+        return "nondegenerate";
         )
 
 
@@ -728,6 +685,27 @@ isSquarefreeInY(RingElement, RingElement) := (m, y) -> (
         )
 
 
+-- determine whether the one-step geometric vertex decomposition holds
+-- uses [KR, Lemmas 2.6 and 2.12] and generalizations thereof
+isValidOneStep = method(TypicalValue => Boolean)
+isValidOneStep(List, RingElement, Boolean) := (G, y, allowingSub) -> (
+        -- G is a list, whose elements form a reduced Gröbner basis
+
+        -- analyze the powers of y appearing in the Gröbner basis
+        gbTerms := flatten apply(G, f -> terms f);
+        yDegrees := unique apply(gbTerms, m -> degree(y, m));
+        yMaxDegree := max yDegrees;
+
+        if not allowingSub then (
+                return yMaxDegree == 1;
+                );
+
+        yOtherDegrees := delete(0, delete(yMaxDegree, yDegrees)); -- all degrees of y in the GB that are not 0 and not the highest degree
+        noOtherYDegrees := (#yOtherDegrees == 0);
+        return noOtherYDegrees;
+        )
+
+
 printIf = method()
 printIf(Boolean, String) := (bool, str) -> (
         if bool then print str;
@@ -743,6 +721,24 @@ printIf(Boolean, String) := (bool, str) -> (
                         return L;
                         )
                 )
+
+
+unmixedCheck = method(TypicalValue => Boolean)
+unmixedCheck(Ideal, Ideal, Boolean) := (C, N, verb) -> (
+        isUnmixedC := isUnmixed C;
+        isUnmixedN := isUnmixed N;
+
+        bothUnmixed := (isUnmixedC and isUnmixedN);
+
+        if not isUnmixedC then (
+                printIf(verb, "Warning: CyI is not unmixed");
+                );
+        if not isUnmixedN then (
+                printIf(verb, "Warning: NyI is not unmixed");
+                );
+
+        return bothUnmixed;
+        )
 
 
 --------------------------------------------------------------------------------
@@ -801,24 +797,25 @@ doc///
 
                 References
 
-                        [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
+                        [CDSRVT] Mike Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl.
                         Geometric Vertex Decomposition and Liaison for Toric Ideals of
                         Graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
 
-                        [DSH] S. Da Silva and M. Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
+                        [DSH] Sergio Da Silva and Megumi Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
                         splittings for regular nilpotent Hessenberg Varieties. 
                         To appear in Transformation Groups, preprint available at @arXiv "2207.08573"@ (2022).
 
-                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
+                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner Geometry of Vertex
                         Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
-                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
-                        [SM] H. Saremi and A. Mafi. Unmixedness and Arithmetic Properties of
+                        [SM] Hero Saremi and Amir Mafi. Unmixedness and Arithmetic Properties of
                         Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
 
                 Subnodes
+                        AllowSub
                         CheckCM
                         CheckDegenerate
                         CheckUnmixed
@@ -836,7 +833,6 @@ doc///
                         isWeaklyGVD
                         NyI
                         oneStepGVD
-                        oneStepSubGVD
                         OnlyDegenerate
                         OnlyNondegenerate
                         yInit
@@ -1017,6 +1013,7 @@ doc///
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
+                        AllowSub
                         CheckUnmixed
                         oneStepGVD
                         OnlyDegenerate
@@ -1209,6 +1206,7 @@ doc///
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
+                        AllowSub
                         CheckCM
                         CheckUnmixed
                         isGeneratedByIndeterminates
@@ -1548,6 +1546,7 @@ doc///
                         [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 		SeeAlso
+                        AllowSub
                         CheckDegenerate
                         CheckUnmixed
                         CyI
@@ -1558,50 +1557,6 @@ doc///
                         NyI
                         Verbose
 ///
-
-
--- more to fill in here
-doc///
-        Node
-                Key
-                        oneStepSubGVD
-                        (oneStepSubGVD, Ideal, RingElement)
-                        [oneStepSubGVD, Verbose]
-                Headline
-                        computes a geometric vertex decomposition after substitution
-                Usage
-                        oneStepSubGVD(I, y)
-                Inputs
-                        I:Ideal
-                        y:RingElement
-                                an indeterminate in the ring
-                Outputs
-                        :Sequence
-                                containing whether the $C_{y,I}$ and $N_{y,I}$ ideals form
-                                a valid geometric vertex decomposition and the ideals $C_{y,I}$ and $N_{y,I}$
-                Description
-                        Text
-                                To be filled in...
-                References
-                        None...
-                SeeAlso
-                        CheckUnmixed
-                        isGVDuptoSub
-                        Verbose
-///
-
-
--*
--- more to fill in here
-doc///
-        Node
-                Key
-                        subGVD
-                        (subGVD, RingElement, RingElement, ZZ)
-                Headline
-                        
-///
-*-
 
 
 doc///
@@ -1661,6 +1616,28 @@ doc///
 --******************************************************************************
 -- Documentation for optional inputs
 --******************************************************************************
+
+
+-- add description
+doc///
+        Node
+                Key
+                        AllowSub
+                        [findOneStepGVD, AllowSub]
+                        [isGVD, AllowSub]
+                        [oneStepGVD, AllowSub]
+                Headline
+                        allows for geometric vertex decompositions up to subsitution
+                Description
+                        Text
+                                an optional input, to be implemented for @TO isGVD@, @TO oneStepGVD@, and @TO findOneStepGVD@
+
+                                default value is {\tt false}
+                SeeAlso
+                        findOneStepGVD
+                        isGVD
+                        oneStepGVD
+///
 
 
 doc///
@@ -1745,7 +1722,6 @@ doc///
                         [isWeaklyGVD, CheckUnmixed]
                         [NyI, CheckUnmixed]
                         [oneStepGVD, CheckUnmixed]
-                        [oneStepSubGVD, CheckUnmixed]
                 Headline
                         check whether ideals encountered are unmixed
                 Description
@@ -1795,7 +1771,6 @@ doc///
                         isWeaklyGVD
                         NyI
                         oneStepGVD
-                        oneStepSubGVD
 ///
 
 
