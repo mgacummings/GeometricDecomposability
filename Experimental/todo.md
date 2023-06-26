@@ -10,3 +10,5 @@ works
 4. Add test cases for (3)
 3. Documentation for (1)
 4. Documentation for (3)
+5. Update references throughout. Authors' full names and "to appear" for 
+C-DS-R-VT and DS-M.
