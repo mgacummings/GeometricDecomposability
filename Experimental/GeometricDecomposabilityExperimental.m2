@@ -596,6 +596,12 @@ yInit(Ideal, RingElement) := (I, y) -> (
         return sub(inyFormIdeal, givenRing);
         )
 
+yInit(List, RingElement) := (L, y) -> (
+        I := ideal(L);
+        init := yInit(I, y);
+        return first entries gens init;
+)
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -1603,16 +1609,23 @@ doc///
                 Key
                         yInit
                         (yInit, Ideal, RingElement)
+                        (yInit, List, RingElement)
                 Headline
                         computes the ideal of initial y-forms
                 Usage
                         yInit(I, y)
+                        yInit(L, y)
                 Inputs
                         I:Ideal
+                        L:List
+                                a list of generators for an ideal
                         y:RingElement
                                 an indeterminate in the ring
                 Outputs
-                        :Ideal
+                        :Ideal 
+                                if an ideal was given
+                        :List
+                                if a list was given
 
 		Description
 			 Text
