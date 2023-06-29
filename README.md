@@ -15,7 +15,7 @@ After the package is loaded, you can read the documentation by running `viewHelp
 
 ## Development
 
-The first author, Sergio Da Silva and Curran McConnell are preparing a new version of the package, which aims to speed up computation time and add functionality for geometric vertex decomposition allowing substitutions.
+The first author, Sergio Da Silva, and Curran McConnell are preparing a new version of the package, which aims to speed up computation time and add functionality for geometric vertex decomposition allowing substitutions.
 Our work in progress can be found in the `Experimental`  folder, which users can run---at their own risk---using `installPackage GeometricDecomposabilityExperimental`.
 
 ## Background
