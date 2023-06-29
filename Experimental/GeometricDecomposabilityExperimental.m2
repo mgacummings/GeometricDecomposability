@@ -2,8 +2,8 @@
 
 newPackage(
         "GeometricDecomposabilityExperimental",
-        Version => "1.2.1",
-        Date => "June 26, 2023",
+        Version => "1.3",
+        Date => "June 29, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -46,6 +46,7 @@ export {
         "IsIdealUnmixed",
         "OnlyDegenerate",
         "OnlyNondegenerate",
+        "SquarefreeOnly",
         "UniversalGB"
         };
 
@@ -101,6 +102,7 @@ findOneStepGVD = method(
                 CheckUnmixed => true, 
                 OnlyNondegenerate => false, 
                 OnlyDegenerate => false,
+                SquarefreeOnly => false,
                 UniversalGB => false
                 }
         )
@@ -196,6 +198,8 @@ findOneStepGVD(Ideal) := opts -> I -> (
         gensTerms := flatten apply(first entries gens I, f -> terms f);
         clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
 
+        if opts.SquarefreeOnly then return clearlySquarefreeIndets;
+
         remainingIndets := toList( set(indets) - set(clearlySquarefreeIndets) );
         -- for the remaining indets y, compute a Gröbner basis and check whether the initial terms
         -- are squarefree with respect to y
@@ -287,9 +291,11 @@ isGVD(Ideal) := opts -> I -> (
                 "never" => "never"
                 };
 
-        -- check all options for y which yield a one-step geometric vertex decomposition
-        viableIndets := findOneStepGVD(I, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB);
-        for y in viableIndets do (
+        -- iterate over all indeterminates, first trying the ones which appear squarefree in the given generators for I
+        viableIndets := findOneStepGVD(I, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, SquarefreeOnly=>true, UniversalGB=>opts.UniversalGB);
+        remainingIndets := (support I) - set(viableIndets);
+        iterIndets := join(viableIndets, remainingIndets);
+        for y in iterIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
@@ -411,10 +417,13 @@ isWeaklyGVD(Ideal) := opts -> I -> (
                         );
                 );
 
-        viableIndets := findOneStepGVD(I, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB);
+        -- iterate over all indeterminates, first trying the ones which appear squarefree in the given generators for I
+        viableIndets := findOneStepGVD(I, CheckUnmixed=>opts.CheckUnmixed, SquarefreeOnly=>true, UniversalGB=>opts.UniversalGB);
+        remainingIndets := (support I) - set(viableIndets);
+        iterIndets := join(viableIndets, remainingIndets);
 
         -- check all options for y until one works
-        for y in viableIndets do (
+        for y in iterIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
@@ -845,6 +854,7 @@ doc///
                         oneStepGVD
                         OnlyDegenerate
                         OnlyNondegenerate
+                        SquarefreeOnly
                         UniversalGB
                         yInit
 ///
@@ -1030,6 +1040,7 @@ doc///
                         oneStepGVD
                         OnlyDegenerate
                         OnlyNondegenerate
+                        SquarefreeOnly
                         UniversalGB
 ///
 
@@ -1857,6 +1868,37 @@ doc///
                 SeeAlso
                         findOneStepGVD
                         OnlyDegenerate
+///
+
+
+-- incomplete description
+doc///
+        Node
+                Key
+                        SquarefreeOnly
+                        [findOneStepGVD, SquarefreeOnly]
+                Headline
+                        only return the squarefree variables from the generators
+                Description
+                        Text
+                                Default value {\tt false}.
+
+                                The algorithm for @TO findOneStepGVD@ is in two parts.
+                                First, it checks the given generators for the given ideal $I$ and creates a list 
+                                of all indeterminates which appear squarefree in all of the generators.
+                                For each of the remaining variables $y$, it then computes a Gröbner basis for $I$
+                                with respect to a $y$-compatible monomial order.
+                                If $y$ appears in the elements of the Gröbner basis with only degree zero or degree one,
+                                then we have a geometric vertex decomposition, and $y$ is appended to the list of 
+                                indeterminates.
+                                (If {\tt AllowSub=>true}, then $y$ may appear with degree greater than 1, but it can only
+                                appear in one common nonzero degree throughout all the generators.)
+
+                                If {\tt SquarefreeOnly=>true}, then only the first half of the algorithm runs.
+                                This option is used by the @TO isGVD@ and @TO isWeaklyGVD@ functions to avoid 
+                                unnecessary duplicate computations of Gröbner bases.
+                SeeAlso
+                        findOneStepGVD
 ///
 
 
