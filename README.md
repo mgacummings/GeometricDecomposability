@@ -6,7 +6,7 @@ For further information, see: [The GeometricDecomposability package for Macaulay
 ## Installation
 
 Using version 1.21 or higher of _Macaulay2_, run the command `loadPackage "GeometricDecomposability"`.
-The warning message that appears upon loading the package (which, in most cases, can be safely ignored) has been fixed in version 1.22 of _Maculay2_.
+The warning message that appeared upon loading the package in _Macaulay2_ version 1.21 (which, in most cases, can be safely ignored) has been fixed in version 1.22 of _Maculay2_.
 
 Alternatively, this package can be installed to _Macaulay2_ by copying the file `GeoetricDecomposability.m2` to your working directory from which you launch _Macaulay2_. 
 Then in M2, run the command `installPackage "GeometricDecomposability"` and use the package as you would any other. 
