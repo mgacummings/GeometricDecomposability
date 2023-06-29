@@ -97,7 +97,7 @@ findLexCompatiblyGVDOrders(Ideal) := opts -> I -> (
 findOneStepGVD = method(
         TypicalValue => List, 
         Options => {
-                AllowSub => false,  -- not yet implemented
+                AllowSub => false,
                 CheckUnmixed => true, 
                 OnlyNondegenerate => false, 
                 OnlyDegenerate => false,
@@ -158,14 +158,18 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 );
         
 
-        satisfiesOneStep := (I, y, D, ND) -> (
+        satisfiesOneStep := (I, y, D, ND, AllowingSub) -> (
                 o := getGBandCNideals(I, y);
                 grobnerBasis := o_0;
                 C := o_1;
                 N := o_2;
-                
-                grobnerLeadTerms := apply(grobnerBasis, f -> leadTerm f);
-                hasOneStep := areGensSquarefreeInY(grobnerLeadTerms, sub(y, ring C));  -- whether I has a geometric vertex decomposition with respect to y
+
+                grobnerTerms := flatten apply(grobnerBasis, terms);
+                yDegrees := unique apply(grobnerTerms, t -> degree(y, t));
+                yMaxDegree := max yDegrees;
+                nontrivialDegrees := delete(0, yDegrees);
+
+                hasOneStep := (yMaxDegree == 1) or (AllowingSub and (#nontrivialDegrees == 1));
 
                 -- check degeneracy condition, if specified
                 if hasOneStep and (ND or D) then (
@@ -193,19 +197,18 @@ findOneStepGVD(Ideal) := opts -> I -> (
         clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
 
         remainingIndets := toList( set(indets) - set(clearlySquarefreeIndets) );
-        -- for the remaining indets, compute a Gröbner basis and check whether the initial terms
-        -- are squarefree with respect to each
+        -- for the remaining indets y, compute a Gröbner basis and check whether the initial terms
+        -- are squarefree with respect to y
         -- in the case that OnlyDegenerate or OnlyNondegenerate is specified, then check these conditions
-        validRemaining := select(remainingIndets, y -> satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate));
-
+        validRemaining := select(remainingIndets, y -> satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate, opts.AllowSub));
 
         -- check the degeneracy conditions, if specified
         if (opts.OnlyDegenerate or opts.OnlyNondegenerate) then (
                 clearlyDegenerateIndets := select(clearlySquarefreeIndets, y -> easyCaseHandler(I, y));
-                return reverse sort toList( set(clearlyDegenerateIndets) + set(validRemaining) );
+                return sort toList( set(clearlyDegenerateIndets) + set(validRemaining) );
         );
 
-        return reverse sort toList( set(clearlySquarefreeIndets) + set(validRemaining) );
+        return sort toList( set(clearlySquarefreeIndets) + set(validRemaining) );
         )
 
 --------------------------------------------------------------------------------
@@ -285,19 +288,19 @@ isGVD(Ideal) := opts -> I -> (
                 };
 
         -- check all options for y which yield a one-step geometric vertex decomposition
-        viableIndets := findOneStepGVD(I, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB);
+        viableIndets := findOneStepGVD(I, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB);
         for y in viableIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                (isValid, C, N) := oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
+                (isValid, C, N) := oneStepGVD(I, y, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
                 if not isValid then continue;  -- go back to top of for loop
 
                 printIf(opts.Verbose, "-- C = " | toString C);
                 printIf(opts.Verbose, "-- N = " | toString N);
 
-                CisGVD := isGVD(C, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
-                NisGVD := isGVD(N, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
+                CisGVD := isGVD(C, AllowSub=>opts.AllowSub, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
+                NisGVD := isGVD(N, AllowSub=>opts.AllowSub, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
 
                 if (CisGVD and NisGVD) then return true;
                 );
