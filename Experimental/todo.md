@@ -4,11 +4,11 @@ Documentation to update:
 (everything up to date)
 
 Documentation to write:
-2. SquarefreeOnly
-3. UniversalGB
+1. SquarefreeOnly
+2. UniversalGB
 
 Add test cases for:
 (everything up to date)
 
-Fix bug in:
-1. findLexCompatiblyGVDOrder
+Fix bugs:
+(no known bugs)
