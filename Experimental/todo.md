@@ -1,12 +1,14 @@
 ## Mike's current to do
 
 Documentation to update:
-1. findOneStepGVD
+(everything up to date)
 
 Documentation to write:
-1. AllowSub
 2. SquarefreeOnly
 3. UniversalGB
 
 Add test cases for:
-1. isGVD with AllowSub=>true -- use ideal(x^2)
+(everything up to date)
+
+Fix bug in:
+1. findLexCompatiblyGVDOrder
