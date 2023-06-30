@@ -4,8 +4,7 @@ Documentation to update:
 (everything up to date)
 
 Documentation to write:
-1. SquarefreeOnly
-2. UniversalGB
+(everything up to date)
 
 Add test cases for:
 (everything up to date)

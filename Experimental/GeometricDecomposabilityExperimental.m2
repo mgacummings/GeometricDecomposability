@@ -1922,7 +1922,6 @@ doc///
 ///
 
 
--- incomplete description
 doc///
         Node
                 Key
@@ -1932,9 +1931,7 @@ doc///
                         only return the squarefree variables from the generators
                 Description
                         Text
-                                Default value {\tt false}.
-
-                                The algorithm for @TO findOneStepGVD@ is in two parts.
+                                The algorithm for @TO findOneStepGVD@ comprises two steps.
                                 First, it checks the given generators for the given ideal $I$ and creates a list 
                                 of all indeterminates which appear squarefree in all of the generators.
                                 For each of the remaining variables $y$, it then computes a Gröbner basis for $I$
@@ -1953,7 +1950,6 @@ doc///
 ///
 
 
--- incomplete description
 doc///
         Node
                 Key
@@ -1976,7 +1972,9 @@ doc///
                                 if it is a Gröbner basis for $I$ with respect to any monomial order on $R$.
                                 The default value is always {\tt UniversalGB=>false}.
 
-                                If {\tt UniversalGB} is set to {\tt true}, then we can avoid computing Gröbner bases.
+                                Set {\tt UniversalGB} to {\tt true} if it is known that the given generators for 
+                                your ideal form a universal Gröbner basis.
+                                In this case, we can avoid computing Gröbner bases.
                                 Importantly, geometric vertex decompositions preserve universal Gröbner basis, that is,
                                 if $\{ y^{d_i}q_i + r_i \mid i = 1, \ldots, s \}$ is a universal Gröbner basis for an 
                                 ideal $I$, then $\{ q_1, \ldots, q_s \}$ and $\{ q_i \mid d_i = 0 \}$ are universal 
