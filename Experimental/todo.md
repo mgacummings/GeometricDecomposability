@@ -1,14 +1,12 @@
 ## Mike's current to do
 
-1. (First draft done) Write a function that performs a substitution of variables (as in gvd up to 
-substitution)
-1.5 Write code that takes in an ideal and an indeterminate and 
-determines whether a geometric vertex decomp. after (nontrivial?) sub. 
-works
-2. Add test cases for (1)
-3. Using (1), write a ``isGVDuptoSub'' function
-4. Add test cases for (3)
-3. Documentation for (1)
-4. Documentation for (3)
-5. Update references throughout. Authors' full names and "to appear" for 
-C-DS-R-VT and DS-M.
+Documentation to update:
+1. findOneStepGVD
+
+Documentation to write:
+1. AllowSub
+2. SquarefreeOnly
+3. UniversalGB
+
+Add test cases for:
+1. isGVD with AllowSub=>true -- use ideal(x^2)
