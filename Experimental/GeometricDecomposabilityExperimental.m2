@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposabilityExperimental",
         Version => "1.3",
-        Date => "June 29, 2023",
+        Date => "June 30, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -195,7 +195,7 @@ findOneStepGVD(Ideal) := opts -> I -> (
 
         -- first get the indets with respect to which the ideal is "clearly" squarefree 
         -- the variables y such that y^2 does not divide any term of any generator of I
-        gensTerms := flatten apply(first entries gens I, f -> terms f);
+        gensTerms := flatten apply(first entries gens I, terms);
         clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
 
         if opts.SquarefreeOnly then return clearlySquarefreeIndets;
@@ -248,7 +248,7 @@ isGeneratedByIndeterminates(Ideal) := I -> (
 isGVD = method(
         TypicalValue => Boolean, 
         Options => {
-                AllowSub => false,  -- not yet implemented
+                AllowSub => false,
                 CheckCM => "once", 
                 CheckUnmixed => true, 
                 IsIdealHomogeneous => false, 
@@ -818,21 +818,21 @@ doc///
                 References
 
                         [CDSRVT] Mike Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl.
-                        Geometric Vertex Decomposition and Liaison for Toric Ideals of
-                        Graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
+                        Geometric vertex decomposition and liaison for toric ideals of
+                        graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
 
                         [DSH] Sergio Da Silva and Megumi Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
                         splittings for regular nilpotent Hessenberg Varieties. 
                         To appear in Transformation Groups, preprint available at @arXiv "2207.08573"@ (2022).
 
-                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner Geometry of Vertex
-                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
+                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
+                        decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
-                        [KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
-                        [SM] Hero Saremi and Amir Mafi. Unmixedness and Arithmetic Properties of
-                        Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
+                        [SM] Hero Saremi and Amir Mafi. Unmixedness and arithmetic properties of
+                        matroidal ideals. Arch. Math. 114 (2020) 299–304.
 
                 Subnodes
                         AllowSub
@@ -917,8 +917,8 @@ doc///
 				L = oneStepGVD(I, b);
 			        L_1 == CyI(I, b) -- CyI is the second element in the list given by oneStepGVD
     	    	References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
                 SeeAlso
                         CheckUnmixed
                         getGVDIdeal
@@ -977,8 +977,8 @@ doc///
 
 
 		References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CheckUnmixed
@@ -1031,8 +1031,8 @@ doc///
                                 findOneStepGVD I
 
                 References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         AllowSub
@@ -1084,8 +1084,8 @@ doc///
                                 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
                                 getGVDIdeal(I, {{"C", y}, {"N", s}})
                 References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CheckUnmixed
@@ -1216,16 +1216,15 @@ doc///
                 		i = ideal(e_1*e_4-e_2*e_3, e_2^2*e_7*e_8*e_9-e_4^2*e_5*e_6*e_10, e_1*e_2*e_7*e_8*e_9-e_3*e_4*e_5*e_6*e_10, e_1^2*e_7*e_8*e_9-e_3^2*e_5*e_6*e_10)
                 		isGVD i
 		References
-                        [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
-                        Geometric Vertex Decomposition and Liaison for Toric Ideals of
-                        Graphs. Preprint, @arXiv "2207.06391"@ (2022).
+                        [CDSRVT] Mike Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl.
+                        Geometric vertex decomposition and liaison for toric ideals of
+                        graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
 
-                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
-                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
-                        1–31.
+                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
+                        decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         AllowSub
@@ -1281,8 +1280,8 @@ doc///
 				isLexCompatiblyGVD(I, {x,y,z,w,r,s})
 				isLexCompatiblyGVD(I, {s,x,w,y,r,z}, Verbose=>true)
                 References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
 
                 SeeAlso
@@ -1324,8 +1323,8 @@ doc///
                                 I = ideal(x_1*x_3, x_1*x_4, x_1*x_5, x_2*x_3, x_2*x_4, x_2*x_5);
 				isUnmixed I
 		References
-		        [SM] H. Saremi and A. Mafi. Unmixedness and Arithmetic Properties of
-                        Matroidal Ideals. Arch. Math. 114 (2020) 299-304.
+		        [SM] Hero Saremi and Amir Mafi. Unmixedness and Arithmetic Properties of
+                        Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
                 SeeAlso
                         CheckUnmixed
                         isGVD
@@ -1378,8 +1377,8 @@ doc///
 				isGVD I
 
                 References
-        	        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+        	        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CheckUnmixed
@@ -1446,8 +1445,8 @@ doc///
                                 L = oneStepGVD(I, b);
                                 L_2 == NyI(I, b) -- NyI is the second element in the list given by oneStepGVD
 		References
-		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
 		SeeAlso
                         CheckUnmixed
@@ -1550,16 +1549,15 @@ doc///
                         authors, and as such, is not explicitly supported in this package.
 
 		References
-                        [CDSRVT] M. Cummings, S. Da Silva, J. Rajchgot, and A. Van Tuyl.
-                        Geometric Vertex Decomposition and Liaison for Toric Ideals of
-                        Graphs. Preprint, @arXiv "2207.06391"@ (2022).
+                        [CDSRVT] Mike Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl.
+                        Geometric vertex decomposition and liaison for toric ideals of
+                        graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
 
-                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
-                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
-                        1–31.
+                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
+                        decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
-                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 		SeeAlso
                         AllowSub
                         CheckDegenerate
@@ -1610,12 +1608,11 @@ doc///
 
 
 		References
-                        [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex
-                        Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009)
-                        1–31.
+                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
+                        decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
-                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 		SeeAlso
                         oneStepGVD
                         UniversalGB
@@ -1668,8 +1665,8 @@ doc///
                                 {\tt CheckCM=>"never"}.
 
                 References
-                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         isGVD
@@ -1709,8 +1706,8 @@ doc///
                                 oneStepGVD(I, x, CheckDegenerate=>true)
 
                 References
-                        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
-                        Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         isWeaklyGVD
@@ -1764,9 +1761,8 @@ doc///
                         vertex decomposable, as not all of conditions in the definition were checked.
 
                 References
-                        [SM] H. Saremi and A. Mafi. Unmixedness and Arithmetic Properties of
+                        [SM] Hero Saremi and Amir Mafi. Unmixedness and Arithmetic Properties of
                         Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
-
 
                 SeeAlso
                         CyI
