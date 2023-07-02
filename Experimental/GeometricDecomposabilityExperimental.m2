@@ -1021,11 +1021,15 @@ doc///
                                 decomposition with respect to each indeterminate $y$.
                                 First, for each indeterminate $y$ appearing in the ideal, we check whether the given generators of the ideal
                                 are squarefree in $y$.
-                                That is, if $y^2$ does not divide any term of any generator.
                                 Note that this is a sufficient but not necessary condition.
                                 For the indeterminates $z$ that do not satisfy this sufficient condition, we compute a Gröbner of $I$ 
                                 with respect to a $z$-compatible monomial order, and repeat the squarefree-check for the entries of this
                                 Gröbner basis.
+
+                                This is quicker than running @TO oneStepGVD@; in this case, we need only check the degrees of the terms 
+                                appearing in the Gröbner basis, while @TO oneStepGVD@ will need to compute the same Gröbner basis and check 
+                                for equality of ideals ${\rm in}_y(I) = C_{y, I} \cap (N_{y, I} + \langle y \rangle)$, which requires further 
+                                Gröbner basis computations.
 
                                 If {\tt AllowSub=>true}, then the second part of this procedure is slightly different: we have a one-step
                                 geometric vertex decomposition with respect to $y$ allowing substitutions if and only if there exists some 
@@ -1579,6 +1583,7 @@ doc///
                         CheckDegenerate
                         CheckUnmixed
                         CyI
+                        findOneStepGVD
                         getGVDIdeal
                         isGVD
                         isLexCompatiblyGVD
