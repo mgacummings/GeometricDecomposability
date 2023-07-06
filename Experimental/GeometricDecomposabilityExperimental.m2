@@ -822,7 +822,8 @@ doc///
                                 appearing in the ideal increases.
 
                 Acknowledgement
-                        We thank S. Da Silva, P. Klein, M. Harada, and J. Rajchgot for feedback and suggestions. 
+                        We thank Sergio Da Silva, Patricia Klein, Megumi Harada, and Jenna Rajchgot for feedback and 
+                        suggestions. 
                         Cummings was partially supported by an NSERC USRA and CGS-M and the Milos Novotny Fellowship. 
                         Van Tuyl's research is partially supported by NSERC Discovery Grant 2019-05412.
 
