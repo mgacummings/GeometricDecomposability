@@ -29,6 +29,12 @@ An unmixed ideal $I$ in a polynomial ring $R$ is geometrically vertex decomposab
 Observe that a geometrically vertex decomposable ideal is recursively defined. 
 The complexity of verifying that an ideal is geometrically vertex decomposable will increase as the number of indeterminates appearing in the ideal increases.
 
+## Acknowledgements 
+
+We thank Sergio Da Silva, Megumi Harada, Patricia Klein, and Jenna Rajchgot for feedback and improvements.
+Cummings was partially supported by an NSERC USRA and CGS-M and the Milos Novotny Fellowship. 
+Van Tuyl's research is partially supported by NSERC Discovery Grant 2019-05412.
+
 ## References
 
 [KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
