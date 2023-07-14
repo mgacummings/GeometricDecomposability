@@ -63,7 +63,7 @@ export {
 CyI = method(
         TypicalValue => Ideal, 
         Options => {
-                CheckUnmixed => true,
+                CheckUnmixed => false,
                 UniversalGB => false
                 }
         )
@@ -99,120 +99,52 @@ findOneStepGVD = method(
         TypicalValue => List, 
         Options => {
                 AllowSub => false,
-                CheckUnmixed => true, 
-                OnlyNondegenerate => false, 
+                CheckUnmixed => false, 
                 OnlyDegenerate => false,
+                OnlyNondegenerate => false, 
                 SquarefreeOnly => false,
-                UniversalGB => false
+                UniversalGB => false,
+                Verbose => false
                 }
         )
 findOneStepGVD(Ideal) := opts -> I -> (
         -- returns a list of indeterminates for which there exists a one-step geometric vertex decomposition
 
-        if opts.OnlyNondegenerate and opts.OnlyDegenerate then (
+        if opts.OnlyDegenerate and opts.OnlyNondegenerate then (
                 error("a geometric vertex decomposition cannot be both degenerate and nondegenerate");
                 return {};
-                );
-
-        getGBandCNideals := (I, y) -> (
-                -- returns {GB, CyI, NyI}
-                R := ring I;
-                cr := coefficientRing R;
-                indeterminates := switch(0, index y, gens ring y);  -- assumes that y and I are "from" the same ring
-
-                S := (cr) monoid([indeterminates, MonomialOrder=>Lex]);  -- ring that has lex order with y > all other variables
-                J := sub(I, S);
-                z := sub(y, S);
-                grobnerBasis := if opts.UniversalGB then J_* else first entries gens gb J;
-
-                gensN := delete(0, apply(grobnerBasis, g -> isInN(g, z)));
-                NyI := ideal(gensN);
-
-                gensC := delete(true, flatten(apply(grobnerBasis, g -> isInC(g, z))));
-                CyI := ideal(delete(false, gensC));
-
-                return {grobnerBasis, CyI, NyI};
-                );
-
-        
-        CheckDegeneracy := (C, N, D, ND) -> (
-                -- assumes either D (onlyDegenerate) xor ND (onlyNondegenerate)
-                isDegenerate := (C == 1) or (radical C == radical N);
-                if D then (
-                        return isDegenerate
-                        );
-                
-                if ND then (
-                        return not isDegenerate
-                        );
-                );
-
-        
-        easyCaseHandler := (I, y, D, ND) -> (
-                -- in the "easy" case but where degeneracy must be checked, GB/C/N are not already computed, 
-                -- so we combine the previous two functions here
-
-                o := getGBandCNideals(I, y);
-                C := o_1;
-                N := o_2;
-
-                return CheckDegeneracy(C, N, D, ND)
-                );
-        
-
-        satisfiesOneStep := (I, y, D, ND, AllowingSub) -> (
-                o := getGBandCNideals(I, y);
-                grobnerBasis := o_0;
-                C := o_1;
-                N := o_2;
-
-                grobnerTerms := flatten apply(grobnerBasis, terms);
-                yDegrees := unique apply(grobnerTerms, t -> degree(y, t));
-                yMaxDegree := max yDegrees;
-                nontrivialDegrees := delete(0, yDegrees);
-
-                hasOneStep := (yMaxDegree == 1) or (AllowingSub and (#nontrivialDegrees == 1));
-
-                -- check degeneracy condition, if specified
-                if hasOneStep and (ND or D) then (
-                        isDegenerate := (CyI == 1) or (radical CyI == radical NyI);
-                        if D then (
-                                return isDegenerate
-                                );
-                        
-                        if ND then (
-                                return not isDegenerate
-                                );
-                        );
-
-                return hasOneStep;
                 );
 
         R := ring I;
         indets := support I;
 
-        -- we use [KR, Lemma 2.6] and [KR, Lemma 2.12]
+        if opts.SquarefreeOnly then (
+                if (opts.CheckUnmixed or opts.OnlyDegenerate or opts.OnlyNondegenerate) then (
+                        printIf(opts.Verbose, "ignoring unmixedness/degeneracy checks");
+                );
+                -- we use [KR, Lemma 2.6] and [KR, Lemma 2.12]
 
-        -- first get the indets with respect to which the ideal is "clearly" squarefree 
-        -- the variables y such that y^2 does not divide any term of any generator of I
-        gensTerms := flatten apply(first entries gens I, terms);
-        clearlySquarefreeIndets := select(indets, y -> areGensSquarefreeInY(gensTerms, y));
+                -- first get the indets with respect to which the ideal is "clearly" squarefree 
+                -- the variables y such that y^2 does not divide any term of any generator of I
+                gensTerms := flatten apply(I_*, terms);
+                isSquarefreeIndet := y -> ( 
+                        L := apply(gensTerms, m -> degree(y, m));
+                        return max L <= 1 or (opts.AllowSub and #(delete(0, L)) <= 1) 
+                        );
+                return select(indets, isSquarefreeIndet);
+                );
 
-        if opts.SquarefreeOnly then return clearlySquarefreeIndets;
+        -- in this case, we compute a Gröbner basis for each indeterminate in support I
+        oneSteps := apply(indets, y -> join(toSequence {y}, oneStepGVD(I, y, AllowSub=>opts.AllowSub, CheckDegenerate=>(opts.OnlyDegenerate or opts.OnlyNondegenerate), CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose)));
 
-        remainingIndets := toList( set(indets) - set(clearlySquarefreeIndets) );
-        -- for the remaining indets y, compute a Gröbner basis and check whether the initial terms
-        -- are squarefree with respect to y
-        -- in the case that OnlyDegenerate or OnlyNondegenerate is specified, then check these conditions
-        validRemaining := select(remainingIndets, y -> satisfiesOneStep(I, y, opts.OnlyDegenerate, opts.OnlyNondegenerate, opts.AllowSub));
-
-        -- check the degeneracy conditions, if specified
-        if (opts.OnlyDegenerate or opts.OnlyNondegenerate) then (
-                clearlyDegenerateIndets := select(clearlySquarefreeIndets, y -> easyCaseHandler(I, y));
-                return sort toList( set(clearlyDegenerateIndets) + set(validRemaining) );
+        -- finish by proceeding by cases on degenerate/nondegenerate checks
+        if opts.OnlyDegenerate then (
+                return apply(select(oneSteps, o -> o_1 and o_4 == "degenerate"), t -> t_0);
         );
-
-        return sort toList( set(clearlySquarefreeIndets) + set(validRemaining) );
+        if opts.OnlyNondegenerate then (
+                return apply(select(oneSteps, o -> o_1 and o_4 == "nondegenerate"), t -> t_0);
+        );
+        return apply(select(oneSteps, o -> o_1), t -> t_0);
         )
 
 --------------------------------------------------------------------------------
@@ -262,17 +194,17 @@ isGVD(Ideal) := opts -> I -> (
         if not instance(opts.CheckCM, String) then (
                 error "value of CheckCM must be a string";
                 ) else (
-                if not isSubset({opts.CheckCM}, {"always", "once", "never"}) then error ///unknown value of CheckCM, options are "once" (default), "always", "never"///;
+                if not isSubset({opts.CheckCM}, {"always", "once", "never"}) then error ///unknown value of CheckCM; options are "once" (default), "always", "never"///;
                 );
 
         R := ring I;
-        printIf(opts.Verbose, toString I);
+        printIf(opts.Verbose, "I = " | toString I);
 
         if I == 0 then (printIf(opts.Verbose, "-- zero ideal"); return true);
         if I == 1 then (printIf(opts.Verbose, "-- unit ideal"); return true);
         if (isGeneratedByIndeterminates I) then (printIf(opts.Verbose, "-- generated by indeterminates"); return true);
 
-        -- Cohen-Macaulay check when the ideal is homogeneous [KR, Corollary 4.5]
+        -- Cohen-Macaulay check when the ideal is homogeneous [KR, Corollary 4.5] (i.e., homogeneous and not CM => not GVD)
         -- (if we are here, the ideal is proper)
         x := opts.IsIdealHomogeneous or isHomogeneous(I);
         checkCohenMacaulay := x and (opts.CheckCM == "once" or opts.CheckCM == "always");
@@ -281,7 +213,7 @@ isGVD(Ideal) := opts -> I -> (
                 if pdim(R^1 / I) != codim(I) then return false;
                 );
         
-        -- Cohen-Macaulay implies unmixed so we need only check unmixed if C-M was false or not checked
+        -- Cohen-Macaulay implies unmixed so we need only check unmixed if Cohen-Macaulayness was false or not checked
         if opts.CheckUnmixed and not checkCohenMacaulay then (
                 if not opts.IsIdealUnmixed then (
                         if not (isUnmixed I) then (printIf(opts.Verbose, "-- ideal is not unmixed"); return false);
@@ -296,9 +228,9 @@ isGVD(Ideal) := opts -> I -> (
                 };
 
         -- iterate over all indeterminates, first trying the ones which appear squarefree in the given generators for I
-        viableIndets := findOneStepGVD(I, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, SquarefreeOnly=>true, UniversalGB=>opts.UniversalGB);
-        remainingIndets := (support I) - set(viableIndets);
-        iterIndets := join(viableIndets, remainingIndets);
+        squarefreeIndets := findOneStepGVD(I, AllowSub=>opts.AllowSub, SquarefreeOnly=>true, UniversalGB=>opts.UniversalGB);
+        remainingIndets := (support I) - set(squarefreeIndets);
+        iterIndets := join(squarefreeIndets, remainingIndets);
         for y in iterIndets do (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
@@ -435,9 +367,9 @@ isWeaklyGVD(Ideal) := opts -> I -> (
                 );
 
         -- iterate over all indeterminates, first trying the ones which appear squarefree in the given generators for I
-        viableIndets := findOneStepGVD(I, CheckUnmixed=>opts.CheckUnmixed, SquarefreeOnly=>true, UniversalGB=>opts.UniversalGB);
-        remainingIndets := (support I) - set(viableIndets);
-        iterIndets := join(viableIndets, remainingIndets);
+        squarefreeIndets := findOneStepGVD(I, SquarefreeOnly=>true, UniversalGB=>opts.UniversalGB);
+        remainingIndets := (support I) - set(squarefreeIndets);
+        iterIndets := join(squarefreeIndets, remainingIndets);
 
         -- check all options for y until one works
         for y in iterIndets do (
@@ -480,7 +412,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 NyI = method(
         TypicalValue => Ideal, 
         Options => {
-                CheckUnmixed => true,
+                CheckUnmixed => false,
                 UniversalGB => false
                 }
         )
@@ -493,7 +425,7 @@ oneStepGVD = method(
         Options => {
                 AllowSub => false,
                 CheckDegenerate => false, 
-                CheckUnmixed => true, 
+                CheckUnmixed => false, 
                 UniversalGB => false,
                 Verbose => false
                 }
@@ -749,7 +681,7 @@ isValidOneStep(List, RingElement, Boolean) := (G, y, allowingSub) -> (
         yMaxDegree := max yDegrees;
 
         if not allowingSub then (
-                return yMaxDegree == 1;
+                return yMaxDegree <= 1;
                 );
 
         yOtherDegrees := delete(0, delete(yMaxDegree, yDegrees)); -- all degrees of y in the GB that are not 0 and not the highest degree
@@ -777,8 +709,12 @@ printIf(Boolean, String) := (bool, str) -> (
 
 unmixedCheck = method(TypicalValue => Boolean)
 unmixedCheck(Ideal, Ideal, Boolean) := (C, N, verb) -> (
-        isUnmixedC := isUnmixed C;
-        isUnmixedN := isUnmixed N;
+
+        CisCM := isHomogeneous C and (pdim((ring C)^1/C) == codim C);
+        NisCM := isHomogeneous N and (pdim((ring N)^1/N) == codim N);
+
+        isUnmixedC := CisCM or isUnmixed C;
+        isUnmixedN := NisCM or isUnmixed N;
 
         bothUnmixed := (isUnmixedC and isUnmixedN);
 
@@ -1024,6 +960,7 @@ doc///
                 Key
                         findOneStepGVD
                         (findOneStepGVD, Ideal)
+                        [findOneStepGVD, Verbose]
                 Headline
                         for which indeterminates does there exist a geometric vertex decomposition
                 Usage
@@ -1057,6 +994,9 @@ doc///
                                 geometric vertex decomposition with respect to $y$ allowing substitutions if and only if there exists some 
                                 integer $d$ such that $y$ appears in the reduced Gröbner basis (computed with respect to any $y$-compatible 
                                 order) with degree either zero or $d$.
+
+                                {\bf Warning:} if {\tt SquarefreeOnly=>true}, then the options @TO CheckUnmixed@, @TO OnlyDegenerate@, and 
+                                @TO OnlyNondegenerate@ are ignored.
 
                         Example
                                 R = QQ[x,y,z]
