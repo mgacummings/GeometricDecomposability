@@ -63,7 +63,7 @@ export {
 CyI = method(
         TypicalValue => Ideal, 
         Options => {
-                CheckUnmixed => false,
+                CheckUnmixed => true,
                 UniversalGB => false
                 }
         )
@@ -99,7 +99,7 @@ findOneStepGVD = method(
         TypicalValue => List, 
         Options => {
                 AllowSub => false,
-                CheckUnmixed => false, 
+                CheckUnmixed => true, 
                 OnlyDegenerate => false,
                 OnlyNondegenerate => false, 
                 SquarefreeOnly => false,
@@ -244,11 +244,11 @@ isGVD(Ideal) := opts -> I -> (
                 -- check N first (the link of a Cohen-Macaulay simplicial complex will be Cohen-Macaulay, but the deletion need not be
                 -- so probably will be more likely to catch a false in the N branch than the C branch)
                 NisGVD := isGVD(N, AllowSub=>opts.AllowSub, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
-                if not NisGVD then return false;
+                if not NisGVD then continue;
                 
                 -- if we are here, then NisGVD is true
                 CisGVD := isGVD(C, AllowSub=>opts.AllowSub, CheckCM=>CMTable#(opts.CheckCM), CheckUnmixed=>opts.CheckUnmixed, IsIdealHomogeneous=>x, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
-                return CisGVD; 
+                if CisGVD and NisGVD then return true;  -- otherwise, try next variable 
                 );
 
         -- if we are here, no choice of y worked
@@ -412,7 +412,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 NyI = method(
         TypicalValue => Ideal, 
         Options => {
-                CheckUnmixed => false,
+                CheckUnmixed => true,
                 UniversalGB => false
                 }
         )
@@ -425,16 +425,12 @@ oneStepGVD = method(
         Options => {
                 AllowSub => false,
                 CheckDegenerate => false, 
-                CheckUnmixed => false, 
+                CheckUnmixed => true, 
                 UniversalGB => false,
                 Verbose => false
                 }
         )
 oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
-
-        if opts.AllowSub and opts.CheckDegenerate then (
-                print("Caution: A (non-)degenerate geometric vertex decomposition---and hence, the notion of weakly GVD---is not known to be compatible with allowing substitutions");
-                );
 
         -- set up the rings
         indeterminates := switch(0, index y, gens ring y);
@@ -464,8 +460,10 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         gensC := delete(true, flatten(apply(G, g -> isInC(g, z))));
         CyI := ideal(delete(false, gensC));
 
-        C := sub(CyI, contractedRing);
-        N := sub(NyI, contractedRing);
+        -- sub C and N into original ring
+        -- by [CDSRVT, Theorem 2.9] variables in ring not appearing in the ideal do not matter 
+        C := sub(CyI, givenRing);
+        N := sub(NyI, givenRing);
 
         -- check unmixed & degenerate as needed, and return
         if opts.CheckUnmixed and opts.CheckDegenerate then (
