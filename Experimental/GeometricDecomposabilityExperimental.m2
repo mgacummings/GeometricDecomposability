@@ -210,7 +210,10 @@ isGVD(Ideal) := opts -> I -> (
         checkCohenMacaulay := x and (opts.CheckCM == "once" or opts.CheckCM == "always");
         if checkCohenMacaulay then (
                 -- Auslander-Buchsbaum in this case says that Cohen-Macaulay is equivalent to pdim == codim
-                if pdim(R^1 / I) != codim(I) then return false;
+                if pdim(R^1 / I) != codim(I) then (
+                        printIf(opts.Verbose, "-- not Cohen-Macaulay");
+                        return false;
+                        );
                 );
         
         -- Cohen-Macaulay implies unmixed so we need only check unmixed if Cohen-Macaulayness was false or not checked
@@ -292,7 +295,10 @@ isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
         checkCohenMacaulay := x and (opts.CheckCM == "once" or opts.CheckCM == "always");
         if checkCohenMacaulay then (
                 -- Auslander-Buchsbaum in this case says that Cohen-Macaulay is equivalent to pdim == codim
-                if pdim(R^1 / I) != codim(I) then return false;
+                if pdim(R^1 / I) != codim(I) then (
+                        printIf(opts.Verbose, "-- not Cohen-Macaulay");
+                        return false;
+                        );
                 );
 
         -- Cohen-Macaulay implies unmixed so we need only check unmixed if C-M was false or not checked
