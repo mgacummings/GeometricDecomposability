@@ -2,8 +2,8 @@
 
 newPackage(
         "GeometricDecomposabilityExperimental",
-        Version => "1.3",
-        Date => "July 6, 2023",
+        Version => "1.4",
+        Date => "September 19, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
