@@ -26,6 +26,7 @@ export {
         "findLexCompatiblyGVDOrders",
         "findOneStepGVD",
         "getGVDIdeal",
+        "initialYForms",
         "isGeneratedByIndeterminates",
         "isGVD",
         "isLexCompatiblyGVD",
@@ -34,7 +35,6 @@ export {
         "oneStepGVD",
         "oneStepGVDCyI",
         "oneStepGVDNyI",
-        "initialYForms",
 
         -- options
         "CheckCM",
@@ -598,6 +598,7 @@ doc///
                         findLexCompatiblyGVDOrders
                         findOneStepGVD
                         getGVDIdeal
+                        initialYForms
                         isGeneratedByIndeterminates
                         isGVD
                         IsIdealHomogeneous
@@ -610,7 +611,6 @@ doc///
                         oneStepGVDNyI
                         OnlyDegenerate
                         OnlyNondegenerate
-                        initialYForms
 ///
 
 
