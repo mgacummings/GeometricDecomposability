@@ -349,25 +349,25 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
         G := first entries gens gb I1;
 
         -- get N_{y,I}
-        oneStepGVDNyI := ideal select(G, g -> degree(y1, g) == 0);
+        NyI := ideal select(G, g -> degree(y1, g) == 0);
 
         -- get C_{y, I} and determine whether the GB is square-free in y
         gensC := apply(G, g -> isInC(g, y1));
         squarefree := all(gensC, first);  -- true iff all g \in G are squarefree in y
-        oneStepGVDCyI := ideal (gensC / last);
+        CyI := ideal (gensC / last);
 
         -- [KR, Lemma 2.6]
         if not squarefree then (
                 printIf(opts.Verbose, "Warning: Gröbner basis not square-free in " | toString y);
-                return (false, sub(oneStepGVDCyI, givenRing), sub(oneStepGVDNyI, givenRing));
+                return (false, sub(CyI, givenRing), sub(NyI, givenRing));
                 );
 
         -- check that the intersection holds
         -- sub oneStepGVDCyI, oneStepGVDNyI into lexRing in case either is zero or unit ideal
-        validOneStep := ( intersect( sub(oneStepGVDCyI, lexRing), sub(oneStepGVDNyI, lexRing) + ideal(y1) ) == inyForm );
+        validOneStep := ( intersect( sub(CyI, lexRing), sub(NyI, lexRing) + ideal(y1) ) == inyForm );
 
-        C := sub(oneStepGVDCyI, givenRing);
-        N := sub(oneStepGVDNyI, givenRing);
+        C := sub(CyI, givenRing);
+        N := sub(NyI, givenRing);
 
         if not validOneStep then (
                 printIf(opts.Verbose, "Warning: not a valid geometric vertex decomposition");
