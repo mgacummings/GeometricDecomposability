@@ -273,7 +273,7 @@ isUnmixed(Ideal) := I -> (
         remainingPrimes := drop(D, 1);
         for P in remainingPrimes do (
                 if dim(P) != commonDim then return false;
-        )
+        );
         return true;
         )
 
@@ -761,6 +761,13 @@ doc///
                                 R = QQ[x,y,z,w,r,s]
                                 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
                                 getGVDIdeal(I, {{"C", y}, {"N", s}})
+
+                        Text
+                                The above example, using {\tt getGVDIdeal} is equivalent to the following.
+
+                        Example
+                                oneStepGVDNyI(oneStepGVDCyI(I, y), s)
+
                 References
 		        [KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and
                         Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
