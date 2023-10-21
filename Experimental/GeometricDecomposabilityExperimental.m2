@@ -325,7 +325,7 @@ isLexCompatiblyGVD(Ideal, List) := opts -> (I, indetOrder) -> (
                 );
 
         R := ring I;
-        printIf(opts.Verbose, toString I);
+        printIf(opts.Verbose, "I = " | toString I);
 
         if I == 0 then (printIf(opts.Verbose, "-- zero ideal"); return true);
         if I == 1 then (printIf(opts.Verbose, "-- unit ideal"); return true);
@@ -437,7 +437,7 @@ isWeaklyGVD = method(
         )
 isWeaklyGVD(Ideal) := opts -> I -> (
         R := ring I;
-        printIf(opts.Verbose, toString I);
+        printIf(opts.Verbose, "I = " | toString I);
 
         if I == 0 then (printIf(opts.Verbose, "-- zero ideal"); return true);
         if I == 1 then (printIf(opts.Verbose, "-- unit ideal"); return true);
