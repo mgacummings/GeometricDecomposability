@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposabilityExperimental",
         Version => "1.4",
-        Date => "September 19, 2023",
+        Date => "October 17, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -18,24 +18,23 @@ newPackage(
                 }
                 },
         Keywords => {"Commutative Algebra"},
-        PackageImports => {"Depth", "PrimaryDecomposition"},
-        DebuggingMode => true  -- remove this later
+        PackageImports => {"Depth", "PrimaryDecomposition"}
         )
 
 export {
         -- methods
-        "CyI",
         "findLexCompatiblyGVDOrders",
         "findOneStepGVD",
         "getGVDIdeal",
+        "initialYForms",
         "isGeneratedByIndeterminates",
         "isGVD",
         "isLexCompatiblyGVD",
         "isUnmixed",
         "isWeaklyGVD",
-        "NyI",
         "oneStepGVD",
-        "yInit",
+        "oneStepGVDCyI",
+        "oneStepGVDNyI",
 
         -- options
         "AllowSub",
@@ -57,17 +56,6 @@ export {
 --
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------
-
-CyI = method(
-        TypicalValue => Ideal, 
-        Options => {
-                CheckUnmixed => true,
-                UniversalGB => false
-                }
-        )
-CyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB))_1;
 
 --------------------------------------------------------------------------------
 
@@ -158,11 +146,44 @@ getGVDIdeal = method(
         )
 getGVDIdeal(Ideal, List) := opts -> (I, L) -> (
         CNs := new HashTable from {
-                "C" => CyI,
-                "N" => NyI
+                "C" => oneStepGVDCyI,
+                "N" => oneStepGVDNyI
                 };
         return accumulate( (i, j) -> CNs#(j_0)(i, j_1, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB) , prepend(I, L) );  -- last entry is the desired ideal
         )
+
+
+--------------------------------------------------------------------------------
+
+-- [KMY, Section 2.1]
+initialYForms = method(
+        TypicalValue => Ideal,
+        Options => {UniversalGB => false}
+        )
+initialYForms(Ideal, RingElement) := opts -> (I, y) -> (
+        givenRing := ring I;
+
+        -- set up the ring
+        indeterminates := switch(0, index y, gens ring y);
+        cr := coefficientRing ring I;
+
+        initYFormRing := (cr) monoid([indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}]);
+
+        -- get the ideal of initial y-forms using the product order
+        I = sub(I, initYFormRing);
+        y = sub(y, initYFormRing);
+
+        -- compute in_y(I) manually if we have a UGB using [KMY, Theorem 2.1(a)]
+        if opts.UniversalGB then (
+                listOfInitYForms := apply(I_*, f -> leadTerm(1, f));
+                return sub(ideal listOfInitYForms, givenRing);
+                );
+
+        -- if we don't have a universal Gröbner bais
+        inyFormIdeal := ideal leadTerm(1,I);
+        return sub(inyFormIdeal, givenRing);
+        )
+
 
 --------------------------------------------------------------------------------
 
@@ -390,8 +411,15 @@ isUnmixed = method(TypicalValue => Boolean)
 isUnmixed(Ideal) := I -> (
         R := ring I;
         D := primaryDecomposition I;
-        d := apply(D, i -> dim(R/i));
-        return all(apply(d, i -> (i == d_0)), i -> i);  -- list contains only true values
+        
+        if #D <= 1 then return true;
+
+        commonDim := dim(R/(D_0));
+        remainingPrimes := drop(D, 1);
+        for P in remainingPrimes do (
+                if dim(P) != commonDim then return false;
+        );
+        return true;
         )
 
 --------------------------------------------------------------------------------
@@ -400,6 +428,7 @@ isUnmixed(Ideal) := I -> (
 isWeaklyGVD = method(
         TypicalValue => Boolean, 
         Options => {
+                AllowSub => false,
                 CheckUnmixed => true, 
                 IsIdealUnmixed => false,
                 UniversalGB => false,
@@ -430,7 +459,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 printIf(opts.Verbose, "-- decomposing with respect to " | toString y);
 
-                oneStep := oneStepGVD(I, y, CheckDegenerate=>true, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
+                oneStep := oneStepGVD(I, y, AllowSub=>opts.AllowSub, CheckDegenerate=>true, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose);
                 isValid := oneStep_0;
                 if not isValid then continue;  -- go back to top of for loop
 
@@ -444,7 +473,7 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                 if isDegenerate then (
                         -- degenerate case
-                        if isWeaklyGVD(N, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose) then return true else continue;
+                        if isWeaklyGVD(N, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose) then return true else continue;
 
                         ) else (
                         -- nondegenerate case
@@ -453,24 +482,13 @@ isWeaklyGVD(Ideal) := opts -> I -> (
 
                         if not (NisRadical and NisCM) then continue;
                         -- otherwise, we need only check that C is weakly GVD
-                        if isWeaklyGVD(C, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose) then return true else continue;
+                        if isWeaklyGVD(C, AllowSub=>opts.AllowSub, CheckUnmixed=>opts.CheckUnmixed, IsIdealUnmixed=>true, UniversalGB=>opts.UniversalGB, Verbose=>opts.Verbose) then return true else continue;
                         )
                 );
 
         -- if we are here, no choice of y worked
         return false;
         )
-
---------------------------------------------------------------------------------
-
-NyI = method(
-        TypicalValue => Ideal, 
-        Options => {
-                CheckUnmixed => true,
-                UniversalGB => false
-                }
-        )
-NyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB))_2;
 
 --------------------------------------------------------------------------------
 
@@ -507,12 +525,11 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
                 );
 
         -- get N_{y,I}
-        gensN := delete(0, apply(G, g -> isInN(g, z)));
-        NyI := ideal(gensN);
+        NyI := ideal select(G, g -> degree(z, g) == 0);
 
         -- get C_{y, I}
-        gensC := delete(true, flatten(apply(G, g -> isInC(g, z))));
-        CyI := ideal(delete(false, gensC));
+        gensC := apply(G, g -> isInC(g, z));
+        CyI := ideal (gensC / last);
 
         -- sub C and N into original ring
         -- by [CDSRVT, Theorem 2.9] variables in ring not appearing in the ideal do not matter 
@@ -540,34 +557,25 @@ oneStepGVD(Ideal, RingElement) := opts -> (I, y) -> (
 
 --------------------------------------------------------------------------------
 
--- [KMY, Section 2.1]
-yInit = method(
-        TypicalValue => Ideal,
-        Options => {UniversalGB => false}
+oneStepGVDCyI = method(
+        TypicalValue => Ideal, 
+        Options => {
+                CheckUnmixed => true,
+                UniversalGB => false
+                }
         )
-yInit(Ideal, RingElement) := opts -> (I, y) -> (
-        givenRing := ring I;
+oneStepGVDCyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB))_1;
 
-        -- set up the ring
-        indeterminates := switch(0, index y, gens ring y);
-        cr := coefficientRing ring I;
+--------------------------------------------------------------------------------
 
-        initYFormRing := (cr) monoid([indeterminates, MonomialOrder=>ProductOrder{1, #indeterminates - 1}]);
-
-        -- get the ideal of initial y-forms using the product order
-        I = sub(I, initYFormRing);
-        y = sub(y, initYFormRing);
-
-        -- compute in_y(I) manually if we have a UGB using [KMY, Theorem 2.1(a)]
-        if opts.UniversalGB then (
-                listOfInitYForms := apply(I_*, f -> leadTerm(1, f));
-                return sub(ideal listOfInitYForms, givenRing);
-                );
-
-        -- if we don't have a universal Gröbner bais
-        inyFormIdeal := ideal leadTerm(1,I);
-        return sub(inyFormIdeal, givenRing);
+oneStepGVDNyI = method(
+        TypicalValue => Ideal, 
+        Options => {
+                CheckUnmixed => true,
+                UniversalGB => false
+                }
         )
+oneStepGVDNyI(Ideal, RingElement) := opts -> (I, y) -> (oneStepGVD(I, y, CheckUnmixed=>opts.CheckUnmixed, UniversalGB=>opts.UniversalGB))_2;
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -626,16 +634,9 @@ isIdealSquarefreeInY(Ideal, RingElement) := (I, y) -> (
 isInC = method(TypicalValue => List)
 isInC(RingElement, RingElement) := (f, y) -> (
         -- f is a polynomial, y an indeterminate
-        if degree(y, f) == 0 then return {true, f};
-        if degree(y, f) == 1 then return {true, getQ(f, y)};
-        return {false, getQ(f, y)};
-        )
-
-
-isInN = method()
-isInN(RingElement, RingElement) := (f, y) -> (
-        -- f is a polynomial, y an indeterminate
-        if degree(y, f) == 0 then return f else return 0;  -- 0 is a temp value which we remove immediately
+        if degree(y, f) == 0 then return (true, f);
+        if degree(y, f) == 1 then return (true, getQ(f, y));
+        return (false, getQ(f, y));
         )
 
 
@@ -862,8 +863,9 @@ doc///
                                 appearing in the ideal increases.
 
                 Acknowledgement
-                        We thank Sergio Da Silva, Patricia Klein, Megumi Harada, and Jenna Rajchgot for feedback and 
-                        suggestions. 
+                        We thank Sergio Da Silva, Megumi Harada, Patricia Klein, and Jenna Rajchgot for feedback and suggestions. 
+                        Additionally, we thank the anonymous referees of the paper @arXiv "2211.02471"@ for their concrete 
+                        suggestions that significantly improved that manuscript and this package.
                         Cummings was partially supported by an NSERC USRA and CGS-M and the Milos Novotny Fellowship. 
                         Van Tuyl's research is partially supported by NSERC Discovery Grant 2019-05412.
 
@@ -871,11 +873,11 @@ doc///
 
                         [CDSRVT] Mike Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl.
                         Geometric vertex decomposition and liaison for toric ideals of
-                        graphs. To appear in Algebraic Combinatorics, preprint available at @arXiv "2207.06391"@ (2022).
+                        graphs. Algebr. Comb., 6(4):965--997, 2023.
 
                         [DSH] Sergio Da Silva and Megumi Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
                         splittings for regular nilpotent Hessenberg Varieties. 
-                        To appear in Transformation Groups, preprint available at @arXiv "2207.08573"@ (2022).
+                        Transform. Groups, 2023.
 
                         [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
                         decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
@@ -891,10 +893,10 @@ doc///
                         CheckCM
                         CheckDegenerate
                         CheckUnmixed
-                        CyI
                         findLexCompatiblyGVDOrders
                         findOneStepGVD
                         getGVDIdeal
+                        initialYForms
                         isGeneratedByIndeterminates
                         isGVD
                         IsIdealHomogeneous
@@ -902,82 +904,19 @@ doc///
                         isLexCompatiblyGVD
                         isUnmixed
                         isWeaklyGVD
-                        NyI
                         oneStepGVD
+                        oneStepGVDCyI
+                        oneStepGVDNyI
                         OnlyDegenerate
                         OnlyNondegenerate
                         SquarefreeOnly
                         UniversalGB
-                        yInit
 ///
 
 
 --******************************************************************************
 -- Documentation for functions
 --******************************************************************************
-
-
-doc///
-        Node
-                Key
-                        CyI
-                        (CyI, Ideal, RingElement)
-                Headline
-                        computes the ideal $C_{y,I}$ for a given ideal and indeterminate
-                Usage
-                        CyI(I, y)
-                Inputs
-                        I:Ideal
-                        y:RingElement
-                                an indeterminate in the ring
-                Outputs
-                        :Ideal
-
-                Caveat
-                        This method is a shortcut to extract the ideal $C_{y,I}$ as computed
-                        in @TO oneStepGVD@. That is, to compute $C_{y,I}$, {\tt oneStepGVD} is called in the background.
-                        As a result, work is also done in the background to compute $N_{y,I}$ at
-                        the same time, and as such, we encourage calling {\tt oneStepGVD}
-                        directly if we want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
-                        performing the same computation twice.
-
-	        Description
-	                Text
-			        Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.
-				Here, ${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
-				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
-
-                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
-                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
-                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $C_{y,I}$ is given by
-                                $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
-			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$.
-
-                                The ideal $C_{y,I}$ does not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
-				When computing $C_{y,I}$ we use a lexicographical ordering
-                        	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
-
-                                The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
-                                For more on edge ideals, see the EdgeIdeals package.
-
-                        Example
-                                R = QQ[a,b,c,d];
-                                I = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of the complete graph K_4, a chordal graph
-                                CyI(I, b)
-				L = oneStepGVD(I, b);
-			        L_1 == CyI(I, b) -- CyI is the second element in the list given by oneStepGVD
-    	    	References
-		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
-                SeeAlso
-                        CheckUnmixed
-                        getGVDIdeal
-                        NyI
-                        oneStepGVD
-                        UniversalGB
-///
 
 
 doc///
@@ -1154,8 +1093,54 @@ doc///
 
                 SeeAlso
                         CheckUnmixed
-                        CyI
-                        NyI
+                        oneStepGVD
+                        oneStepGVDCyI
+                        oneStepGVDNyI
+                        UniversalGB
+///
+
+
+doc///
+       Node
+                Key
+                        initialYForms
+                        (initialYForms, Ideal, RingElement)
+                Headline
+                        computes the ideal of initial y-forms
+                Usage
+                        initialYForms(I, y)
+                Inputs
+                        I:Ideal
+                        y:RingElement
+                                an indeterminate in the ring
+                Outputs
+                        :Ideal
+		Description
+			 Text
+                                Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
+			       	{\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
+			       	${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
+			       	but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
+			       	We set ${\rm in}_y(I) = \langle {\rm in}_y(f) ~|~ f \in I \rangle$ to be the ideal generated by all the initial $y$-forms in $I$
+
+			        This routine computes the ideal of initial $y$-forms ${\rm in}_y(I)$.
+
+                                For more on the definition of initial $y$-forms or their corresponding ideals, see [KMY, Section 2.1]. The following example is
+                                [KR, Example 2.16].
+
+                        Example
+                                R = QQ[x,y,z,w,r,s]
+                                I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
+                                initialYForms(I, y)
+
+
+		References
+                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
+                        decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
+
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+		SeeAlso
                         oneStepGVD
                         UniversalGB
 ///
@@ -1446,6 +1431,7 @@ doc///
                         liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
+                        AllowSub
                         CheckUnmixed
                         isGeneratedByIndeterminates
                         isGVD
@@ -1455,70 +1441,6 @@ doc///
                         oneStepGVD
                         UniversalGB
                         Verbose
-///
-
-
-doc///
-        Node
-                Key
-                        NyI
-                        (NyI, Ideal, RingElement)
-                Headline
-                        computes the ideal $N_{y,I}$ for a given ideal and indeterminate
-                Usage
-                        NyI(I, y)
-                Inputs
-                        I:Ideal
-                        y:RingElement
-                                an indeterminate in the ring
-                Outputs
-                        :Ideal
-
-                Caveat
-                        This method is a shortcut to extract the ideal $N_{y,I}$ as computed
-                        in @TO oneStepGVD@. That is, to compute $N_{y,I}$, {\tt oneStepGVD} is called in the background.
-                        As a result, work is also done in the background to compute $C_{y,I}$ at
-                        the same time, and as such, we encourage calling {\tt oneStepGVD}
-                        directly if we want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
-                        performing the same computation twice.
-                Description
-                        Text
-                                Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.
-				Here,
-				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
-				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
-
-                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
-                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
-                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $N_{y,I}$ is given by
-                                $$N_{y,I} = \langle q_i ~|~ d_i = 0\rangle$$
-                                This functions  takes an ideal $I$ and variable $y$, and returns $N_{y,I}$
-
-                                The ideal $N_{y,I}$ does not depend upon the choice of the Gröbner basis or
-                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
-				When computing $N_{y,I}$ we use a lexicographical ordering
-                        	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
-
-                                The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
-                                For more on edge ideals, see the EdgeIdeals package.
-
-                        Example
-                                R = QQ[a,b,c,d];
-                                I = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of a complete graph K_4, a chordal graph
-                                NyI(I, b)
-                                L = oneStepGVD(I, b);
-                                L_2 == NyI(I, b) -- NyI is the second element in the list given by oneStepGVD
-		References
-		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
-
-		SeeAlso
-                        CheckUnmixed
-                        CyI
-                        getGVDIdeal
-                        oneStepGVD
-                        UniversalGB
 ///
 
 
@@ -1627,59 +1549,140 @@ doc///
                         AllowSub
                         CheckDegenerate
                         CheckUnmixed
-                        CyI
                         findOneStepGVD
                         getGVDIdeal
                         isGVD
                         isLexCompatiblyGVD
                         isWeaklyGVD
-                        NyI
+                        oneStepGVDCyI
+                        oneStepGVDNyI
                         UniversalGB
                         Verbose
 ///
 
 
 doc///
-       Node
+        Node
                 Key
-                        yInit
-                        (yInit, Ideal, RingElement)
+                        oneStepGVDCyI
+                        (oneStepGVDCyI, Ideal, RingElement)
                 Headline
-                        computes the ideal of initial y-forms
+                        computes the ideal $C_{y,I}$ for a given ideal and indeterminate
                 Usage
-                        yInit(I, y)
+                        oneStepGVDCyI(I, y)
                 Inputs
                         I:Ideal
                         y:RingElement
                                 an indeterminate in the ring
                 Outputs
                         :Ideal
-		Description
-			 Text
-                                Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
-			       	{\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.  Here,
-			       	${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
-			       	but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
-			       	We set ${\rm in}_y(I) = \langle {\rm in}_y(f) ~|~ f \in I \rangle$ to be the ideal generated by all the initial $y$-forms in $I$
 
-			        This routine computes the ideal of initial $y$-forms ${\rm in}_y(I)$.
+                Caveat
+                        This method is a shortcut to extract the ideal $C_{y,I}$ as computed
+                        in @TO oneStepGVD@. That is, to compute $C_{y,I}$, {\tt oneStepGVD} is called in the background.
+                        As a result, work is also done in the background to compute $N_{y,I}$ at
+                        the same time, and as such, we encourage calling {\tt oneStepGVD}
+                        directly if we want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
+                        performing the same computation twice.
 
-                                For more on the definition of initial $y$-forms or their corresponding ideals, see [KMY, Section 2.1]. The following example is
-                                [KR, Example 2.16].
+	        Description
+	                Text
+			        Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.
+				Here, ${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
+				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
+
+                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
+                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
+                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $C_{y,I}$ is given by
+                                $$C_{y,I} = \langle q_1,\ldots,q_m\rangle$$
+			        This functions  takes an ideal $I$ and variable $y$, and returns $C_{y,I}$.
+
+                                The ideal $C_{y,I}$ does not depend upon the choice of the Gröbner basis or
+                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
+				When computing $C_{y,I}$ we use a lexicographical ordering
+                        	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+
+                                The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
+                                For more on edge ideals, see the EdgeIdeals package.
 
                         Example
-                                R = QQ[x,y,z,w,r,s]
-                                I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2))
-                                yInit(I, y)
-
-
-		References
-                        [KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner geometry of vertex
-                        decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
-
-                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                                R = QQ[a,b,c,d];
+                                I = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of the complete graph K_4, a chordal graph
+                                oneStepGVDCyI(I, b)
+				L = oneStepGVD(I, b);
+			        L_1 == oneStepGVDCyI(I, b) -- CyI is the second element in the list given by oneStepGVD
+    	    	References
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
                         liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                SeeAlso
+                        CheckUnmixed
+                        getGVDIdeal
+                        oneStepGVD
+                        oneStepGVDNyI
+                        UniversalGB
+///
+
+
+doc///
+        Node
+                Key
+                        oneStepGVDNyI
+                        (oneStepGVDNyI, Ideal, RingElement)
+                Headline
+                        computes the ideal $N_{y,I}$ for a given ideal and indeterminate
+                Usage
+                        oneStepGVDNyI(I, y)
+                Inputs
+                        I:Ideal
+                        y:RingElement
+                                an indeterminate in the ring
+                Outputs
+                        :Ideal
+
+                Caveat
+                        This method is a shortcut to extract the ideal $N_{y,I}$ as computed
+                        in @TO oneStepGVD@. That is, to compute $N_{y,I}$, {\tt oneStepGVD} is called in the background.
+                        As a result, work is also done in the background to compute $C_{y,I}$ at
+                        the same time, and as such, we encourage calling {\tt oneStepGVD}
+                        directly if we want both the $C_{y,I}$ and $N_{y,I}$ ideals to avoid
+                        performing the same computation twice.
+                Description
+                        Text
+                                Let $y$ be a variable of the polynomial ring $R = k[x_1,\ldots,x_n]$. A monomial ordering $<$ on $R$ is said to be
+                                {\it $y$-compatible} if the initial term of $f$ satisfies ${\rm in}_<(f) = {\rm in}_<({\rm in}_y(f))$ for all $f \in R$.
+				Here,
+				${\rm in}_y(f)$ is the {\it initial $y$-form} of $f$, that is, if $f = \sum_i \alpha_iy^i$ and $\alpha_d \neq 0$
+				but $\alpha_t = 0$ for all $t >d$, then ${\rm in}_y(f) = \alpha_d y^d$.
+
+                                Given an ideal $I$ and a $y$-compatible monomial ordering $<$, let $G(I) = \{ g_1,\ldots,g_m\}$ be a Gröbner basis of $I$ with respect to this
+                                ordering.  For $i=1,\ldots,m$, write $g_i$ as $g_i = y^{d_i}q_i + r_i$, where $y$ does not divide any term of $q_i$;
+                                that is, ${\rm in}_y(g_i) = y^{d_i}q_i$.   Given this setup, the ideal $N_{y,I}$ is given by
+                                $$N_{y,I} = \langle q_i ~|~ d_i = 0\rangle$$
+                                This functions  takes an ideal $I$ and variable $y$, and returns $N_{y,I}$
+
+                                The ideal $N_{y,I}$ does not depend upon the choice of the Gröbner basis or
+                        	a particular $y$-compatible order (see comment after [KR, Definition 2.3]).
+				When computing $N_{y,I}$ we use a lexicographical ordering
+                        	on $R$ where $y > x_j$ for all $i \neq j$ if $y = x_i$ since this gives us a $y$-compatible order.
+
+                                The ideal $I$ in the example below is the edge ideal of the complete graph $K_4$.
+                                For more on edge ideals, see the EdgeIdeals package.
+
+                        Example
+                                R = QQ[a,b,c,d];
+                                I = ideal(a*b, a*c, a*d, b*c, b*d, c*d); -- edge ideal of a complete graph K_4, a chordal graph
+                                oneStepGVDNyI(I, b)
+                                L = oneStepGVD(I, b);
+                                L_2 == oneStepGVDNyI(I, b) -- NyI is the second element in the list given by oneStepGVD
+		References
+		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+
 		SeeAlso
+                        CheckUnmixed
+                        getGVDIdeal
+                        oneStepGVDCyI
                         oneStepGVD
                         UniversalGB
 ///
@@ -1690,20 +1693,20 @@ doc///
 --******************************************************************************
 
 
--- add description
 doc///
         Node
                 Key
                         AllowSub
                         [findOneStepGVD, AllowSub]
                         [isGVD, AllowSub]
+                        [isWeaklyGVD, AllowSub]
                         [oneStepGVD, AllowSub]
                 Headline
                         allows for geometric vertex decompositions up to subsitution
                 Description
                         Text
-                                An optional input, to be implemented for @TO isGVD@, @TO oneStepGVD@, and @TO findOneStepGVD@, default value 
-                                {\tt false}. 
+                                An optional input, to be implemented for @TO isGVD@, @TO isWeaklyGVD@, @TO oneStepGVD@, and @TO findOneStepGVD@.
+                                Its default value is {\tt false}. 
                                 The following is a generalization of the definition given in @TO oneStepGVD@.
 
                                 Let $R = k[x_1, \ldots, x_n]$, $I \subseteq R$ an ideal, and $y = x_j$ an indeterminate. 
@@ -1716,7 +1719,7 @@ doc///
                                 We say that $I$ has a {\em geometric vertex decomposition with respect to $y$ allowing substitution} if
                                 $${\rm in}_y(I) = C_{y,I} \cap ( N_{y,I} + \langle y^d \rangle )$$ for some integer $d > 0$.
 
-                                This is equivalent to require that $d_i = d$ for all $i$.
+                                This is equivalent to require that $d_i$ is either $0$ or $d$ for all $i$.
                                 It is also equivalent to the usual definition @TO oneStepGVD@ after subsituting $y$ for each
                                 occurrence of $y^d$ in the reduced Gröbner basis, hence the name.
 
@@ -1737,16 +1740,30 @@ doc///
                                 after substitution, and the contractions of the ideals $C_{y,I}$ and $N_{y,I}$ to the ring 
                                 $k[x_1, \ldots, \hat x_j, \ldots, x_n]$ are geometrically vertex decomposable allowing substitution.
 
-                                We make the convention that the unit and zero ideals in the ring $k$ are geometrically vertex decomposable
-                                allowing substitution.
+                                We maintain the convention from @TO isGVD@ that the unit and zero ideals in the ring $k$ are geometrically 
+                                vertex decomposable allowing substitution.
 
                         Example
                                 isGVD I
                                 isGVD(I, AllowSub=>true)
+
+                        Text
+                                The modification for @TO isWeaklyGVD@ allowing substition is completely analogous.
+
+                        Text
+                                Klein and Rajchgot observed that each geometric vertex decomposition of an unmixed, saturated, and homogeneous ideal
+                                gives rise to a $G$-biliaison of height 1, and vice versa [KR, Corollary 4.3 and Theorem 6.1].
+                                Analogously, a geometric vertex decomposition allowing substitution also gives rise to $G$-biliaison of height 
+                                {\em at least} 1.
+                        
+                References
+                                [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                                liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
                                 
                 SeeAlso
                         findOneStepGVD
                         isGVD
+                        isWeaklyGVD
                         oneStepGVD
 ///
 
@@ -1843,15 +1860,15 @@ doc///
         Node
                 Key
                         CheckUnmixed
-                        [CyI, CheckUnmixed]
                         [findLexCompatiblyGVDOrders, CheckUnmixed]
                         [findOneStepGVD, CheckUnmixed]
                         [getGVDIdeal, CheckUnmixed]
                         [isGVD, CheckUnmixed]
                         [isLexCompatiblyGVD, CheckUnmixed]
                         [isWeaklyGVD, CheckUnmixed]
-                        [NyI, CheckUnmixed]
                         [oneStepGVD, CheckUnmixed]
+                        [oneStepGVDCyI, CheckUnmixed]
+                        [oneStepGVDNyI, CheckUnmixed]
                 Headline
                         check whether ideals encountered are unmixed
                 Description
@@ -1889,7 +1906,6 @@ doc///
                         Matroidal Ideals. Arch. Math. 114 (2020) 299–304.
 
                 SeeAlso
-                        CyI
                         findLexCompatiblyGVDOrders
                         findOneStepGVD
                         getGVDIdeal
@@ -1898,8 +1914,9 @@ doc///
                         isLexCompatiblyGVD
                         isUnmixed
                         isWeaklyGVD
-                        NyI
                         oneStepGVD
+                        oneStepGVDCyI
+                        oneStepGVDNyI
 ///
 
 
@@ -2028,15 +2045,15 @@ doc///
         Node
                 Key
                         UniversalGB
-                        [CyI, UniversalGB]
                         [findOneStepGVD, UniversalGB]
                         [getGVDIdeal, UniversalGB]
                         [isGVD, UniversalGB]
                         [isLexCompatiblyGVD, UniversalGB]
                         [isWeaklyGVD, UniversalGB]
-                        [NyI, UniversalGB]
                         [oneStepGVD, UniversalGB]
-                        [yInit, UniversalGB]
+                        [oneStepGVDCyI, UniversalGB]
+                        [oneStepGVDNyI, UniversalGB]
+                        [initialYForms, UniversalGB]
                 Headline
                         if the generators for an ideal form a universal Gröbner basis
                 Description
@@ -2055,15 +2072,15 @@ doc///
                                 Gröbner bases for $C_{y,I}$ and $N_{y,I}$ in $k[x_1, \ldots, \hat y, \ldots, x_n]$, 
                                 respectively.
                 SeeAlso
-                        CyI
+                        oneStepGVDCyI
                         findOneStepGVD
                         getGVDIdeal
+                        initialYForms
                         isGVD
                         isLexCompatiblyGVD
                         isWeaklyGVD
-                        NyI
+                        oneStepGVDNyI
                         oneStepGVD
-                        yInit
 ///
 
 
@@ -2074,26 +2091,6 @@ doc///
 --
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------
--- Test CyI
---------------------------------------------------------------------------------
-
-
-TEST///  -- [KR, Example 2.16]
-R = QQ[x..z,w,r,s];
-I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-C = CyI(I,y);
-assert( C == sub(ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ring C) )
-///
-
-
-TEST///  -- [KR, Example 4.10]
-R = QQ[x..z,w,r,s];
-I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
-C = CyI(I, y);
-assert( C == sub(ideal(z*s-x^2, w*r), ring C) )
-///
 
 
 --------------------------------------------------------------------------------
@@ -2143,6 +2140,18 @@ TEST///
 R = QQ[x,y,z,w,r,s]
 I = ideal(y*(z*s - x^2), y*w*r, w*r*(z^2+z*x+w*r+s^2))
 assert(apply(getGVDIdeal(I, {{"C", y}, {"N", s}}), i -> sub(i, R)) == {ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(w*r)})
+///
+
+
+--------------------------------------------------------------------------------
+-- Test initialYForms
+--------------------------------------------------------------------------------
+
+
+TEST///  -- [KR, Example 2.16]
+R = QQ[x..z,w,r,s];
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
+assert( initialYForms(I, y) == ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,y*w*r,y*x^2-y*z*s) )
 ///
 
 
@@ -2305,25 +2314,6 @@ assert(isWeaklyGVD I)
 
 
 --------------------------------------------------------------------------------
--- Test NyI
---------------------------------------------------------------------------------
-
-
-TEST///  -- [KR, Example 2.16]
-R = QQ[x..z,w,r,s];
-I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( sub(NyI(I, y), R) == ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2) )
-///
-
-
-TEST///  -- [KR, Example 4.10]
-R = QQ[x..z,w,r,s];
-I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
-assert( sub(NyI(I, y), R) == ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2) )
-///
-
-
---------------------------------------------------------------------------------
 -- Test oneStepGVD
 --------------------------------------------------------------------------------
 
@@ -2335,16 +2325,43 @@ assert( toSequence apply(toList(oneStepGVD(I, y, CheckDegenerate=>true)), i -> i
 == (true, ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2), "nondegenerate") )
 ///
 
-
 --------------------------------------------------------------------------------
--- Test yInit
+-- Test oneStepGVDCyI
 --------------------------------------------------------------------------------
 
 
 TEST///  -- [KR, Example 2.16]
 R = QQ[x..z,w,r,s];
 I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
-assert( yInit(I, y) == ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,y*w*r,y*x^2-y*z*s) )
+C = oneStepGVDCyI(I,y);
+assert( C == sub(ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2,w*r,x^2-z*s), ring C) )
+///
+
+
+TEST///  -- [KR, Example 4.10]
+R = QQ[x..z,w,r,s];
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
+C = oneStepGVDCyI(I, y);
+assert( C == sub(ideal(z*s-x^2, w*r), ring C) )
+///
+
+
+--------------------------------------------------------------------------------
+-- Test oneStepGVDNyI
+--------------------------------------------------------------------------------
+
+
+TEST///  -- [KR, Example 2.16]
+R = QQ[x..z,w,r,s];
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(z^2 + z*x + w*r + s^2) );
+assert( sub(oneStepGVDNyI(I, y), R) == ideal(x*z*w*r+z^2*w*r+w^2*r^2+w*r*s^2) )
+///
+
+
+TEST///  -- [KR, Example 4.10]
+R = QQ[x..z,w,r,s];
+I = ideal( y*(z*s - x^2), y*w*r, w*r*(x^2 + s^2 + z^2 + w*r) );
+assert( sub(oneStepGVDNyI(I, y), R) == ideal(x^2*w*r+w*r*s^2+z^2*w*r+w^2*r^2) )
 ///
 
 
