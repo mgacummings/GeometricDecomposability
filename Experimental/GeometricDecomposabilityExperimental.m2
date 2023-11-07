@@ -1,7 +1,7 @@
 -- -*- coding: utf-8 -*-
 
 newPackage(
-        "GeometricDecomposabilityExperimental",
+        "GeometricDecomposability",
         Version => "1.4",
         Date => "November 7, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
@@ -831,7 +831,7 @@ beginDocumentation()
 doc///
         Node
                 Key
-                        GeometricDecomposabilityExperimental
+                        GeometricDecomposability
 
                 Headline
                         a package to check whether ideals are geometrically vertex decomposable
