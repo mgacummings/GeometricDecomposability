@@ -5,18 +5,14 @@ For further information, see: [The GeometricDecomposability package for Macaulay
 
 ## Installation
 
-Using version 1.21 or higher of _Macaulay2_, run the command `loadPackage "GeometricDecomposability"`.
+Using version 1.21 or higher of _Macaulay2_, run the command `loadPackage "GeometricDecomposability"`. 
+We recommend using the most recent version of _Macaulay2_.
 The warning message that appeared upon loading the package in _Macaulay2_ version 1.21 (which, in most cases, can be safely ignored) has been fixed in version 1.22 of _Maculay2_.
 
 Alternatively, this package can be installed to _Macaulay2_ by copying the file `GeoetricDecomposability.m2` to your working directory from which you launch _Macaulay2_. 
 Then in M2, run the command `installPackage "GeometricDecomposability"` and use the package as you would any other. 
 
 After the package is loaded, you can read the documentation by running `viewHelp GeometricDecomposability`, which will open the documentation in your web browser.
-
-## Development
-
-The first author and Sergio Da Silva are preparing a new version of the package, which aims to speed up computation time and add functionality for geometric vertex decomposition allowing substitutions.
-Our work in progress can be found in the `Experimental`  folder, which users can run---at their own risk---using `installPackage GeometricDecomposabilityExperimental`.
 
 ## Background
 
@@ -37,6 +33,6 @@ Van Tuyl's research is partially supported by NSERC Discovery Grant 2019-05412.
 
 ## References
 
-[KMY] A. Knutson, E. Miller, and A. Yong. Gröbner Geometry of Vertex Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
+[KMY] Allen Knutson, Ezra Miller, and Alexander Yong. Gröbner Geometry of Vertex Decompositions and of Flagged Tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
-[KR] P. Klein and J. Rajchgot. Geometric Vertex Decomposition and Liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+[KR] Patricia Klein and Jenna Rajchgot. Geometric Vertex Decomposition and Liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
