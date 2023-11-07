@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposabilityExperimental",
         Version => "1.4",
-        Date => "October 17, 2023",
+        Date => "November 7, 2023",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -115,11 +115,11 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 -- first get the indets with respect to which the ideal is "clearly" squarefree 
                 -- the variables y such that y^2 does not divide any term of any generator of I
                 gensTerms := flatten apply(I_*, terms);
-                isSquarefreeIndet := y -> ( 
+                isSquarefreeIndet := (termsList, y) -> ( 
                         L := apply(gensTerms, m -> degree(y, m));
                         return max L <= 1 or (opts.AllowSub and #(delete(0, L)) <= 1) 
                         );
-                return select(indets, isSquarefreeIndet);
+                return select(indets, z -> isSquarefreeIndet(gensTerms, z));
                 );
 
         -- in this case, we compute a Gröbner basis for each indeterminate in support I
@@ -864,9 +864,9 @@ doc///
 
                 Acknowledgement
                         We thank Sergio Da Silva, Megumi Harada, Patricia Klein, and Jenna Rajchgot for feedback and suggestions. 
-                        Additionally, we thank the anonymous referees of the paper @arXiv "2211.02471"@ for their concrete 
+                        Additionally, we thank the anonymous referees of the paper [CVT] for their concrete 
                         suggestions that significantly improved that manuscript and this package.
-                        Cummings was partially supported by an NSERC USRA and CGS-M and the Milos Novotny Fellowship. 
+                        Cummings was partially supported by an NSERC USRA and CGS-M and a Milos Novotny Fellowship. 
                         Van Tuyl's research is partially supported by NSERC Discovery Grant 2019-05412.
 
                 References
@@ -874,6 +874,10 @@ doc///
                         [CDSRVT] Mike Cummings, Sergio Da Silva, Jenna Rajchgot, and Adam Van Tuyl.
                         Geometric vertex decomposition and liaison for toric ideals of
                         graphs. Algebr. Comb., 6(4):965--997, 2023.
+
+                        [CVT] Mike Cummings and Adam Van Tuyl.
+                        The GeometricDecomposability package for Macaulay2.
+                        Preprint, available at @arXiv "2211.02471"@, 2022.
 
                         [DSH] Sergio Da Silva and Megumi Harada. Geometric vertex decomposition, Gröbner bases, and Frobenius 
                         splittings for regular nilpotent Hessenberg Varieties. 
@@ -883,7 +887,7 @@ doc///
                         decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
                         [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                         [SM] Hero Saremi and Amir Mafi. Unmixedness and arithmetic properties of
                         matroidal ideals. Arch. Math. 114 (2020) 299–304.
@@ -932,7 +936,8 @@ doc///
                         I:Ideal
                 Outputs
                         :List
-                                if no order exists, returns {}, otherwise returns {\tt L}, a list containing all the lexicographical orders which work
+                                list containing all the lexicographical orders $<$ with respect to which 
+                                {\tt I} is $<$-compatibly geometrically vertex decomposable
 
                 Description
 
@@ -969,7 +974,7 @@ doc///
 
 		References
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CheckUnmixed
@@ -1007,11 +1012,6 @@ doc///
                                 with respect to a $z$-compatible monomial order, and repeat the squarefree-check for the entries of this
                                 Gröbner basis.
 
-                                This is quicker than running @TO oneStepGVD@; in this case, we need only check the degrees of the terms 
-                                appearing in the Gröbner basis, while @TO oneStepGVD@ will need to compute the same Gröbner basis and check 
-                                for equality of ideals ${\rm in}_y(I) = C_{y, I} \cap (N_{y, I} + \langle y \rangle)$, which requires further 
-                                Gröbner basis computations.
-
                                 If {\tt AllowSub=>true}, then the second part of this procedure is slightly different: we have a one-step
                                 geometric vertex decomposition with respect to $y$ allowing substitutions if and only if there exists some 
                                 integer $d$ such that $y$ appears in the reduced Gröbner basis (computed with respect to any $y$-compatible 
@@ -1036,7 +1036,7 @@ doc///
 
                 References
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         AllowSub
@@ -1089,7 +1089,7 @@ doc///
                                 getGVDIdeal(I, {{"C", y}, {"N", s}})
                 References
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         CheckUnmixed
@@ -1139,7 +1139,7 @@ doc///
                         decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
                         [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 		SeeAlso
                         oneStepGVD
                         UniversalGB
@@ -1274,7 +1274,7 @@ doc///
                         decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         AllowSub
@@ -1331,7 +1331,7 @@ doc///
 				isLexCompatiblyGVD(I, {s,x,w,y,r,z}, Verbose=>true)
                 References
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
 
                 SeeAlso
@@ -1364,7 +1364,7 @@ doc///
                         :Boolean
                 Description
 		        Text
-			        A function that checks whether an ideal $I \subseteq R$ is unmixed, i.e., the ideal $I$
+			        A function that checks whether an ideal $I \subseteq R$ is unmixed, that is, whether the ideal $I$
                                 satisfies $\dim(R/I) = \dim(R/P)$ for all associated primes $P \in {\rm Ass}_R(R/I)$.
 
 			        The following example uses  [SM, Example 1.6].
@@ -1402,7 +1402,7 @@ doc///
 		        Text
 			        This function tests whether an ideal $I \subseteq k[x_1,\ldots,x_n]$ is weakly geometrically vertex decomposable [KR, Definition 4.6].
 
-				See @TO isGVD@ for the definition of the ideals $C_{y,I}$ and $N_{y,I}$ used below. Furthermore, we say that a geometric
+				See @TO isGVD@ for the definition of the ideals $C_{y,I}$ and $N_{y,I}$ used below. We say that a geometric
 				vertex decomposition is {\it degenerate} if $C_{y,I} = \langle 1 \rangle$ or if $\sqrt{C_{y,I}} = \sqrt{N_{y,I}}$.
                                 The geometric vertex decomposition is {\it nondegenerate} otherwise.
 
@@ -1428,7 +1428,7 @@ doc///
 
                 References
         	        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         AllowSub
@@ -1544,7 +1544,7 @@ doc///
                         decompositions and of flagged tableaux. J. Reine Angew. Math. 630 (2009) 1–31.
 
                         [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 		SeeAlso
                         AllowSub
                         CheckDegenerate
@@ -1614,7 +1614,7 @@ doc///
 			        L_1 == oneStepGVDCyI(I, b) -- CyI is the second element in the list given by oneStepGVD
     	    	References
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
                 SeeAlso
                         CheckUnmixed
                         getGVDIdeal
@@ -1677,7 +1677,7 @@ doc///
                                 L_2 == oneStepGVDNyI(I, b) -- NyI is the second element in the list given by oneStepGVD
 		References
 		        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
 		SeeAlso
                         CheckUnmixed
@@ -1705,22 +1705,22 @@ doc///
                         allows for geometric vertex decompositions up to subsitution
                 Description
                         Text
-                                An optional input, to be implemented for @TO isGVD@, @TO isWeaklyGVD@, @TO oneStepGVD@, and @TO findOneStepGVD@.
+                                An optional input for @TO isGVD@, @TO isWeaklyGVD@, @TO oneStepGVD@, and @TO findOneStepGVD@.
                                 Its default value is {\tt false}. 
                                 The following is a generalization of the definition given in @TO oneStepGVD@.
 
                                 Let $R = k[x_1, \ldots, x_n]$, $I \subseteq R$ an ideal, and $y = x_j$ an indeterminate. 
                                 Compute a Gröbner basis of $I$ with respect to any $y$-compatible monomial order $<$, and write the Gröbner 
                                 basis as $\{ y^{d_1}q_1 + r_1, \ldots, y^{d_m}q_m + r_m \}$ such that for all $i$, $y$ does not divide any 
-                                term of $q_i$ and $y^{d_i} \nmid r_i$. 
-                                That is, ${\rm in}_y(y^{d_i}q_i + r_i) = y^{d_i}q_i$ for all $i$.
+                                term of $q_i$ and $y^{d_i}$ does not divide any term of $r_i$. 
+                                This second condition is equivalent to ${\rm in}_y(y^{d_i}q_i + r_i) = y^{d_i}q_i$ for all $i$.
                                 Define ideals $$C_{y,I} = \langle q_i \mid i = 1, \ldots, m \rangle \quad {\rm and} \quad N_{y,I} = \langle
                                 q_i \mid d_i = 0 \rangle.$$
                                 We say that $I$ has a {\em geometric vertex decomposition with respect to $y$ allowing substitution} if
                                 $${\rm in}_y(I) = C_{y,I} \cap ( N_{y,I} + \langle y^d \rangle )$$ for some integer $d > 0$.
 
-                                This is equivalent to require that $d_i$ is either $0$ or $d$ for all $i$.
-                                It is also equivalent to the usual definition @TO oneStepGVD@ after subsituting $y$ for each
+                                This is equivalent to requiring that $d_i$ is either $0$ or $d$ for all $i$.
+                                It is also equivalent to the usual definition of @TO oneStepGVD@ after subsituting $y$ for each
                                 occurrence of $y^d$ in the reduced Gröbner basis, hence the name.
 
                         Example
@@ -1758,7 +1758,7 @@ doc///
                         
                 References
                                 [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                                liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                                liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
                                 
                 SeeAlso
                         findOneStepGVD
@@ -1807,7 +1807,7 @@ doc///
 
                 References
                         [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         isGVD
@@ -1848,7 +1848,7 @@ doc///
 
                 References
                         [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
-                        liaison. Forum of Math, Sigma, 9 (2021) e70:1-23.
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
 
                 SeeAlso
                         isWeaklyGVD
@@ -1937,6 +1937,13 @@ doc///
                                 an indeterminate $y$, which is to say that 
                                 ${\rm in}_y(I) = C_{y, I} \cap (N_{y, I} + \langle y \rangle)$,
                                 then both $C_{y, I}$ and $N_{y, I}$ are also homogeneous.
+                                Also, an ideal that is both homogeneous and geometrically vertex decomposable is 
+                                Cohen-Macaulay [KR, Corollary 4.5].
+
+                References
+                        [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
+                        liaison. Forum Math. Sigma, 9 (2021) e70:1-23.
+
                 SeeAlso
                         CheckCM
                         isGVD
@@ -1989,8 +1996,13 @@ doc///
                                 Set to {\tt true} to restrict the output of @TO findOneStepGVD@ to return only
                                 the indeterminates for which their geometric vertex decomposition is degenerate.
                                 Default value {\tt false}.
+                                Following the notation of @TO oneStepGVD@, a geometric vertex decomposition is {\bf degenerate}
+                                if either $\sqrt{C_{y, I}} = \sqrt{N_{y, I}}$ or if $C_{y, I} = \langle 1 \rangle$, and 
+                                is {\bf nondegenerate} otherwise.
+
                 SeeAlso
                         findOneStepGVD
+                        oneStepGVD
                         OnlyNondegenerate
 ///
 
@@ -2007,6 +2019,9 @@ doc///
                                 Set to {\tt true} to restrict the output of @TO findOneStepGVD@ to return only
                                 the indeterminates for which their geometric vertex decomposition is nondegenerate.
                                 Default value {\tt false}.
+                                Following the notation of @TO oneStepGVD@, a geometric vertex decomposition is {\bf degenerate}
+                                if either $\sqrt{C_{y, I}} = \sqrt{N_{y, I}}$ or if $C_{y, I} = \langle 1 \rangle$, and 
+                                is {\bf nondegenerate} otherwise.
                 SeeAlso
                         findOneStepGVD
                         OnlyDegenerate
@@ -2031,7 +2046,8 @@ doc///
                                 then we have a geometric vertex decomposition, and $y$ is appended to the list of 
                                 indeterminates.
                                 (If {\tt AllowSub=>true}, then $y$ may appear with degree greater than 1, but it can only
-                                appear in one common nonzero degree throughout all the generators.)
+                                appear in one common nonzero degree throughout all the elements of a corresponding 
+                                reduced Gröbner basis.)
 
                                 If {\tt SquarefreeOnly=>true}, then only the first half of the algorithm runs.
                                 This option is used by the @TO isGVD@ and @TO isWeaklyGVD@ functions to avoid 
@@ -2055,7 +2071,7 @@ doc///
                         [oneStepGVDNyI, UniversalGB]
                         [initialYForms, UniversalGB]
                 Headline
-                        if the generators for an ideal form a universal Gröbner basis
+                        whether the generators for an ideal form a universal Gröbner basis
                 Description
                         Text
                                 Let $I \subseteq R = k[x_1, \ldots, x_n]$ be an ideal.
@@ -2065,8 +2081,8 @@ doc///
 
                                 Set {\tt UniversalGB} to {\tt true} if it is known that the given generators for 
                                 your ideal form a universal Gröbner basis.
-                                In this case, we can avoid computing Gröbner bases.
-                                Importantly, geometric vertex decompositions preserve universal Gröbner basis, that is,
+                                In this case, we can avoid computing Gröbner bases as geometric vertex decompositions 
+                                preserve universal Gröbner basis. That is,
                                 if $\{ y^{d_i}q_i + r_i \mid i = 1, \ldots, s \}$ is a universal Gröbner basis for an 
                                 ideal $I$, then $\{ q_1, \ldots, q_s \}$ and $\{ q_i \mid d_i = 0 \}$ are universal 
                                 Gröbner bases for $C_{y,I}$ and $N_{y,I}$ in $k[x_1, \ldots, \hat y, \ldots, x_n]$, 
