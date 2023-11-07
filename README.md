@@ -3,6 +3,8 @@ A _Macaulay2_ package to check whether an ideal is geometrically vertex decompos
 
 For further information, see: [The GeometricDecomposability package for Macaulay2](https://arxiv.org/abs/2211.02471).
 
+We also maintain a [changelog](https://math.mcmaster.ca/~cummim5/GeometricDecomposability/changelog) that tracks changes by version.
+
 ## Installation
 
 Using version 1.21 or higher of _Macaulay2_, run the command `loadPackage "GeometricDecomposability"`. 
