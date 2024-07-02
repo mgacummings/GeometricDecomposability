@@ -3,7 +3,7 @@
 newPackage(
         "GeometricDecomposabilityExperimental",
         Version => "1.5",
-        Date => "June 17, 2024",
+        Date => "July 2, 2024",
         Headline => "A package to check whether ideals are geometrically vertex decomposable",
         Authors => {
                 {
@@ -132,7 +132,7 @@ findOneStepGVD(Ideal) := opts -> I -> (
                 gensTerms := flatten apply(I_*, terms);
                 isSquarefreeIndet := (termsList, y) -> ( 
                         L := apply(gensTerms, m -> degree(y, m));
-                        return max L <= 1 or (opts.AllowSub and #(delete(0, L) <= 1));
+                        return max L <= 1 or (opts.AllowSub and #(delete(0, L)) <= 1);
                         );
                 return select(indets, z -> isSquarefreeIndet(gensTerms, z));
                 );
@@ -657,7 +657,7 @@ isValidOneStep(List, RingElement, Boolean) := (G, y, allowingSub) -> (
         gbTerms := G / terms;
         yDegreesByTerm := apply(gbTerms, L -> apply(L, m -> degree(y, m)));
 
-        if not allowSub then (
+        if not allowingSub then (
                 yDegrees := unique flatten yDegreesByTerm;
                 yMaxDegree := max yDegrees;
                 return yMaxDegree <= 1;
@@ -671,9 +671,16 @@ isValidOneStep(List, RingElement, Boolean) := (G, y, allowingSub) -> (
 
 
 isValidOneStepFromUGB = method(TypicalValue => Boolean)
-isValidOneStepFromUGB(List, Ideal, Ideal, RingElement, Boolean) := (G, C, N, y, allowingSub) -> (
+isValidOneStepFromUGB := (G, C, N, y, allowingSub) -> (
         -- G is a UGB for the ideal I it generates; C = C_{y, I} and N_{y, I}
         -- the previous check may not work for UGBs because it requires the GB to be reduced
+        -- variable types listed below (M2 throws an error if these are included above)
+        -- -- G : List (Gröbner basis)
+        -- -- C : Ideal
+        -- -- N : Ideal 
+        -- -- y : RingElement
+        -- -- allowingSub : Boolean
+        -- -- assume all elements of G and C, N, y are all of the same ring
         currentRing := ring y;
         C1 := sub(C, currentRing);
         N1 := sub(N, currentRing);
@@ -1722,7 +1729,7 @@ doc///
                         [KR] Patricia Klein and Jenna Rajchgot. Geometric vertex decomposition and
                         liaison. Forum Math. Sigma 9 (2021) e70, 1–23.
                         
-                See Also
+                SeeAlso
                         findOneStepGVD
                         getGVDIdeal
                         isGVD
