@@ -671,16 +671,18 @@ isValidOneStep(List, RingElement, Boolean) := (G, y, allowingSub) -> (
 
 
 isValidOneStepFromUGB = method(TypicalValue => Boolean)
-isValidOneStepFromUGB := (G, C, N, y, allowingSub) -> (
+isValidOneStepFromUGB(List, Sequence, RingElement, Boolean) := (G, seq, y, allowingSub) -> (
         -- G is a UGB for the ideal I it generates; C = C_{y, I} and N_{y, I}
         -- the previous check may not work for UGBs because it requires the GB to be reduced
         -- variable types listed below (M2 throws an error if these are included above)
         -- -- G : List (Gröbner basis)
-        -- -- C : Ideal
-        -- -- N : Ideal 
+        -- -- seq: Sequence, seq = (C, N)
         -- -- y : RingElement
         -- -- allowingSub : Boolean
         -- -- assume all elements of G and C, N, y are all of the same ring
+
+        (C, N) := seq;
+
         currentRing := ring y;
         C1 := sub(C, currentRing);
         N1 := sub(N, currentRing);
