@@ -1,13 +1,16 @@
 # GeometricDecomposability
 A _Macaulay2_ package to check whether an ideal is geometrically vertex decomposable, developed by [Mike Cummings](https://www.math.mcmaster.ca/~cummim5/) and [Adam Van Tuyl](https://ms.mcmaster.ca/~vantuyl/).
 
+The version of the package here has been updated what is included in the most recent release of _Macaulay2_.
+It should be viewed as experimental; please let me know if you find any issues or bugs.
+
 For further information, see: [The GeometricDecomposability package for Macaulay2](https://arxiv.org/abs/2211.02471).
 
-We also maintain a [changelog](https://math.mcmaster.ca/~cummim5/GeometricDecomposability/changelog) that tracks changes by version.
+We also maintain a [changelog](https://mikecummings.ca/GeometricDecomposability/changelog) that tracks changes by version.
 
 ## Installation
 
-Using version 1.21 or higher of _Macaulay2_, run the command `loadPackage "GeometricDecomposability"`. 
+Using version 1.21 or higher of _Macaulay2_, run the command `needsPackage "GeometricDecomposability"`. 
 We recommend using the most recent version of _Macaulay2_.
 The warning message that appeared upon loading the package in _Macaulay2_ version 1.21 (which, in most cases, can be safely ignored) has been fixed in version 1.22 of _Maculay2_.
 
